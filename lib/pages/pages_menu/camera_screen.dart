@@ -1,84 +1,71 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'dart:io';
+import 'package:myapp/items/corner_camera_item.dart';
+import 'package:myapp/pages/home_screen.dart';
+import 'package:myapp/pages/pages_menu/instructions_screen.dart';
 
-class CameraScreen extends StatefulWidget {
-  @override
-  _CameraScreenState createState() => _CameraScreenState();
-}
-
-class _CameraScreenState extends State<CameraScreen> {
-  late CameraController _controller;
-  late Future<void> _initializeControllerFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeCamera();
-  }
-
-  Future<void> _initializeCamera() async {
-    final cameras = await availableCameras();
-    final firstCamera = cameras.first;
-
-    _controller = CameraController(
-      firstCamera,
-      ResolutionPreset.high,
-    );
-
-    _initializeControllerFuture = _controller.initialize();
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  Future<void> _takePicture(BuildContext context) async {
-    try {
-      await _initializeControllerFuture;
-
-      final image = await _controller.takePicture();
-
-      if (!mounted) return;
-
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => DisplayPictureScreen(imagePath: image.path),
-        ),
-      );
-    } catch (e) {
-      print(e);
-    }
-  }
-
+class CameraScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Lấy kích thước màn hình
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+    double iconSize = screenWidth * 0.1;
 
     // Tính toán padding và kích thước dựa trên kích thước màn hình
-
     return Scaffold(
-      backgroundColor: Color(0xFFA4FFB3),
+      backgroundColor: Colors.grey,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white, size: iconSize * 1),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              // Xử lý sự kiện cho icon 1
+            },
+            icon: Icon(Icons.flash_on, color: Colors.white, size: iconSize * 1),
+          ),
+          IconButton(
+            onPressed: () {
+              // Xử lý sự kiện cho icon 2
+            },
+            icon: Icon(Icons.camera_alt_outlined,
+                color: Colors.white, size: iconSize * 1),
+          ),
+        ],
+      ),
       body: Column(
         children: [
-          FutureBuilder<void>(
-            future: _initializeControllerFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                return CameraPreview(_controller);
-              } else {
-                return Center(child: CircularProgressIndicator());
-              }
-            },
+          SizedBox(height: screenHeight * 0.1),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Center(
+                child: Container(
+                  width: screenWidth * 0.8,
+                  height: screenHeight * 0.55,
+                  padding: EdgeInsets.symmetric(vertical: screenHeight * 0.1),
+                  // Padding giữa trên và dưới
+                  child: CustomPaint(
+                    painter: CornerDashedBorderPainterCamera(),
+                    child: Padding(
+                      padding: EdgeInsets.all(screenWidth * 0.02),
+                      // Điều chỉnh khoảng cách giữa hình ảnh và đường viền
+                      child: Image.asset(
+                        'assets/duahau.png',
+                        // Đường dẫn tới hình ảnh của quả dưa hấu
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
-          Spacer(),
           // Thêm footer là hình ảnh
           Container(
             width: double.infinity,
@@ -95,12 +82,16 @@ class _CameraScreenState extends State<CameraScreen> {
                   right: screenWidth * 0.7,
                   child: GestureDetector(
                     onTap: () {
-                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomeScreen()),
+                      );
                     },
-                    child: Image.asset(
-                      'assets/photo.png',
-                      width: screenWidth *
-                          0.15, // Kích thước icon dựa trên chiều rộng màn hình
+                    child: Icon(
+                      Icons.photo_library,
+                      size: screenWidth * 0.15,
+                      // Kích thước icon dựa trên chiều rộng màn hình
+                      color: Colors.white, // Màu của icon
                     ),
                   ),
                 ),
@@ -110,29 +101,34 @@ class _CameraScreenState extends State<CameraScreen> {
                   // Đặt vị trí ngang cho hình ảnh camera
                   child: GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => CameraScreen()));
+                      // Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //         builder: (context) => HomeScreen()));
                     },
-                    child: Image.asset(
-                      'assets/footer_camera.png',
-                      width: screenWidth *
-                          0.20, // Kích thước icon dựa trên chiều rộng màn hình
+                    child: Icon(
+                      Icons.radio_button_checked,
+                      size: screenWidth * 0.20,
+                      // Kích thước icon dựa trên chiều rộng màn hình
+                      color: Colors.white, // Màu của icon
                     ),
                   ),
                 ),
                 Positioned(
-                  bottom: screenHeight * 0.01,
+                  bottom: screenHeight * 0.015,
                   left: screenWidth * 0.7,
                   child: GestureDetector(
                     onTap: () {
-
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => InstructionsScreen()));
                     },
-                    child: Image.asset(
-                      'assets/instructions.png',
-                      width: screenWidth * 0.2,
+                    child: Icon(
+                      Icons.question_mark,
+                      size: screenWidth * 0.15,
                       // Kích thước icon dựa trên chiều rộng màn hình
+                      color: Colors.white, // Màu của icon
                     ),
                   ),
                 ),
@@ -144,19 +140,3 @@ class _CameraScreenState extends State<CameraScreen> {
     );
   }
 }
-
-class DisplayPictureScreen extends StatelessWidget {
-  final String imagePath;
-
-  const DisplayPictureScreen({Key? key, required this.imagePath}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Display the Picture')),
-      body: Image.file(File(imagePath)),
-    );
-  }
-}
-
-void main() => runApp(MaterialApp(home: CameraScreen()));
