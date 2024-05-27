@@ -62,7 +62,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     height: imageSize,
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: AssetImage('assets/avatar.png'),
+                        image: AssetImage('assets/duahau.png'),
                         fit: BoxFit.cover,
                       ),
                       borderRadius: BorderRadius.circular(imageSize * 0.5),
