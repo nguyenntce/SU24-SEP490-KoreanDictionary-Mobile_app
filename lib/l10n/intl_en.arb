@@ -1,0 +1,16 @@
+{
+  "@@locale": "en",
+  "language": "Language",
+  "hello": "Hello",
+  "vietnam": "Vietnam",
+  "english": "English",
+  "korean": "Korean",
+  "findSomeNewWord": "Find Some New Word",
+  "camera": "Camera",
+  "vocabulary": "Vocabulary",
+  "quiz": "Quiz",
+  "flashcard": "Flashcard",
+  "getStarted": "Get Started",
+  "popularWord": "PopularWord"
+
+}

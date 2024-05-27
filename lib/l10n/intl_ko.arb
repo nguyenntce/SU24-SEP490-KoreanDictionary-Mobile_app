@@ -1,0 +1,15 @@
+{
+  "@@locale": "ko",
+  "language": "언어",
+  "hello": "Hello",
+  "vietnam": "베트남",
+  "english": "영어",
+  "korean": "한국어",
+  "findSomeNewWord": "새로운 단어 찾기",
+  "camera": "카메라",
+  "vocabulary": "어휘",
+  "quiz": "퀴즈",
+  "flashcard": "플래시카드",
+  "getStarted": "시작하기",
+  "popularWord": "인기 단어"
+}

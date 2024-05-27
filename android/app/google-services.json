@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "939199094656",
+    "firebase_url": "https://su24-sep490-koreandictionary-default-rtdb.firebaseio.com",
+    "project_id": "su24-sep490-koreandictionary",
+    "storage_bucket": "su24-sep490-koreandictionary.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:939199094656:android:c93019d816484ce4e76b65",
+        "android_client_info": {
+          "package_name": "com.example.myapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "939199094656-t2qt3jm6h5ldrq7jr52a7ohbtjs7n55u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.myapp",
+            "certificate_hash": "8573d5b188dab4ab41db3a0274c5bf12eba3621d"
+          }
+        },
+        {
+          "client_id": "939199094656-u0c9id301hjbrlt0stc1eqi7a5fqeo71.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBdrbg0GAQ0DuRUHypw5Dpm46UvdVsFJY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "939199094656-u0c9id301hjbrlt0stc1eqi7a5fqeo71.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "939199094656-nub37qhpfatlerttf1pu5d0nvvk242qu.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.myapp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
