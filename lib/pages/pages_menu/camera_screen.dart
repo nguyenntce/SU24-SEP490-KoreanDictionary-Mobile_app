@@ -63,8 +63,6 @@ class _CameraScreenState extends State<CameraScreen> {
     double screenHeight = MediaQuery.of(context).size.height;
 
     // Tính toán padding và kích thước dựa trên kích thước màn hình
-    double horizontalPadding = screenWidth * 0.03; // 5% của chiều rộng màn hình
-    double verticalPadding = screenHeight * 0.02; // 2% của chiều cao màn hình
 
     return Scaffold(
       backgroundColor: Color(0xFFA4FFB3),

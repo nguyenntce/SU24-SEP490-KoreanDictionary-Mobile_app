@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:myapp/pages/home_sreen.dart';
+import 'package:myapp/pages/home_screen.dart';
 import 'package:myapp/pages/index.dart';
 import 'package:myapp/provider/locale_provider.dart';
 import 'package:provider/provider.dart';
@@ -48,7 +48,7 @@ class AuthenticationWrapper extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator(); // Hoặc màn hình tải
         } else if (snapshot.hasData) {
-          return home_screen();
+          return HomeScreen();
         } else {
           return index();
         }

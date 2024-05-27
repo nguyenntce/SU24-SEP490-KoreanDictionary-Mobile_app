@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:myapp/pages/optSreen.dart';
-import 'package:myapp/pages/home_sreen.dart';
-import 'package:country_picker/country_picker.dart';
+import 'package:myapp/pages/home_screen.dart';
 
 class Loginscreen extends StatelessWidget{
   final TextEditingController phoneController = TextEditingController();
@@ -56,7 +55,7 @@ class Loginscreen extends StatelessWidget{
         await _firebaseAuth.signInWithCredential(credential);
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => home_screen()),
+          MaterialPageRoute(builder: (context) => HomeScreen()),
         );
       }
     }catch(e) {
