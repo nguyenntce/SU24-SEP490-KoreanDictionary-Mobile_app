@@ -33,6 +33,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: any
+  flutter_flip_card: ^0.0.6
+  flip_card: ^0.7.0
   provider: ^6.1.2
   firebase_auth: ^4.7.0
   country_picker: ^2.0.26
@@ -46,6 +48,10 @@ dependencies:
   gap: ^3.0.1
   external_path: ^1.0.3
   media_scanner: ^2.1.0
+  firebase_database: ^10.5.6
+  audioplayers: ^6.0.0
+  image_picker: ^1.1.1
+
 
 dev_dependencies:
   flutter_test:
@@ -91,6 +97,7 @@ flutter:
     - assets/english_flag.png
     - assets/vietnam_flag.png
     - assets/korean_flag.png
+    - assets/strawberry.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

@@ -1,5 +1,9 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/pages/home_sreen.dart';
+import 'package:myapp/pages/pages_menu/instructions_screen.dart';
+import 'package:myapp/items/corner_camera_item.dart';
+import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
 class CameraScreen extends StatefulWidget {
@@ -10,6 +14,7 @@ class CameraScreen extends StatefulWidget {
 class _CameraScreenState extends State<CameraScreen> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -56,90 +61,136 @@ class _CameraScreenState extends State<CameraScreen> {
     }
   }
 
+  Future<void> _pickImageFromGallery() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => DisplayPictureScreen(imagePath: pickedFile.path),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Lấy kích thước màn hình
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-
-    // Tính toán padding và kích thước dựa trên kích thước màn hình
-    double horizontalPadding = screenWidth * 0.03; // 5% của chiều rộng màn hình
-    double verticalPadding = screenHeight * 0.02; // 2% của chiều cao màn hình
+    double iconSize = screenWidth * 0.1;
 
     return Scaffold(
-      backgroundColor: Color(0xFFA4FFB3),
-      body: Column(
+      body: Stack(
         children: [
           FutureBuilder<void>(
             future: _initializeControllerFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
-                return CameraPreview(_controller);
+                return Positioned.fill(
+                  child: CameraPreview(_controller),
+                );
               } else {
                 return Center(child: CircularProgressIndicator());
               }
             },
           ),
-          Spacer(),
-          // Thêm footer là hình ảnh
-          Container(
-            width: double.infinity,
-            child: Stack(
-              children: [
-                Image.asset(
-                  'assets/footer_home.png',
-                  width: screenWidth,
-                  // Thay đường dẫn tới hình ảnh footer
-                  fit: BoxFit.cover,
+          Column(
+            children: [
+              AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back, color: Colors.white, size: iconSize),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
                 ),
-                Positioned(
-                  bottom: screenHeight * 0.015,
-                  right: screenWidth * 0.7,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
+                actions: [
+                  IconButton(
+                    onPressed: () {
+                      // Xử lý sự kiện cho icon 1
                     },
-                    child: Image.asset(
-                      'assets/photo.png',
-                      width: screenWidth *
-                          0.15, // Kích thước icon dựa trên chiều rộng màn hình
+                    icon: Icon(Icons.flash_on, color: Colors.white, size: iconSize),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      // Xử lý sự kiện cho icon 2
+                    },
+                    icon: Icon(Icons.camera_alt_outlined,
+                        color: Colors.white, size: iconSize),
+                  ),
+                ],
+              ),
+              SizedBox(height: screenHeight * 0.1),
+              Expanded(
+                child: Center(
+                  child: Container(
+                    width: screenWidth * 0.8,
+                    height: screenHeight * 0.55,
+                    padding: EdgeInsets.symmetric(vertical: screenHeight * 0.1),
+                    child: CustomPaint(
+                      painter: CornerDashedBorderPainterCamera(),
+                      child: Container(),
                     ),
                   ),
                 ),
-                Positioned(
-                  bottom: screenHeight * 0.01,
-                  left: screenWidth * 0.48 - (screenWidth * 0.15 / 2),
-                  // Đặt vị trí ngang cho hình ảnh camera
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => CameraScreen()));
-                    },
-                    child: Image.asset(
-                      'assets/footer_camera.png',
-                      width: screenWidth *
-                          0.20, // Kích thước icon dựa trên chiều rộng màn hình
+              ),
+              Container(
+                width: double.infinity,
+                child: Stack(
+                  children: [
+                    Image.asset(
+                      'assets/footer_home.png',
+                      width: screenWidth,
+                      fit: BoxFit.cover,
                     ),
-                  ),
-                ),
-                Positioned(
-                  bottom: screenHeight * 0.01,
-                  left: screenWidth * 0.7,
-                  child: GestureDetector(
-                    onTap: () {
-
-                    },
-                    child: Image.asset(
-                      'assets/instructions.png',
-                      width: screenWidth * 0.2,
-                      // Kích thước icon dựa trên chiều rộng màn hình
+                    Positioned(
+                      bottom: screenHeight * 0.015,
+                      right: screenWidth * 0.7,
+                      child: GestureDetector(
+                        onTap: _pickImageFromGallery,
+                        child: Icon(
+                          Icons.photo_library,
+                          size: screenWidth * 0.15,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                  ),
+                    Positioned(
+                      bottom: screenHeight * 0.01,
+                      left: screenWidth * 0.48 - (screenWidth * 0.15 / 2),
+                      child: GestureDetector(
+                        onTap: () {
+                          _takePicture(context);
+                        },
+                        child: Icon(
+                          Icons.radio_button_checked,
+                          size: screenWidth * 0.20,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: screenHeight * 0.015,
+                      left: screenWidth * 0.7,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => InstructionsScreen()));
+                        },
+                        child: Icon(
+                          Icons.question_mark,
+                          size: screenWidth * 0.15,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),

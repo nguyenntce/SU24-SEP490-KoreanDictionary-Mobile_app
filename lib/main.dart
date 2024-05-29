@@ -48,7 +48,7 @@ class AuthenticationWrapper extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator(); // Hoặc màn hình tải
         } else if (snapshot.hasData) {
-          return home_screen();
+          return HomeSreen();
         } else {
           return index();
         }

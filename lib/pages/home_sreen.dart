@@ -1,4 +1,5 @@
 
+import 'package:firebase_database/firebase_database.dart';
 import 'package:myapp/page_setting/setting_screen.dart';
 import 'package:myapp/pages/pages_menu/camera_screen.dart';
 import 'package:myapp/pages/pages_menu/quiz_screen.dart';
@@ -9,7 +10,78 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import '../pages/pages_menu/flashcard_screen.dart';
 
-class home_screen extends StatelessWidget{
+class HomeSreen extends StatefulWidget{
+  @override
+  _HomeSreen createState() => _HomeSreen();
+
+}
+class _HomeSreen extends State<HomeSreen> {
+
+  final DatabaseReference _database = FirebaseDatabase.instance.reference().child('Vocabulary');
+  List<Map<String, String>> vocabulary = [];
+  List<Map<String, String>> filteredVocabulary = [];
+  TextEditingController searchController = TextEditingController();
+  FocusNode _focusNode = FocusNode();
+  @override
+  void initState() {
+    super.initState();
+    _fetchVocabulary();
+    _fetchVocabulary();
+    searchController.addListener(_filterVocabulary);
+  }
+  @override
+  void dispose() {
+    searchController.removeListener(_filterVocabulary);
+    searchController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+  void _fetchVocabulary() {
+    _database.onValue.listen((DatabaseEvent event) {
+      final List<dynamic>? values = event.snapshot.value as List<dynamic>?;
+      List<Map<String, String>> tempList = [];
+      if (values != null) {
+        values.forEach((value) {
+          if (value != null) {
+            tempList.add({
+              'english': value['English'] ?? '',
+              'korean': value['Korean'] ?? '',
+              'vietnamese': value['Vietnamese'] ?? '',
+              'image': value['Fruits_img'] ?? '',
+              'voice_en': value['Voice_EN'] ?? '',
+              'voice_kr': value['Voice_KR'] ?? '',
+              'voice_vn': value['Voice_VN'] ?? '',
+              'ex_en': value['Example_EN'] ?? '',
+              'ex_kr': value['Example_KR'] ?? '',
+              'ex_vn': value['Example_VN'] ?? '',
+            });
+          }
+        });
+        setState(() {
+          vocabulary = tempList;
+          filteredVocabulary = tempList;
+        });
+      }
+    });
+  }
+  void _filterVocabulary() {
+    String query = searchController.text.toLowerCase();
+    List<Map<String, String>> tempList = [];
+    vocabulary.forEach((vocab) {
+      if (vocab['english']!.toLowerCase().contains(query) ||
+          vocab['korean']!.toLowerCase().contains(query) ||
+          vocab['vietnamese']!.toLowerCase().contains(query)) {
+        tempList.add(vocab);
+      }
+    });
+    setState(() {
+      filteredVocabulary = tempList;
+    });
+    print("Filtered vocabulary: $filteredVocabulary"); // Debug: In dữ liệu sau khi lọc
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     // Lấy kích thước màn hình

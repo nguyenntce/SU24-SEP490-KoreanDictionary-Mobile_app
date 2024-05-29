@@ -1,6 +1,7 @@
 {
   "@@locale": "ko",
   "language": "언어",
+  "vocabularykey": "korean",
   "hello": "Hello",
   "vietnam": "베트남",
   "english": "영어",
