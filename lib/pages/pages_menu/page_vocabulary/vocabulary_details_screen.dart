@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
 
 class VocabularyDetailsScreen extends StatelessWidget {
   final Map<String, String> word;
@@ -74,7 +75,7 @@ class VocabularyDetailsScreen extends StatelessWidget {
                     Row(
                       children: [
                         Image.asset(
-                          'assets/english_flag.png',
+                          'assets/${AppLocalizations.of(context)!.localeName == 'en' ? 'english_flag.png' : AppLocalizations.of(context)!.localeName == 'ko' ? 'korean_flag.png' : 'vietnam_flag.png'}',
                           width: screenWidth * 0.2,
                         ),
                         Container(
@@ -85,7 +86,7 @@ class VocabularyDetailsScreen extends StatelessWidget {
                                 child: Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                    '${word['english']}',
+                                    '${AppLocalizations.of(context)!.localeName == 'en' ? word['english'] : AppLocalizations.of(context)!.localeName == 'ko' ? word['korean'] : word['vietnamese']}',
                                     style: TextStyle(
                                       fontSize: titleFontSize * 0.9,
                                       fontWeight: FontWeight.bold,
@@ -101,7 +102,7 @@ class VocabularyDetailsScreen extends StatelessWidget {
                                   size: screenWidth * 0.1,
                                 ),
                                 onPressed: () {
-                                  _playAudio(word['voice_en']!);
+                                  _playAudio(AppLocalizations.of(context)!.localeName == 'en' ? word['voice_en']! : AppLocalizations.of(context)!.localeName == 'ko' ? word['voice_kr']! : word['voice_vn']!);
                                 },
                               ),
                             ],
@@ -247,7 +248,9 @@ class VocabularyDetailsScreen extends StatelessWidget {
             ),
           ],
         ),
+
       ),
+
     );
   }
 }

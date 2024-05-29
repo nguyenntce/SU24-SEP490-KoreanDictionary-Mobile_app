@@ -90,7 +90,7 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
           },
         ),
         title: Text(
-          'Vocabulary',
+          AppLocalizations.of(context)!.vocabulary,
           style: TextStyle(
             fontSize: screenWidth * 0.06,
             fontWeight: FontWeight.bold,
