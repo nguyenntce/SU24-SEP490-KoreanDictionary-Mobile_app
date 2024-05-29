@@ -141,7 +141,8 @@ class AboutusScreen extends StatelessWidget {
               ),
             ),
             Container(
-              margin: EdgeInsets.only(top: screenHeight * 0.00, left: screenWidth * 0),
+              margin: EdgeInsets.only(
+                  top: screenHeight * 0.00, left: screenWidth * 0),
               alignment: Alignment.centerLeft,
               child: Text(
                 'Contact Us Below!',
@@ -160,16 +161,20 @@ class AboutusScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.facebook, size: titleFontSize * 4), // Tăng kích thước
+                    icon: Icon(Icons.facebook,
+                        size: titleFontSize * 4), // Tăng kích thước
                     onPressed: () {
                       // Xử lý khi nhấn vào biểu tượng Facebook
                       // Chuyển hướng đến đường link Facebook
                       // Ví dụ: Navigator.pushNamed(context, '/facebook_page');
                     },
                   ),
-                  SizedBox(width: screenWidth * 0.15), // Khoảng cách giữa các biểu tượng
+                  SizedBox(
+                      width: screenWidth *
+                          0.15), // Khoảng cách giữa các biểu tượng
                   IconButton(
-                    icon: Icon(Icons.email, size: titleFontSize * 4), // Tăng kích thước
+                    icon: Icon(Icons.email,
+                        size: titleFontSize * 4), // Tăng kích thước
                     onPressed: () {
                       // Xử lý khi nhấn vào biểu tượng Email
                       // Ví dụ: Mở ứng dụng email mặc định của người dùng

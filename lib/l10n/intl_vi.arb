@@ -1,6 +1,7 @@
 {
   "@@locale": "vi",
   "language": "Ngôn ngữ",
+  "vocabularykey": "vietnamese",
   "hello": "Xin chào",
   "vietnam": "Việt Nam",
   "english": "Tiếng Anh",

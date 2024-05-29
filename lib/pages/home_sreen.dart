@@ -1,0 +1,359 @@
+import 'package:firebase_database/firebase_database.dart';
+import 'package:myapp/page_setting/setting_screen.dart';
+import 'package:myapp/pages/pages_menu/camera_screen.dart';
+import 'package:myapp/pages/pages_menu/quiz_screen.dart';
+import 'package:myapp/pages/pages_menu/vocabulary_screen.dart';
+import 'package:myapp/items/menu_item.dart';
+import 'package:myapp/items/popular_item.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
+import '../pages/pages_menu/flashcard_screen.dart';
+
+class HomeSreen extends StatefulWidget{
+  @override
+  _HomeSreen createState() => _HomeSreen();
+
+}
+class _HomeSreen extends State<HomeSreen> {
+
+  final DatabaseReference _database = FirebaseDatabase.instance.reference().child('Vocabulary');
+  List<Map<String, String>> vocabulary = [];
+  List<Map<String, String>> filteredVocabulary = [];
+  TextEditingController searchController = TextEditingController();
+  FocusNode _focusNode = FocusNode();
+  @override
+  void initState() {
+    super.initState();
+    _fetchVocabulary();
+    _fetchVocabulary();
+    searchController.addListener(_filterVocabulary);
+  }
+  @override
+  void dispose() {
+    searchController.removeListener(_filterVocabulary);
+    searchController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+  void _fetchVocabulary() {
+    _database.onValue.listen((DatabaseEvent event) {
+      final List<dynamic>? values = event.snapshot.value as List<dynamic>?;
+      List<Map<String, String>> tempList = [];
+      if (values != null) {
+        values.forEach((value) {
+          if (value != null) {
+            tempList.add({
+              'english': value['English'] ?? '',
+              'korean': value['Korean'] ?? '',
+              'vietnamese': value['Vietnamese'] ?? '',
+              'image': value['Fruits_img'] ?? '',
+              'voice_en': value['Voice_EN'] ?? '',
+              'voice_kr': value['Voice_KR'] ?? '',
+              'voice_vn': value['Voice_VN'] ?? '',
+              'ex_en': value['Example_EN'] ?? '',
+              'ex_kr': value['Example_KR'] ?? '',
+              'ex_vn': value['Example_VN'] ?? '',
+            });
+          }
+        });
+        setState(() {
+          vocabulary = tempList;
+          filteredVocabulary = tempList;
+        });
+      }
+    });
+  }
+  void _filterVocabulary() {
+    String query = searchController.text.toLowerCase();
+    List<Map<String, String>> tempList = [];
+    vocabulary.forEach((vocab) {
+      if (vocab['english']!.toLowerCase().contains(query) ||
+          vocab['korean']!.toLowerCase().contains(query) ||
+          vocab['vietnamese']!.toLowerCase().contains(query)) {
+        tempList.add(vocab);
+      }
+    });
+    setState(() {
+      filteredVocabulary = tempList;
+    });
+    print("Filtered vocabulary: $filteredVocabulary"); // Debug: In dữ liệu sau khi lọc
+  }
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    // Lấy kích thước màn hình
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    // Tính toán padding và kích thước dựa trên kích thước màn hình
+    double horizontalPadding = screenWidth * 0.03; // 5% của chiều rộng màn hình
+    double verticalPadding = screenHeight * 0.02; // 2% của chiều cao màn hình
+
+    return Scaffold(
+      backgroundColor: Color(0xFFA4FFB3),
+      body: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(horizontalPadding),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: verticalPadding),
+                  TextField(
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.findSomeNewWord,
+                      labelStyle: TextStyle(
+                        color: Colors.black,
+                        fontSize: screenWidth * 0.025,
+                        fontWeight: FontWeight.bold,
+                        fontStyle: FontStyle.italic,
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                        borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 2.5,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                        borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 3.0,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                        borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 3.0,
+                        ),
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        size: screenWidth * 0.04, // Giảm kích thước của icon
+                      ),
+                      contentPadding: EdgeInsets.fromLTRB(
+                        screenWidth * 0.015, // Giảm lề ngang
+                        screenWidth * 0.0075, // Giảm lề dọc
+                        screenWidth * 0.015, // Giảm lề ngang
+                        screenWidth * 0.08, // Giảm lề dọc
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: verticalPadding),
+                  Container(
+                    width: double.infinity,
+                    height: screenHeight * 0.14,
+                    // Chiều cao container dựa trên chiều cao màn hình
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.black, width: 3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 5,
+                          blurRadius: 7,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        MenuItem(
+                          imagePath: 'assets/camera.png',
+                          label: AppLocalizations.of(context)!.camera,
+                          destinationScreen: CameraScreen(),
+                        ),
+                        MenuItem(
+                          imagePath: 'assets/vocabulary.png',
+                          label: AppLocalizations.of(context)!.vocabulary,
+                          destinationScreen: VocabularyScreen(),
+                        ),
+                        MenuItem(
+                          imagePath: 'assets/quiz.png',
+                          label: AppLocalizations.of(context)!.quiz,
+                          destinationScreen: QuizScreen(),
+                        ),
+                        MenuItem(
+                          imagePath: 'assets/flashcard.png',
+                          label: AppLocalizations.of(context)!.flashcard,
+                          destinationScreen: FlashcardScreen(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: verticalPadding / 5),
+                  Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Padding(
+                      padding: EdgeInsets.only(left: horizontalPadding / 5),
+                      child: Text(
+                        AppLocalizations.of(context)!.getStarted,
+                        style: TextStyle(
+                          fontSize: screenWidth * 0.05,
+                          // Tính kích thước chữ dựa trên chiều rộng màn hình
+                          fontWeight: FontWeight.w900,
+                          fontStyle: FontStyle.italic,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.5),
+                              offset: Offset(0, 3),
+                              blurRadius: 5,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: verticalPadding / 5),
+                  Container(
+                    width: double.infinity,
+                    height: screenHeight * 0.17,
+                    // Chiều cao container dựa trên chiều cao màn hình
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.asset(
+                        'assets/image_home.png',
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: verticalPadding / 7),
+                  Container(
+                    width: double.infinity,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(
+                              left: horizontalPadding / 3,
+                              bottom: verticalPadding / 2),
+                          child: Text(
+                            AppLocalizations.of(context)!.popularWord,
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.05,
+                              // Tính kích thước chữ dựa trên chiều rộng màn hình
+                              fontWeight: FontWeight.w900,
+                              fontStyle: FontStyle.italic,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black.withOpacity(0.5),
+                                  offset: Offset(0, 3),
+                                  blurRadius: 5,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: verticalPadding / 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            PopularItem(),
+                            PopularItem(),
+                          ],
+                        ),
+                        SizedBox(height: verticalPadding / 2),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            PopularItem(),
+                            PopularItem(),
+                          ],
+                        ),
+                        SizedBox(height: verticalPadding / 2),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            PopularItem(),
+                            PopularItem(),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Spacer(),
+          // Thêm footer là hình ảnh
+          Container(
+            width: double.infinity,
+            child: Stack(
+              children: [
+                Image.asset(
+                  'assets/footer_home.png',
+                  width: screenWidth,
+                  // Thay đường dẫn tới hình ảnh footer
+                  fit: BoxFit.cover,
+                ),
+                Positioned(
+                  bottom: screenHeight * 0.015,
+                  right: screenWidth * 0.7,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Image.asset(
+                      'assets/footer_icon_home.png',
+                      width: screenWidth *
+                          0.15, // Kích thước icon dựa trên chiều rộng màn hình
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: screenHeight * 0.01,
+                  left: screenWidth * 0.48 - (screenWidth * 0.15 / 2),
+                  // Đặt vị trí ngang cho hình ảnh camera
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => CameraScreen()));
+                    },
+                    child: Image.asset(
+                      'assets/footer_camera.png',
+                      width: screenWidth *
+                          0.20, // Kích thước icon dựa trên chiều rộng màn hình
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: screenHeight * 0.01,
+                  left: screenWidth * 0.7,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SettingScreen()));
+                    },
+                    child: Image.asset(
+                      'assets/setting.png',
+                      width: screenWidth * 0.2,
+                      // Kích thước icon dựa trên chiều rộng màn hình
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

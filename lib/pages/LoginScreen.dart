@@ -21,15 +21,16 @@ class _LoginscreenState extends State<Loginscreen> {
 
   void sendOTP(BuildContext context) async {
     String phone = phoneController.text.trim();
+    String fullPhoneNumber = "+${selectedCountry.phoneCode}$phone";
 
     // Kiểm tra định dạng số điện thoại
     String pattern =
         r'^\+?[0-9]{10,15}$'; // Ví dụ: kiểm tra số điện thoại có từ 10 đến 15 chữ số và có thể có dấu +
     RegExp regex = RegExp(pattern);
-
-    if (phone.isNotEmpty && regex.hasMatch(phone)) {
+    print(fullPhoneNumber);
+    if (fullPhoneNumber .isNotEmpty && regex.hasMatch(fullPhoneNumber )) {
       await _auth.verifyPhoneNumber(
-        phoneNumber: phone,
+        phoneNumber: fullPhoneNumber ,
         verificationCompleted: (PhoneAuthCredential credential) async {
           await _auth.signInWithCredential(credential);
         },

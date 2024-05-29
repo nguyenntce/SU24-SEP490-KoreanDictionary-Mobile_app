@@ -1,6 +1,7 @@
 {
   "@@locale": "en",
   "language": "Language",
+  "vocabularykey": "english",
   "hello": "Hello",
   "vietnam": "Vietnam",
   "english": "English",

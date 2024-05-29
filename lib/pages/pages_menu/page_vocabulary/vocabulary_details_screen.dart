@@ -1,6 +1,19 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
 class VocabularyDetailsScreen extends StatelessWidget {
+  final Map<String, String> word;
+  final AudioPlayer audioPlayer = AudioPlayer();
+  VocabularyDetailsScreen({required this.word});
+  void _playAudio(String url) async {
+    try {
+      await audioPlayer.play(UrlSource(url)); // Sử dụng UrlSource cho URL
+
+    } catch (e) {
+      print('Error: $e');
+      print(url);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -71,7 +84,7 @@ class VocabularyDetailsScreen extends StatelessWidget {
                                 child: Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                    'Wax Apple',
+                                    '${word['english']}',
                                     style: TextStyle(
                                       fontSize: titleFontSize * 0.9,
                                       fontWeight: FontWeight.bold,
@@ -87,7 +100,7 @@ class VocabularyDetailsScreen extends StatelessWidget {
                                   size: screenWidth * 0.1,
                                 ),
                                 onPressed: () {
-                                  // Xử lý khi icon được nhấn vào
+                                  _playAudio(word['voice_en']!);
                                 },
                               ),
                             ],
@@ -110,7 +123,7 @@ class VocabularyDetailsScreen extends StatelessWidget {
                                 child: Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                    '잠부 과일',
+                                    '${word['korean']}',
                                     style: TextStyle(
                                       fontSize: titleFontSize * 0.9,
                                       fontWeight: FontWeight.bold,
@@ -126,7 +139,7 @@ class VocabularyDetailsScreen extends StatelessWidget {
                                   size: screenWidth * 0.1,
                                 ),
                                 onPressed: () {
-                                  // Xử lý khi icon được nhấn vào
+                                  _playAudio(word['voice_kr']!);
                                 },
                               ),
                             ],
@@ -142,7 +155,7 @@ class VocabularyDetailsScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30.0),
               child: Text(
-                'A small, round fruit with a thin, smooth, red purple or yellow skin, sweet, soft flesh, and a single large, hard seed.',
+                '${word['ex_en']}',
                 style: TextStyle(fontSize: titleFontSize * 1),
                 textAlign: TextAlign.justify,
               ),
@@ -151,7 +164,7 @@ class VocabularyDetailsScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30.0),
               child: Text(
-                '얇고 매끄러운 붉은 보라색 또는 노란색 껍질, 달콤하고 부드러운 과육, 크고 단단한 씨앗 하나가 있는 작고 둥근 과일입니다.',
+                '${word['ex_kr']}',
                 style: TextStyle(fontSize: titleFontSize * 1),
                 textAlign: TextAlign.justify,
               ),
@@ -179,8 +192,8 @@ class VocabularyDetailsScreen extends StatelessWidget {
                           border: Border.all(color: Colors.black),
                           borderRadius: BorderRadius.circular(imageSize * 0.1),
                         ),
-                        child: Image.asset(
-                          'assets/wax_apple.png',
+                        child: Image.network(
+                          '${word['image']}',
                           fit: BoxFit.contain,
                         ),
                       ),
