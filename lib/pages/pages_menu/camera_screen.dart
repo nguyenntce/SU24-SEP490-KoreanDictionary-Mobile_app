@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myapp/items/corner_camera_item.dart';
 import 'package:myapp/pages/home_screen.dart';
 import 'package:myapp/pages/pages_menu/instructions_screen.dart';
+import 'package:myapp/pages/pages_menu/result_picture_screen.dart';
 
 class CameraScreen extends StatelessWidget {
   @override
@@ -101,10 +102,10 @@ class CameraScreen extends StatelessWidget {
                   // Đặt vị trí ngang cho hình ảnh camera
                   child: GestureDetector(
                     onTap: () {
-                      // Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         builder: (context) => HomeScreen()));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ResultPictureScreen()));
                     },
                     child: Icon(
                       Icons.radio_button_checked,

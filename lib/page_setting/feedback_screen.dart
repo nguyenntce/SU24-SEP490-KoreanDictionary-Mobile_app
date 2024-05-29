@@ -201,19 +201,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                   ),
                                 ),
                                 SizedBox(height: screenWidth * 0.02),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Image',
-                                      style: TextStyle(
-                                        fontSize: titleFontSize * 0.9,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: screenWidth * 0.02),
                               ],
                             ),
                           ),

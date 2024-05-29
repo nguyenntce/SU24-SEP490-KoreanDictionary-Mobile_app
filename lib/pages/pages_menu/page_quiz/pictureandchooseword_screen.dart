@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-
-import 'package:myapp/pages/home_screen.dart';
+import 'package:myapp/pages/pages_menu/page_quiz/detailresult_quiz_screen.dart';
 import 'package:myapp/pages/pages_menu/page_quiz/result_quiz_screen.dart';
 
 class PictureandchoosewordScreen extends StatefulWidget {
@@ -17,14 +16,13 @@ class PictureandchoosewordScreen extends StatefulWidget {
 class _ListenandfillwordScreenState extends State<PictureandchoosewordScreen> {
   late Timer _timer;
   int _start = 0;
-  List<bool> _isPressedList = []; // Danh sách trạng thái nhấn của từng ô
+  bool _isPressed = false;
 
   @override
   void initState() {
     super.initState();
     _start = widget.durationInSeconds;
     startTimer();
-    _initializePressedList(); // Khởi tạo danh sách trạng thái nhấn
   }
 
   void startTimer() {
@@ -37,7 +35,7 @@ class _ListenandfillwordScreenState extends State<PictureandchoosewordScreen> {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
               builder: (context) =>
-                  HomeScreen()), // Thay NewPage bằng tên trang bạn muốn chuyển đến
+                  DetailresultQuizScreen()), // Thay NewPage bằng tên trang bạn muốn chuyển đến
         );
       } else {
         setState(() {
@@ -45,11 +43,6 @@ class _ListenandfillwordScreenState extends State<PictureandchoosewordScreen> {
         });
       }
     });
-  }
-
-  void _initializePressedList() {
-    // Khởi tạo danh sách trạng thái nhấn với giá trị false cho mỗi ô
-    _isPressedList = List.generate(5, (index) => false); // Giả sử có 5 ô
   }
 
   void stopTimer() {
@@ -60,10 +53,9 @@ class _ListenandfillwordScreenState extends State<PictureandchoosewordScreen> {
     }
   }
 
-  void _togglePressed(int index) {
+  void _togglePressed() {
     setState(() {
-      _isPressedList[index] =
-          !_isPressedList[index]; // Đảo ngược trạng thái của ô được nhấn
+      _isPressed = !_isPressed;
     });
   }
 
@@ -97,7 +89,7 @@ class _ListenandfillwordScreenState extends State<PictureandchoosewordScreen> {
           },
         ),
         title: Text(
-          'Picture And Choose Word',
+          'Listen And Fill Word',
           style: TextStyle(
             fontSize: titleFontSize,
             fontWeight: FontWeight.bold,
@@ -215,45 +207,125 @@ class _ListenandfillwordScreenState extends State<PictureandchoosewordScreen> {
                       ],
                     ),
                     SizedBox(height: screenHeight * 0.1), // Add some spacing
-                    for (int i = 0; i < 4; i++) // Tạo ô theo số lượng cần
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: screenHeight * 0.012),
-                        child: GestureDetector(
-                          onTap: () =>
-                              _togglePressed(i), // Truyền index của ô được nhấn
-                          child: Container(
-                            width: screenWidth * 0.6,
-                            height: screenHeight * 0.05,
-                            decoration: BoxDecoration(
-                              color: _isPressedList[
-                                      i] // Sử dụng trạng thái của từng ô để xác định màu
-                                  ? const Color.fromARGB(255, 59, 238,
-                                      65) // Nếu được nhấn, sử dụng màu xanh lá cây
-                                  : Colors
-                                      .white, // Nếu không được nhấn, sử dụng màu trắng
-                              border:
-                                  Border.all(color: Colors.black), // Viền đen
-                              borderRadius: BorderRadius.circular(screenHeight *
-                                  0.025), // Sử dụng phần trăm hoặc tỷ lệ để xác định góc bo tròn
-                            ),
-                            child: Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(5.0),
-                                child: Text(
-                                  'abv', // Nội dung văn bản
-                                  style: TextStyle(
-                                    fontSize: screenHeight *
-                                        0.025, // Kích thước văn bản
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black, // Màu văn bản
-                                  ),
-                                ),
+                    GestureDetector(
+                      onTap: _togglePressed,
+                      child: Container(
+                        width: screenWidth * 0.6,
+                        height: screenHeight * 0.05,
+                        decoration: BoxDecoration(
+                          color: _isPressed
+                              ? const Color.fromARGB(255, 59, 238, 65)
+                              : Colors.white, // Màu nền trắng
+                          border: Border.all(color: Colors.black), // Viền đen
+                          borderRadius: BorderRadius.circular(screenHeight *
+                              0.025), // Sử dụng phần trăm hoặc tỷ lệ để xác định góc bo tròn
+                        ),
+                        child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              'abv', // Nội dung văn bản
+                              style: TextStyle(
+                                fontSize:
+                                    screenHeight * 0.025, // Kích thước văn bản
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black, // Màu văn bản
                               ),
                             ),
                           ),
                         ),
                       ),
+                    ),
+                    SizedBox(height: screenHeight * 0.02), // Add some spacing
+                    GestureDetector(
+                      onTap: _togglePressed,
+                      child: Container(
+                        width: screenWidth * 0.6,
+                        height: screenHeight * 0.05,
+                        decoration: BoxDecoration(
+                          color: _isPressed
+                              ? const Color.fromARGB(255, 59, 238, 65)
+                              : Colors.white, // Màu nền trắng
+                          border: Border.all(color: Colors.black), // Viền đen
+                          borderRadius: BorderRadius.circular(screenHeight *
+                              0.025), // Sử dụng phần trăm hoặc tỷ lệ để xác định góc bo tròn
+                        ),
+                        child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              'abv', // Nội dung văn bản
+                              style: TextStyle(
+                                fontSize:
+                                    screenHeight * 0.025, // Kích thước văn bản
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black, // Màu văn bản
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: screenHeight * 0.02), // Add some spacing
+                    GestureDetector(
+                      onTap: _togglePressed,
+                      child: Container(
+                        width: screenWidth * 0.6,
+                        height: screenHeight * 0.05,
+                        decoration: BoxDecoration(
+                          color: _isPressed
+                              ? const Color.fromARGB(255, 59, 238, 65)
+                              : Colors.white, // Màu nền trắng
+                          border: Border.all(color: Colors.black), // Viền đen
+                          borderRadius: BorderRadius.circular(screenHeight *
+                              0.025), // Sử dụng phần trăm hoặc tỷ lệ để xác định góc bo tròn
+                        ),
+                        child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              'abv', // Nội dung văn bản
+                              style: TextStyle(
+                                fontSize:
+                                    screenHeight * 0.025, // Kích thước văn bản
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black, // Màu văn bản
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: screenHeight * 0.02), // Add some spacing
+                    GestureDetector(
+                      onTap: _togglePressed,
+                      child: Container(
+                        width: screenWidth * 0.6,
+                        height: screenHeight * 0.05,
+                        decoration: BoxDecoration(
+                          color: _isPressed
+                              ? const Color.fromARGB(255, 59, 238, 65)
+                              : Colors.white, // Màu nền trắng
+                          border: Border.all(color: Colors.black), // Viền đen
+                          borderRadius: BorderRadius.circular(screenHeight *
+                              0.025), // Sử dụng phần trăm hoặc tỷ lệ để xác định góc bo tròn
+                        ),
+                        child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              'abv', // Nội dung văn bản
+                              style: TextStyle(
+                                fontSize:
+                                    screenHeight * 0.025, // Kích thước văn bản
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black, // Màu văn bản
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),

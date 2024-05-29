@@ -210,6 +210,7 @@ class HomeScreen extends StatelessWidget {
                               PopularItem(),
                             ],
                           ),
+                          
                         ],
                       ),
                     ),

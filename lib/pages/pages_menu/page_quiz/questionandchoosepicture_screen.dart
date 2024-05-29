@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-
-import 'package:myapp/pages/home_screen.dart';
+import 'package:myapp/pages/pages_menu/page_quiz/detailresult_quiz_screen.dart';
 import 'package:myapp/pages/pages_menu/page_quiz/result_quiz_screen.dart';
 
 class QuestionandchoosepictureScreen extends StatefulWidget {
@@ -36,7 +35,7 @@ class _ListenandfillwordScreenState
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
               builder: (context) =>
-                  HomeScreen()), // Thay NewPage bằng tên trang bạn muốn chuyển đến
+                  DetailresultQuizScreen()), // Thay NewPage bằng tên trang bạn muốn chuyển đến
         );
       } else {
         setState(() {
@@ -191,8 +190,8 @@ class _ListenandfillwordScreenState
                     Text(
                       'Which Picture Is .........?', // Your text goes here
                       style: TextStyle(
-                        fontSize:
-                            textFontSize * 1.5, // Adjust the font size as needed
+                        fontSize: textFontSize *
+                            1.5, // Adjust the font size as needed
                         color: Colors.black, // Change the color if needed
                         fontWeight: FontWeight.w900,
                       ),
