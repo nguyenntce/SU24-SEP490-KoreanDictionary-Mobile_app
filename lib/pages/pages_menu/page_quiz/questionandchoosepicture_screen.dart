@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:myapp/pages/home_screen.dart';
+import 'package:myapp/pages/pages_menu/page_quiz/result_quiz_screen.dart';
 
 class QuestionandchoosepictureScreen extends StatefulWidget {
   final int durationInSeconds;
@@ -151,7 +152,7 @@ class _ListenandfillwordScreenState
                           stopTimer();
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
-                              builder: (context) => HomeScreen(),
+                              builder: (context) => ResultQuizScreen(),
                             ),
                           );
                         },

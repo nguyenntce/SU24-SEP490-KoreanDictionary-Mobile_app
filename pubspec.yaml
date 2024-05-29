@@ -48,6 +48,7 @@ dependencies:
   media_scanner: ^2.1.0
   flutter_flip_card: ^0.0.6
   flip_card: ^0.7.0
+  percent_indicator: ^4.2.3
 
 dev_dependencies:
   flutter_test:
