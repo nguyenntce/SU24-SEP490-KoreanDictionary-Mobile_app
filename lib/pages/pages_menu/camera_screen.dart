@@ -1,11 +1,9 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/items/corner_camera_item.dart';
-import 'package:myapp/pages/home_sreen.dart';
 import 'package:myapp/pages/pages_menu/instructions_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-
 import 'package:myapp/pages/pages_menu/result_picture_screen.dart';
 
 class CameraScreen extends StatefulWidget {
@@ -40,7 +38,7 @@ class _CameraScreenState extends State<CameraScreen> {
     super.dispose();
   }
 
-   Future<void> _takePicture(BuildContext context) async {
+  Future<void> _takePicture(BuildContext context) async {
     try {
       await _initializeControllerFuture;
       final image = await _controller.takePicture();
