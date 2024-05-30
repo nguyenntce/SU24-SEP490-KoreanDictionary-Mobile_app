@@ -24,7 +24,7 @@ class OptScreen extends StatelessWidget {
         await _auth.signInWithCredential(credential);
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context)=>HomeSreen()),
+          MaterialPageRoute(builder: (context)=>HomeScreen()),
         );
       } catch (e) {
         Fluttertoast.showToast(msg: "Failed to sign in: $e");

@@ -1,4 +1,3 @@
-
 import 'package:firebase_database/firebase_database.dart';
 import 'package:myapp/page_setting/setting_screen.dart';
 import 'package:myapp/pages/pages_menu/camera_screen.dart';
@@ -10,25 +9,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import '../pages/pages_menu/flashcard_screen.dart';
 
-class HomeSreen extends StatefulWidget{
+class HomeScreen extends StatefulWidget {
   @override
-  _HomeSreen createState() => _HomeSreen();
-
+  _HomeScreenState createState() => _HomeScreenState();
 }
-class _HomeSreen extends State<HomeSreen> {
 
-  final DatabaseReference _database = FirebaseDatabase.instance.reference().child('Vocabulary');
+class _HomeScreenState extends State<HomeScreen> {
+  final DatabaseReference _database =
+  FirebaseDatabase.instance.reference().child('Vocabulary');
   List<Map<String, String>> vocabulary = [];
   List<Map<String, String>> filteredVocabulary = [];
   TextEditingController searchController = TextEditingController();
   FocusNode _focusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
     _fetchVocabulary();
-    _fetchVocabulary();
     searchController.addListener(_filterVocabulary);
   }
+
   @override
   void dispose() {
     searchController.removeListener(_filterVocabulary);
@@ -36,6 +36,7 @@ class _HomeSreen extends State<HomeSreen> {
     _focusNode.dispose();
     super.dispose();
   }
+
   void _fetchVocabulary() {
     _database.onValue.listen((DatabaseEvent event) {
       final List<dynamic>? values = event.snapshot.value as List<dynamic>?;
@@ -64,6 +65,7 @@ class _HomeSreen extends State<HomeSreen> {
       }
     });
   }
+
   void _filterVocabulary() {
     String query = searchController.text.toLowerCase();
     List<Map<String, String>> tempList = [];
@@ -77,28 +79,23 @@ class _HomeSreen extends State<HomeSreen> {
     setState(() {
       filteredVocabulary = tempList;
     });
-    print("Filtered vocabulary: $filteredVocabulary"); // Debug: In dữ liệu sau khi lọc
   }
-
-
 
   @override
   Widget build(BuildContext context) {
-    // Lấy kích thước màn hình
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-
-    // Tính toán padding và kích thước dựa trên kích thước màn hình
-    double horizontalPadding = screenWidth * 0.03; // 5% của chiều rộng màn hình
-    double verticalPadding = screenHeight * 0.02; // 2% của chiều cao màn hình
+    double horizontalPadding = screenWidth * 0.03;
+    double verticalPadding = screenHeight * 0.02;
 
     return Scaffold(
       backgroundColor: Color(0xFFA4FFB3),
-      body: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.all(horizontalPadding),
-            child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        // Wrap with SingleChildScrollView
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(horizontalPadding),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -137,13 +134,13 @@ class _HomeSreen extends State<HomeSreen> {
                       ),
                       prefixIcon: Icon(
                         Icons.search,
-                        size: screenWidth * 0.04, // Giảm kích thước của icon
+                        size: screenWidth * 0.04,
                       ),
                       contentPadding: EdgeInsets.fromLTRB(
-                        screenWidth * 0.015, // Giảm lề ngang
-                        screenWidth * 0.0075, // Giảm lề dọc
-                        screenWidth * 0.015, // Giảm lề ngang
-                        screenWidth * 0.08, // Giảm lề dọc
+                        screenWidth * 0.015,
+                        screenWidth * 0.0075,
+                        screenWidth * 0.015,
+                        screenWidth * 0.08,
                       ),
                     ),
                   ),
@@ -151,7 +148,6 @@ class _HomeSreen extends State<HomeSreen> {
                   Container(
                     width: double.infinity,
                     height: screenHeight * 0.14,
-                    // Chiều cao container dựa trên chiều cao màn hình
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -200,7 +196,6 @@ class _HomeSreen extends State<HomeSreen> {
                         AppLocalizations.of(context)!.getStarted,
                         style: TextStyle(
                           fontSize: screenWidth * 0.05,
-                          // Tính kích thước chữ dựa trên chiều rộng màn hình
                           fontWeight: FontWeight.w900,
                           fontStyle: FontStyle.italic,
                           shadows: [
@@ -218,7 +213,6 @@ class _HomeSreen extends State<HomeSreen> {
                   Container(
                     width: double.infinity,
                     height: screenHeight * 0.17,
-                    // Chiều cao container dựa trên chiều cao màn hình
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -245,7 +239,6 @@ class _HomeSreen extends State<HomeSreen> {
                             AppLocalizations.of(context)!.popularWord,
                             style: TextStyle(
                               fontSize: screenWidth * 0.05,
-                              // Tính kích thước chữ dựa trên chiều rộng màn hình
                               fontWeight: FontWeight.w900,
                               fontStyle: FontStyle.italic,
                               shadows: [
@@ -262,98 +255,586 @@ class _HomeSreen extends State<HomeSreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            PopularItem(),
-                            PopularItem(),
+                            Stack(
+                              children: [
+                                Container(
+                                  width: screenWidth * 0.4,
+                                  height: screenHeight * 0.1,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: Colors.black,
+                                      width: 2,
+                                    ), // Thêm viền đen
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                      right: screenWidth *
+                                          0.22, // Điều chỉnh giá trị padding ở đây
+                                      top: screenHeight * 0.01,
+                                      bottom: screenHeight * 0.01,
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Image.asset(
+                                        'assets/watermelon.png',
+                                        fit: BoxFit.contain,
+                                        width: screenWidth * 0.15,
+                                        height: screenHeight * 0.1,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: screenHeight * 0.03,
+                                  right: screenWidth * 0.03,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        's',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: screenWidth * 0.03,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Your text 2',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: screenWidth * 0.03,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Stack(
+                              children: [
+                                Container(
+                                  width: screenWidth * 0.4,
+                                  height: screenHeight * 0.1,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: Colors.black,
+                                      width: 2,
+                                    ), // Thêm viền đen
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                      right: screenWidth *
+                                          0.22, // Điều chỉnh giá trị padding ở đây
+                                      top: screenHeight * 0.01,
+                                      bottom: screenHeight * 0.01,
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Image.asset(
+                                        'assets/wax_apple.png',
+                                        fit: BoxFit.contain,
+                                        width: screenWidth * 0.15,
+                                        height: screenHeight * 0.1,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: screenHeight * 0.03,
+                                  left: screenWidth * 0.2,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment
+                                        .end, // Căn trái các phần tử trong Column
+                                    children: [
+                                      Container(
+                                        width: screenWidth *
+                                            0.3, // Kích thước cố định cho Container
+                                        padding: EdgeInsets.all(
+                                            1.0), // Điều chỉnh padding theo ý muốn
+                                        child: Text(
+                                          'man',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: screenHeight *
+                                            0.00, // Khoảng cách cố định giữa hai Container
+                                      ),
+                                      Container(
+                                        width: screenWidth *
+                                            0.3, // Kích thước cố định cho Container
+                                        padding: EdgeInsets.all(
+                                            1.0), // Điều chỉnh padding theo ý muốn
+                                        child: Text(
+                                          'sss',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: screenWidth * 0.03,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            )
+
+                            // Thêm các hộp khác tương tự ở đây
                           ],
                         ),
-                        SizedBox(height: verticalPadding / 2),
+                        SizedBox(height: screenHeight * 0.02),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            PopularItem(),
-                            PopularItem(),
+                            Stack(
+                              children: [
+                                Container(
+                                  width: screenWidth * 0.4,
+                                  height: screenHeight * 0.1,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: Colors.black,
+                                      width: 2,
+                                    ), // Thêm viền đen
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                      right: screenWidth *
+                                          0.22, // Điều chỉnh giá trị padding ở đây
+                                      top: screenHeight * 0.01,
+                                      bottom: screenHeight * 0.01,
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Image.asset(
+                                        'assets/kiwi.png',
+                                        fit: BoxFit.contain,
+                                        width: screenWidth * 0.15,
+                                        height: screenHeight * 0.1,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: screenHeight * 0.03,
+                                  right: screenWidth * 0.03,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Your text 1',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: screenWidth * 0.03,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Your text 2',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: screenWidth * 0.03,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Stack(
+                              children: [
+                                Container(
+                                  width: screenWidth * 0.4,
+                                  height: screenHeight * 0.1,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: Colors.black,
+                                      width: 2,
+                                    ), // Thêm viền đen
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                      right: screenWidth *
+                                          0.22, // Điều chỉnh giá trị padding ở đây
+                                      top: screenHeight * 0.01,
+                                      bottom: screenHeight * 0.01,
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Image.asset(
+                                        'assets/logan.png',
+                                        fit: BoxFit.contain,
+                                        width: screenWidth * 0.15,
+                                        height: screenHeight * 0.1,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: screenHeight * 0.03,
+                                  right: screenWidth * 0.03,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Your text 1',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: screenWidth * 0.03,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Your text 2',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: screenWidth * 0.03,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            // Thêm các hộp khác tương tự ở đây
                           ],
                         ),
-                        SizedBox(height: verticalPadding / 2),
+                        SizedBox(height: screenHeight * 0.02),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            PopularItem(),
-                            PopularItem(),
+                            Stack(
+                              children: [
+                                Container(
+                                  width: screenWidth * 0.4,
+                                  height: screenHeight * 0.1,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: Colors.black,
+                                      width: 2,
+                                    ), // Thêm viền đen
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                      right: screenWidth *
+                                          0.22, // Điều chỉnh giá trị padding ở đây
+                                      top: screenHeight * 0.01,
+                                      bottom: screenHeight * 0.01,
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Image.asset(
+                                        'assets/cherry.png',
+                                        fit: BoxFit.contain,
+                                        width: screenWidth * 0.15,
+                                        height: screenHeight * 0.1,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: screenHeight * 0.03,
+                                  right: screenWidth * 0.03,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Your text 1',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: screenWidth * 0.03,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Your text 2',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: screenWidth * 0.03,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Stack(
+                              children: [
+                                Container(
+                                  width: screenWidth * 0.4,
+                                  height: screenHeight * 0.1,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: Colors.black,
+                                      width: 2,
+                                    ), // Thêm viền đen
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                      right: screenWidth *
+                                          0.22, // Điều chỉnh giá trị padding ở đây
+                                      top: screenHeight * 0.01,
+                                      bottom: screenHeight * 0.01,
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Image.asset(
+                                        'assets/avocado.png',
+                                        fit: BoxFit.contain,
+                                        width: screenWidth * 0.15,
+                                        height: screenHeight * 0.1,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: screenHeight * 0.03,
+                                  right: screenWidth * 0.03,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Your text 1',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: screenWidth * 0.03,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Your text 2',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: screenWidth * 0.03,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            // Thêm các hộp khác tương tự ở đây
                           ],
                         ),
+                        SizedBox(height: screenHeight * 0.02),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Stack(
+                              children: [
+                                Container(
+                                  width: screenWidth * 0.4,
+                                  height: screenHeight * 0.1,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: Colors.black,
+                                      width: 2,
+                                    ), // Thêm viền đen
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                      right: screenWidth *
+                                          0.22, // Điều chỉnh giá trị padding ở đây
+                                      top: screenHeight * 0.01,
+                                      bottom: screenHeight * 0.01,
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Image.asset(
+                                        'assets/duahau.png',
+                                        fit: BoxFit.contain,
+                                        width: screenWidth * 0.15,
+                                        height: screenHeight * 0.1,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: screenHeight * 0.03,
+                                  right: screenWidth * 0.03,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Your text 1',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: screenWidth * 0.03,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Your text 2',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: screenWidth * 0.03,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Stack(
+                              children: [
+                                Container(
+                                  width: screenWidth * 0.4,
+                                  height: screenHeight * 0.1,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: Colors.black,
+                                      width: 2,
+                                    ), // Thêm viền đen
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                      right: screenWidth *
+                                          0.22, // Điều chỉnh giá trị padding ở đây
+                                      top: screenHeight * 0.01,
+                                      bottom: screenHeight * 0.01,
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Image.asset(
+                                        'assets/banana.png',
+                                        fit: BoxFit.contain,
+                                        width: screenWidth * 0.15,
+                                        height: screenHeight * 0.1,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: screenHeight * 0.03,
+                                  right: screenWidth * 0.03,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Your text 1',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: screenWidth * 0.03,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Your text 2',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: screenWidth * 0.03,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            )
+
+                            // Thêm các hộp khác tương tự ở đây
+                          ],
+                        ),
+
+                        // Thêm các hàng khác tương tự ở đây
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-          Spacer(),
-          // Thêm footer là hình ảnh
-          Container(
-            width: double.infinity,
-            child: Stack(
-              children: [
-                Image.asset(
-                  'assets/footer_home.png',
-                  width: screenWidth,
-                  // Thay đường dẫn tới hình ảnh footer
-                  fit: BoxFit.cover,
-                ),
-                Positioned(
-                  bottom: screenHeight * 0.015,
-                  right: screenWidth * 0.7,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Image.asset(
-                      'assets/footer_icon_home.png',
-                      width: screenWidth *
-                          0.15, // Kích thước icon dựa trên chiều rộng màn hình
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: screenHeight * 0.01,
-                  left: screenWidth * 0.48 - (screenWidth * 0.15 / 2),
-                  // Đặt vị trí ngang cho hình ảnh camera
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => CameraScreen()));
-                    },
-                    child: Image.asset(
-                      'assets/footer_camera.png',
-                      width: screenWidth *
-                          0.20, // Kích thước icon dựa trên chiều rộng màn hình
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: screenHeight * 0.01,
-                  left: screenWidth * 0.7,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => SettingScreen()));
-                    },
-                    child: Image.asset(
-                      'assets/setting.png',
-                      width: screenWidth * 0.2,
-                      // Kích thước icon dựa trên chiều rộng màn hình
-                    ),
-                  ),
-                ),
-              ],
+            SizedBox(height: verticalPadding), // Add some bottom padding
+          ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        width: double.infinity,
+        child: Stack(
+          children: [
+            Image.asset(
+              'assets/footer_home.png',
+              width: screenWidth,
+              fit: BoxFit.cover,
             ),
-          ),
-        ],
+            Positioned(
+              bottom: screenHeight * 0.015,
+              right: screenWidth * 0.7,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Image.asset(
+                  'assets/footer_icon_home.png',
+                  width: screenWidth * 0.15,
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: screenHeight * 0.01,
+              left: screenWidth * 0.48 - (screenWidth * 0.15 / 2),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => CameraScreen()));
+                },
+                child: Image.asset(
+                  'assets/footer_camera.png',
+                  width: screenWidth * 0.20,
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: screenHeight * 0.01,
+              left: screenWidth * 0.7,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => SettingScreen()));
+                },
+                child: Image.asset(
+                  'assets/setting.png',
+                  width: screenWidth * 0.2,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -35,7 +35,7 @@ class VocabularyDetailsScreen extends StatelessWidget {
           },
         ),
         title: Text(
-          'Vocabulary',
+          AppLocalizations.of(context)!.vocabulary,
           style: TextStyle(
             fontSize: titleFontSize * 1.5,
             fontWeight: FontWeight.bold,
@@ -111,6 +111,7 @@ class VocabularyDetailsScreen extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: screenHeight * 0.02),
+                    if (AppLocalizations.of(context)!.localeName != 'ko')
                     Row(
                       children: [
                         Image.asset(
@@ -157,12 +158,13 @@ class VocabularyDetailsScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30.0),
               child: Text(
-                '${word['ex_en']}',
+                '${AppLocalizations.of(context)!.localeName == 'en' ? word['ex_en'] : AppLocalizations.of(context)!.localeName == 'ko' ? word['ex_kr'] : word['ex_vn']}',
                 style: TextStyle(fontSize: titleFontSize * 1),
                 textAlign: TextAlign.justify,
               ),
             ),
             SizedBox(height: screenHeight * 0.02),
+            if (AppLocalizations.of(context)!.localeName != 'ko')
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30.0),
               child: Text(
@@ -173,7 +175,7 @@ class VocabularyDetailsScreen extends StatelessWidget {
             ),
             SizedBox(height: screenHeight * 0.02),
             Text(
-              'Image Of Wax Apple',
+              'Image Of ${AppLocalizations.of(context)!.localeName == 'en' ? word['english'] : AppLocalizations.of(context)!.localeName == 'ko' ? word['korean'] : word['vietnamese']}',
               style: TextStyle(
                 fontSize: titleFontSize * 0.8,
                 fontWeight: FontWeight.bold,
@@ -206,8 +208,8 @@ class VocabularyDetailsScreen extends StatelessWidget {
                           border: Border.all(color: Colors.black),
                           borderRadius: BorderRadius.circular(imageSize * 0.1),
                         ),
-                        child: Image.asset(
-                          'assets/wax_apple.png',
+                        child: Image.network(
+                          '${word['image']}',
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -224,8 +226,8 @@ class VocabularyDetailsScreen extends StatelessWidget {
                           border: Border.all(color: Colors.black),
                           borderRadius: BorderRadius.circular(imageSize * 0.1),
                         ),
-                        child: Image.asset(
-                          'assets/wax_apple.png',
+                        child: Image.network(
+                          '${word['image']}',
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -236,8 +238,8 @@ class VocabularyDetailsScreen extends StatelessWidget {
                           border: Border.all(color: Colors.black),
                           borderRadius: BorderRadius.circular(imageSize * 0.1),
                         ),
-                        child: Image.asset(
-                          'assets/wax_apple.png',
+                        child: Image.network(
+                          '${word['image']}',
                           fit: BoxFit.contain,
                         ),
                       ),
