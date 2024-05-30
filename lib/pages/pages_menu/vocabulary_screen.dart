@@ -17,7 +17,6 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
   void initState() {
     super.initState();
     _fetchVocabulary();
-    _fetchVocabulary();
     searchController.addListener(_filterVocabulary);
   }
   @override
@@ -76,9 +75,6 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
-
-
-
     return Scaffold(
       backgroundColor: Color(0xFFA4FFB3),
       appBar: AppBar(
