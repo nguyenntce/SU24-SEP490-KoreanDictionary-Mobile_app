@@ -1,10 +1,10 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/pages/home_screen.dart';
-import 'package:myapp/pages/pages_menu/instructions_screen.dart';
 import 'package:myapp/items/corner_camera_item.dart';
+import 'package:myapp/pages/pages_menu/instructions_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:myapp/pages/pages_menu/result_picture_screen.dart';
 
 class CameraScreen extends StatefulWidget {
   @override
@@ -13,28 +13,23 @@ class CameraScreen extends StatefulWidget {
 
 class _CameraScreenState extends State<CameraScreen> {
   late CameraController _controller;
-  late Future<void> _initializeControllerFuture;
+  Future<void>? _initializeControllerFuture;
   final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
-    _initializeCamera();
+    _initializeControllerFuture = _initializeCamera();
   }
 
   Future<void> _initializeCamera() async {
     final cameras = await availableCameras();
     final firstCamera = cameras.first;
-
     _controller = CameraController(
       firstCamera,
       ResolutionPreset.high,
     );
-
-    _initializeControllerFuture = _controller.initialize();
-    if (mounted) {
-      setState(() {});
-    }
+    await _controller.initialize();
   }
 
   @override
@@ -46,11 +41,8 @@ class _CameraScreenState extends State<CameraScreen> {
   Future<void> _takePicture(BuildContext context) async {
     try {
       await _initializeControllerFuture;
-
       final image = await _controller.takePicture();
-
       if (!mounted) return;
-
       await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => DisplayPictureScreen(imagePath: image.path),
@@ -66,7 +58,8 @@ class _CameraScreenState extends State<CameraScreen> {
     if (pickedFile != null) {
       await Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => DisplayPictureScreen(imagePath: pickedFile.path),
+          builder: (context) =>
+              DisplayPictureScreen(imagePath: pickedFile.path),
         ),
       );
     }
@@ -74,10 +67,8 @@ class _CameraScreenState extends State<CameraScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Lấy kích thước màn hình
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-    double iconSize = screenWidth * 0.1;
 
     return Scaffold(
       body: Stack(
@@ -100,7 +91,8 @@ class _CameraScreenState extends State<CameraScreen> {
                 backgroundColor: Colors.transparent,
                 elevation: 0,
                 leading: IconButton(
-                  icon: Icon(Icons.arrow_back, color: Colors.white, size: iconSize),
+                  icon: Icon(Icons.arrow_back,
+                      color: Colors.white, size: screenWidth * 0.1),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -108,20 +100,20 @@ class _CameraScreenState extends State<CameraScreen> {
                 actions: [
                   IconButton(
                     onPressed: () {
-                      // Xử lý sự kiện cho icon 1
+                      // Handle action for flash icon
                     },
-                    icon: Icon(Icons.flash_on, color: Colors.white, size: iconSize),
+                    icon: Icon(Icons.flash_on,
+                        color: Colors.white, size: screenWidth * 0.1),
                   ),
                   IconButton(
                     onPressed: () {
-                      // Xử lý sự kiện cho icon 2
+                      // Handle action for camera icon
                     },
                     icon: Icon(Icons.camera_alt_outlined,
-                        color: Colors.white, size: iconSize),
+                        color: Colors.white, size: screenWidth * 0.1),
                   ),
                 ],
               ),
-              SizedBox(height: screenHeight * 0.1),
               Expanded(
                 child: Center(
                   child: Container(
@@ -200,13 +192,28 @@ class _CameraScreenState extends State<CameraScreen> {
 
 class DisplayPictureScreen extends StatelessWidget {
   final String imagePath;
-
-  const DisplayPictureScreen({Key? key, required this.imagePath}) : super(key: key);
+  const DisplayPictureScreen({Key? key, required this.imagePath})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Display the Picture')),
+      appBar: AppBar(
+        title: Text('Display the Picture'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.arrow_circle_right), // Biểu tượng chuyển trang
+            onPressed: () {
+              // Xử lý khi người dùng nhấn vào biểu tượng chuyển trang
+              // Ví dụ: Chuyển sang màn hình khác
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ResultPictureScreen()),
+              );
+            },
+          ),
+        ],
+      ),
       body: Image.file(File(imagePath)),
     );
   }

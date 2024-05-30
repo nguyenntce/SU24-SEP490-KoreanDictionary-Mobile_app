@@ -13,7 +13,8 @@ class _FlashcardScreen extends State<FlashcardScreen> {
   final DatabaseReference _database = FirebaseDatabase.instance.reference().child('Vocabulary');
   List<Map<String, String>> vocabulary = [];
   final AudioPlayer audioPlayer = AudioPlayer();
-
+  final PageController _pageController = PageController(initialPage: 1); // Bắt đầu từ trang thứ 1
+  int currentIndex = 0;
   @override
   void initState() {
     super.initState();
@@ -89,9 +90,28 @@ class _FlashcardScreen extends State<FlashcardScreen> {
             child: vocabulary.isEmpty
                 ? CircularProgressIndicator()
                 : PageView.builder(
-              itemCount: vocabulary.length,
+              controller: _pageController,
+              itemCount: vocabulary.length + 2,
+              onPageChanged: (index) {
+                if (index == 0) {
+                  _pageController.jumpToPage(vocabulary.length);
+                } else if (index == vocabulary.length + 1) {
+                  _pageController.jumpToPage(1);
+                } else {
+                  setState(() {
+                    currentIndex = index - 1;
+                  });
+                }
+
+              },
               itemBuilder: (context, index) {
-                var word = vocabulary[index];
+                int displayIndex = index - 1;
+                if (index == 0) {
+                  displayIndex = vocabulary.length - 1;
+                } else if (index == vocabulary.length + 1) {
+                  displayIndex = 0;
+                }
+                var word = vocabulary[displayIndex];
                 return Container(
                   padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 30.0),
                   child: FlipCard(
@@ -343,7 +363,7 @@ class _FlashcardScreen extends State<FlashcardScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: Text(
-              '1/50',
+              '${currentIndex + 1}/${vocabulary.length}',
               style: TextStyle(
                 fontSize: titleFontSize * 1,
                 fontWeight: FontWeight.bold,
