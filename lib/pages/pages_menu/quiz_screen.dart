@@ -24,11 +24,10 @@ class _QuizScreenState extends State<QuizScreen> {
       int durationInSeconds = selectedTime == '5 Minutes'
           ? 1 * 10
           : selectedTime == '10 Minutes'
-          ? 10 * 60
-          : selectedTime == '15 Minutes'
-          ? 15 * 60
-          : 0;
-
+              ? 10 * 60
+              : selectedTime == '15 Minutes'
+                  ? 15 * 60
+                  : 0;
       switch (selectedType) {
         case 'Listen And Choose Picture':
           screen = ListenandfillwordScreen(durationInSeconds);
@@ -175,12 +174,12 @@ class _QuizScreenState extends State<QuizScreen> {
                                       });
                                     },
                                     items: times.map<DropdownMenuItem<String>>(
-                                            (String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Text(value),
-                                          );
-                                        }).toList(),
+                                        (String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value),
+                                      );
+                                    }).toList(),
                                   ),
                                 ),
                                 SizedBox(height: screenHeight * 0.02),
@@ -230,12 +229,12 @@ class _QuizScreenState extends State<QuizScreen> {
                                       });
                                     },
                                     items: types.map<DropdownMenuItem<String>>(
-                                            (String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Text(value),
-                                          );
-                                        }).toList(),
+                                        (String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value),
+                                      );
+                                    }).toList(),
                                   ),
                                 ),
                                 SizedBox(height: screenHeight * 0.03),
@@ -257,7 +256,7 @@ class _QuizScreenState extends State<QuizScreen> {
                                         vertical: screenWidth * 0.03),
                                     shape: RoundedRectangleBorder(
                                       borderRadius:
-                                      BorderRadius.circular(borderRadius),
+                                          BorderRadius.circular(borderRadius),
                                       side: BorderSide(
                                           color: Colors.black, width: 1),
                                     ),

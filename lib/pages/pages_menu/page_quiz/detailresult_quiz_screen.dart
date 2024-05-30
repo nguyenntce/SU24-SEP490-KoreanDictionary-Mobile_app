@@ -346,3 +346,4 @@ class _DetailresultQuizScreenState extends State<DetailresultQuizScreen> {
     );
   }
 }
+

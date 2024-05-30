@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 class CornerDashedBorderPainterCamera extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    double dashLength = size.width * 0.3; // Tính chiều dài đường kẻ dựa trên chiều rộng container
+    double dashLength = size.width * 0.2; // Tính chiều dài đường kẻ dựa trên chiều rộng container
     final paint = Paint()
       ..color = Colors.white
-      ..strokeWidth = 6;
+      ..strokeWidth = 5;
 
     // Top-left corner
     canvas.drawLine(Offset(0, 0), Offset(dashLength, 0), paint);

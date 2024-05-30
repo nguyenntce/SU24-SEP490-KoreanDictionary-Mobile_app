@@ -118,7 +118,7 @@ class _FlashcardScreen extends State<FlashcardScreen> {
                     direction: FlipDirection.HORIZONTAL,
                     front: Container(
                       width: screenWidth,
-                      height: screenHeight,
+                      height: screenHeight * 0.7,
                       decoration: BoxDecoration(
                         color: Colors.white,
                         border: Border.all(color: Colors.black, width: 2.0),
@@ -185,7 +185,7 @@ class _FlashcardScreen extends State<FlashcardScreen> {
                     ),
                     back: Container(
                       width: screenWidth,
-                      height: screenHeight,
+                      height: screenHeight * 0.7,
                       decoration: BoxDecoration(
                         color: Colors.white,
                         border: Border.all(color: Colors.black, width: 2.0),
@@ -267,6 +267,7 @@ class _FlashcardScreen extends State<FlashcardScreen> {
                                               ),
                                               onPressed: () {
                                                 _playAudio(AppLocalizations.of(context)!.localeName == 'en' ? word['voice_en']! : AppLocalizations.of(context)!.localeName == 'ko' ? word['voice_kr']! : word['voice_vn']!);
+
                                               },
                                             ),
                                           ],
@@ -355,7 +356,6 @@ class _FlashcardScreen extends State<FlashcardScreen> {
                     ),
 
                   ),
-
                 );
               },
             ),

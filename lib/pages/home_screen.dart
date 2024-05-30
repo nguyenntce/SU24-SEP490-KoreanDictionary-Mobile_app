@@ -4,7 +4,6 @@ import 'package:myapp/pages/pages_menu/camera_screen.dart';
 import 'package:myapp/pages/pages_menu/quiz_screen.dart';
 import 'package:myapp/pages/pages_menu/vocabulary_screen.dart';
 import 'package:myapp/items/menu_item.dart';
-import 'package:myapp/items/popular_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import '../pages/pages_menu/flashcard_screen.dart';
@@ -16,7 +15,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final DatabaseReference _database =
-  FirebaseDatabase.instance.reference().child('Vocabulary');
+      FirebaseDatabase.instance.reference().child('Vocabulary');
   List<Map<String, String>> vocabulary = [];
   List<Map<String, String>> filteredVocabulary = [];
   TextEditingController searchController = TextEditingController();
@@ -839,3 +838,4 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+

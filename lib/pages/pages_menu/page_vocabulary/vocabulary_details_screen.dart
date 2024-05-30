@@ -22,7 +22,6 @@ class VocabularyDetailsScreen extends StatelessWidget {
     double titleFontSize = screenWidth * 0.05;
     double imageSize = screenWidth * 0.3;
     double imageContainerHeight = screenHeight * 0.25;
-    double containerHeight = screenHeight * 0.08;
 
     return Scaffold(
       backgroundColor: Colors.white,

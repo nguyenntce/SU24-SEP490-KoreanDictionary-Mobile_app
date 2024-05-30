@@ -36,7 +36,7 @@ class ResultPictureScreen extends StatelessWidget {
             Container(
               // Change from Positioned to Container
               alignment:
-              Alignment.topCenter, // Align the image to the top center
+                  Alignment.topCenter, // Align the image to the top center
               child: Image.asset(
                 'assets/waxapple_picture.png',
                 fit: BoxFit.cover,
@@ -247,3 +247,4 @@ class ResultPictureScreen extends StatelessWidget {
     );
   }
 }
+
