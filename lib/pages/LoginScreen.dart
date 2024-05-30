@@ -5,7 +5,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:myapp/pages/home_screen.dart';
 import 'package:myapp/pages/optSreen.dart';
-import 'package:myapp/pages/home_screen.dart';
 
 class Loginscreen extends StatefulWidget {
   @override

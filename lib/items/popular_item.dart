@@ -13,7 +13,7 @@ class PopularItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(screenWidth * 0.05), // Bo tròn 5% chiều rộng màn hình
-          border: Border.all(color: Colors.black, width: screenWidth * 0.01), // Viền dày 1% chiều rộng màn hình
+          border: Border.all(color: Colors.black, width: screenWidth * 0.006), // Viền dày 1% chiều rộng màn hình
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.6),

@@ -51,7 +51,7 @@ class InstructionsScreen extends StatelessWidget {
                       children: [
                         Expanded(
                           child:
-                          Container(), // Container trống để căn giữa hình ảnh
+                              Container(), // Container trống để căn giữa hình ảnh
                         ),
                         Container(
                           width: imageSize * 0.6,
@@ -69,7 +69,7 @@ class InstructionsScreen extends StatelessWidget {
                         ),
                         Expanded(
                           child:
-                          Container(), // Container trống để căn giữa hình ảnh
+                              Container(), // Container trống để căn giữa hình ảnh
                         ),
                       ],
                     ),

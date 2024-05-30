@@ -58,7 +58,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                         color: Colors.black,
                         width: screenWidth * borderWidthRatio),
                     borderRadius:
-                    BorderRadius.circular(screenWidth * borderRadiusRatio),
+                        BorderRadius.circular(screenWidth * borderRadiusRatio),
                   ),
                   child: Stack(
                     children: [
@@ -69,7 +69,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                         child: Center(
                           child: Padding(
                             padding:
-                            EdgeInsets.all(screenWidth * textPaddingRatio),
+                                EdgeInsets.all(screenWidth * textPaddingRatio),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -156,12 +156,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                       });
                                     },
                                     items: types.map<DropdownMenuItem<String>>(
-                                            (String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Text(value),
-                                          );
-                                        }).toList(),
+                                        (String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value),
+                                      );
+                                    }).toList(),
                                   ),
                                 ),
                                 SizedBox(height: screenWidth * 0.02),
@@ -181,7 +181,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                 Container(
                                   width: screenWidth * 0.8,
                                   // Set the width of the container
-                                  height: screenHeight * 0.06,
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     border: Border.all(color: Colors.black),
@@ -189,31 +188,57 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                         screenWidth * 0.06),
                                   ),
                                   child: TextField(
+                                    maxLines:
+                                        null, // Cho phép TextField tự mở rộng theo số dòng văn bản
+                                    keyboardType: TextInputType
+                                        .multiline, // Cho phép nhập nhiều dòng
                                     decoration: InputDecoration(
                                       hintText: 'Your description...',
                                       // Display hint text
                                       border: InputBorder.none,
                                       // Remove default border of TextField
                                       contentPadding: EdgeInsets.symmetric(
-                                          horizontal: screenWidth *
-                                              0.03), // Padding inside TextField
+                                        horizontal: screenWidth * 0.03,
+                                        vertical: screenHeight *
+                                            0.02, // Thêm padding theo chiều dọc
+                                      ), // Padding inside TextField
                                     ),
                                   ),
                                 ),
                                 SizedBox(height: screenWidth * 0.02),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Image',
-                                      style: TextStyle(
-                                        fontSize: titleFontSize * 0.9,
-                                        fontWeight: FontWeight.bold,
+                                Center(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      // Code xử lý khi nhấn nút Save
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Color(0xFF35FF3D),
+                                      // Đặt màu xanh lá cho nút
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(30.0),
+                                      ),
+                                      side: const BorderSide(
+                                          width: 2,
+                                          color: Colors.black
+                                              ), // Thêm viền trắng cho nút
+                                    ),
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: screenWidth * 0.1,
+                                        vertical: screenHeight * 0.02,
+                                      ),
+                                      child: Text(
+                                        'Send',
+                                        style: TextStyle(
+                                            fontSize: titleFontSize,
+                                            color: Colors.black,
+                                            fontStyle: FontStyle.italic,
+                                            fontWeight: FontWeight.w900),
                                       ),
                                     ),
-                                  ],
+                                  ),
                                 ),
-                                SizedBox(height: screenWidth * 0.02),
                               ],
                             ),
                           ),

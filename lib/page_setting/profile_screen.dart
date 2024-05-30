@@ -64,7 +64,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     padding:
-                    EdgeInsets.all(4.0), // Tạo viền bằng cách thêm padding
+                        EdgeInsets.all(4.0), // Tạo viền bằng cách thêm padding
                   ),
                   Expanded(
                     child: Container(), // Container trống để căn giữa hình ảnh
@@ -97,7 +97,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   height: containerHeight,
                   child: Padding(
                     padding:
-                    EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                        EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                     child: Row(
                       children: [
                         Expanded(
@@ -138,7 +138,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   height: containerHeight,
                   child: Padding(
                     padding:
-                    EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                        EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                     child: Row(
                       children: [
                         Expanded(
@@ -183,7 +183,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   height: containerHeight,
                   child: Padding(
                     padding:
-                    EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                        EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                     child: Row(
                       children: [
                         Expanded(
@@ -228,7 +228,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   height: containerHeight,
                   child: Padding(
                     padding:
-                    EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                        EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                     child: Row(
                       children: [
                         Expanded(
@@ -273,7 +273,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   height: containerHeight,
                   child: Padding(
                     padding:
-                    EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                        EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                     child: Row(
                       children: [
                         Expanded(
@@ -318,7 +318,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   height: containerHeight,
                   child: Padding(
                     padding:
-                    EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                        EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                     child: Row(
                       children: [
                         Expanded(

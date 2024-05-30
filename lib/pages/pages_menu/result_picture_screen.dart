@@ -1,20 +1,6 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localization.dart';
 
-class VocabularyDetailsScreen extends StatelessWidget {
-  final Map<String, String> word;
-  final AudioPlayer audioPlayer = AudioPlayer();
-  VocabularyDetailsScreen({required this.word});
-  void _playAudio(String url) async {
-    try {
-      await audioPlayer.play(UrlSource(url)); // Sử dụng UrlSource cho URL
-
-    } catch (e) {
-      print('Error: $e');
-      print(url);
-    }
-  }
+class ResultPictureScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -34,7 +20,7 @@ class VocabularyDetailsScreen extends StatelessWidget {
           },
         ),
         title: Text(
-          AppLocalizations.of(context)!.vocabulary,
+          'Result',
           style: TextStyle(
             fontSize: titleFontSize * 1.5,
             fontWeight: FontWeight.bold,
@@ -47,6 +33,16 @@ class VocabularyDetailsScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            Container(
+              // Change from Positioned to Container
+              alignment:
+                  Alignment.topCenter, // Align the image to the top center
+              child: Image.asset(
+                'assets/waxapple_picture.png',
+                fit: BoxFit.cover,
+                width: screenWidth, // Set width to match the screen width
+              ),
+            ),
             SizedBox(height: screenHeight * 0.02),
             Center(
               child: Text(
@@ -74,7 +70,7 @@ class VocabularyDetailsScreen extends StatelessWidget {
                     Row(
                       children: [
                         Image.asset(
-                          'assets/${AppLocalizations.of(context)!.localeName == 'en' ? 'english_flag.png' : AppLocalizations.of(context)!.localeName == 'ko' ? 'korean_flag.png' : 'vietnam_flag.png'}',
+                          'assets/english_flag.png',
                           width: screenWidth * 0.2,
                         ),
                         Container(
@@ -85,7 +81,7 @@ class VocabularyDetailsScreen extends StatelessWidget {
                                 child: Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                    '${AppLocalizations.of(context)!.localeName == 'en' ? word['english'] : AppLocalizations.of(context)!.localeName == 'ko' ? word['korean'] : word['vietnamese']}',
+                                    'Wax Apple',
                                     style: TextStyle(
                                       fontSize: titleFontSize * 0.9,
                                       fontWeight: FontWeight.bold,
@@ -101,7 +97,7 @@ class VocabularyDetailsScreen extends StatelessWidget {
                                   size: screenWidth * 0.1,
                                 ),
                                 onPressed: () {
-                                  _playAudio(AppLocalizations.of(context)!.localeName == 'en' ? word['voice_en']! : AppLocalizations.of(context)!.localeName == 'ko' ? word['voice_kr']! : word['voice_vn']!);
+                                  // Xử lý khi icon được nhấn vào
                                 },
                               ),
                             ],
@@ -110,7 +106,6 @@ class VocabularyDetailsScreen extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: screenHeight * 0.02),
-                    if (AppLocalizations.of(context)!.localeName != 'ko')
                     Row(
                       children: [
                         Image.asset(
@@ -125,7 +120,7 @@ class VocabularyDetailsScreen extends StatelessWidget {
                                 child: Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                    '${word['korean']}',
+                                    '잠부 과일',
                                     style: TextStyle(
                                       fontSize: titleFontSize * 0.9,
                                       fontWeight: FontWeight.bold,
@@ -141,7 +136,7 @@ class VocabularyDetailsScreen extends StatelessWidget {
                                   size: screenWidth * 0.1,
                                 ),
                                 onPressed: () {
-                                  _playAudio(word['voice_kr']!);
+                                  // Xử lý khi icon được nhấn vào
                                 },
                               ),
                             ],
@@ -157,24 +152,23 @@ class VocabularyDetailsScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30.0),
               child: Text(
-                '${AppLocalizations.of(context)!.localeName == 'en' ? word['ex_en'] : AppLocalizations.of(context)!.localeName == 'ko' ? word['ex_kr'] : word['ex_vn']}',
+                'A small, round fruit with a thin, smooth, red purple or yellow skin, sweet, soft flesh, and a single large, hard seed.',
                 style: TextStyle(fontSize: titleFontSize * 1),
                 textAlign: TextAlign.justify,
               ),
             ),
             SizedBox(height: screenHeight * 0.02),
-            if (AppLocalizations.of(context)!.localeName != 'ko')
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30.0),
               child: Text(
-                '${word['ex_kr']}',
+                '얇고 매끄러운 붉은 보라색 또는 노란색 껍질, 달콤하고 부드러운 과육, 크고 단단한 씨앗 하나가 있는 작고 둥근 과일입니다.',
                 style: TextStyle(fontSize: titleFontSize * 1),
                 textAlign: TextAlign.justify,
               ),
             ),
             SizedBox(height: screenHeight * 0.02),
             Text(
-              'Image Of ${AppLocalizations.of(context)!.localeName == 'en' ? word['english'] : AppLocalizations.of(context)!.localeName == 'ko' ? word['korean'] : word['vietnamese']}',
+              'Image Of Wax Apple',
               style: TextStyle(
                 fontSize: titleFontSize * 0.8,
                 fontWeight: FontWeight.bold,
@@ -195,8 +189,8 @@ class VocabularyDetailsScreen extends StatelessWidget {
                           border: Border.all(color: Colors.black),
                           borderRadius: BorderRadius.circular(imageSize * 0.1),
                         ),
-                        child: Image.network(
-                          '${word['image']}',
+                        child: Image.asset(
+                          'assets/wax_apple.png',
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -207,8 +201,8 @@ class VocabularyDetailsScreen extends StatelessWidget {
                           border: Border.all(color: Colors.black),
                           borderRadius: BorderRadius.circular(imageSize * 0.1),
                         ),
-                        child: Image.network(
-                          '${word['image']}',
+                        child: Image.asset(
+                          'assets/wax_apple.png',
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -225,8 +219,8 @@ class VocabularyDetailsScreen extends StatelessWidget {
                           border: Border.all(color: Colors.black),
                           borderRadius: BorderRadius.circular(imageSize * 0.1),
                         ),
-                        child: Image.network(
-                          '${word['image']}',
+                        child: Image.asset(
+                          'assets/wax_apple.png',
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -237,8 +231,8 @@ class VocabularyDetailsScreen extends StatelessWidget {
                           border: Border.all(color: Colors.black),
                           borderRadius: BorderRadius.circular(imageSize * 0.1),
                         ),
-                        child: Image.network(
-                          '${word['image']}',
+                        child: Image.asset(
+                          'assets/wax_apple.png',
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -249,9 +243,8 @@ class VocabularyDetailsScreen extends StatelessWidget {
             ),
           ],
         ),
-
       ),
-
     );
   }
 }
+
