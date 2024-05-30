@@ -207,7 +207,7 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
                       'Click The Icon To Hear The Sound', // Your text goes here
                       style: TextStyle(
                         fontSize:
-                            textFontSize * 1, // Adjust the font size as needed
+                        textFontSize * 1, // Adjust the font size as needed
                         color: Colors.black, // Change the color if needed
                         fontStyle: FontStyle.italic,
                         fontWeight: FontWeight.w900,

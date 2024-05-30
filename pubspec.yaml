@@ -48,10 +48,11 @@ dependencies:
   gap: ^3.0.1
   external_path: ^1.0.3
   media_scanner: ^2.1.0
+  firebase_database: ^10.5.6
   percent_indicator: ^4.2.3
   audioplayers: ^6.0.0
-  firebase_database: ^10.5.7
   image_picker: ^1.1.1
+
 
 dev_dependencies:
   flutter_test:
@@ -91,32 +92,13 @@ flutter:
     - assets/flashcard.png
     - assets/image_home.png
     - assets/footer_home.png
+    - assets/footer_camera.png
     - assets/footer_icon_home.png
     - assets/setting.png
-    - assets/footer_camera.png
-    - assets/avatar.png
-    - assets/vietnam_flag.png
     - assets/english_flag.png
+    - assets/vietnam_flag.png
     - assets/korean_flag.png
-    - assets/about_us.png
-    - assets/kiwi.png
-    - assets/watermelon.png
-    - assets/banana.png
-    - assets/wax_apple.png
-    - assets/cherry.png
-    - assets/logan.png
     - assets/strawberry.png
-    - assets/apple.png
-    - assets/fail_image1.png
-    - assets/fail_image2.png
-    - assets/fail_image3.png
-    - assets/fail_image4.png
-    - assets/correct_image1.png
-    - assets/correct_image2.png
-    - assets/correct_image3.png
-    - assets/correct_image4.png
-    - assets/waxapple_picture.png
-
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

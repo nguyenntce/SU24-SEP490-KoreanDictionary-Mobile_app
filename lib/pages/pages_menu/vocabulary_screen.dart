@@ -79,185 +79,132 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
       backgroundColor: Color(0xFFA4FFB3),
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            backgroundColor: Color(0xFF154F41),
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            title: Text(
-              'Vocabulary',
-              style: TextStyle(
-                fontSize: screenWidth * 0.06,
-                fontWeight: FontWeight.bold,
-                fontStyle: FontStyle.italic,
-                color: Colors.white,
-              ),
-            ),
-            centerTitle: true,
-            pinned: true,
-          ),
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _SearchBarDelegate(
-              searchController: searchController,
-              focusNode: _focusNode,
-              screenWidth: screenWidth,
-              screenHeight: screenHeight,
-            ),
-          ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                int vocabIndex = index;
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: screenWidth * 0.05,
-                    vertical: screenHeight * 0.01,
-                  ),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(screenWidth * 0.05),
-                    ),
-                    child: ListTile(
-                      leading: Image.network(
-                        filteredVocabulary[vocabIndex]['image']!,
-                        width: screenWidth * 0.1,
-                        height: screenHeight * 0.1,
-                        fit: BoxFit.contain,
-                      ),
-                      title: Text(
-                        filteredVocabulary[vocabIndex]
-                            [AppLocalizations.of(context)!.vocabularykey]!,
-                        style: TextStyle(
-                          fontSize: screenWidth * 0.05,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      subtitle: AppLocalizations.of(context)!.localeName != 'ko'
-                          ? Text(
-                              filteredVocabulary[vocabIndex]['korean']!,
-                              style: TextStyle(
-                                fontSize: screenWidth * 0.05,
-                                color: Colors.grey[700],
-                              ),
-                            )
-                          : null,
-                      trailing: Icon(Icons.more_vert),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => VocabularyDetailsScreen(
-                                word: filteredVocabulary[vocabIndex]),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                );
-              },
-              childCount: filteredVocabulary.length,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SearchBarDelegate extends SliverPersistentHeaderDelegate {
-  final TextEditingController searchController;
-  final FocusNode focusNode;
-  final double screenWidth;
-  final double screenHeight;
-
-  _SearchBarDelegate({
-    required this.searchController,
-    required this.focusNode,
-    required this.screenWidth,
-    required this.screenHeight,
-  });
-
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: Color(0xFFA4FFB3),
-      padding: EdgeInsets.symmetric(
-          horizontal: screenWidth * 0.05, vertical: screenHeight * 0.02),
-      child: TextField(
-        controller: searchController,
-        focusNode: focusNode,
-        style: TextStyle(
-          fontSize: screenWidth * 0.06,
+      appBar: AppBar(
+        backgroundColor: Color(0xFF154F41),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
         ),
-        decoration: InputDecoration(
-          hintText: AppLocalizations.of(context)!.findSomeNewWord,
-          hintStyle: TextStyle(
-            color: Colors.black,
-            fontSize: screenWidth * 0.05,
+        title: Text(
+          AppLocalizations.of(context)!.vocabulary,
+          style: TextStyle(
+            fontSize: screenWidth * 0.06,
             fontWeight: FontWeight.bold,
             fontStyle: FontStyle.italic,
-          ),
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(screenWidth * 0.08),
-            borderSide: BorderSide(
-              color: Colors.black,
-              width: screenWidth * 0.006,
-            ),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(screenWidth * 0.08),
-            borderSide: BorderSide(
-              color: Colors.black,
-              width: screenWidth * 0.008,
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(screenWidth * 0.08),
-            borderSide: BorderSide(
-              color: Colors.black,
-              width: screenWidth * 0.008,
-            ),
-          ),
-          prefixIcon: Icon(
-            Icons.search,
-            size: screenWidth * 0.1,
-            color: Colors.black,
-          ),
-          contentPadding: EdgeInsets.fromLTRB(
-            screenWidth * 0.02,
-            screenWidth * 0.02,
-            screenWidth * 0.02,
-            screenWidth * 0.07,
+            color: Colors.white,
           ),
         ),
+        centerTitle: true,
+      ),
+      body: ListView.builder(
+        itemCount: filteredVocabulary.length + 1, // Add 1 for the search bar
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: screenHeight * 0.02),
+              child: TextField(
+                controller: searchController,
+                focusNode: _focusNode,
+                style: TextStyle(
+                  fontSize: screenWidth * 0.05,
+                ),
+                decoration: InputDecoration(
+                  hintText: AppLocalizations.of(context)!.findSomeNewWord,
+                  hintStyle: TextStyle(
+                    color: Colors.black,
+                    fontSize: screenWidth * 0.05,
+                    fontWeight: FontWeight.bold,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(screenWidth * 0.08),
+                    borderSide: BorderSide(
+                      color: Colors.black,
+                      width: screenWidth * 0.006,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(screenWidth * 0.08),
+                    borderSide: BorderSide(
+                      color: Colors.black,
+                      width: screenWidth * 0.007,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(screenWidth * 0.08),
+                    borderSide: BorderSide(
+                      color: Colors.black,
+                      width: screenWidth * 0.008,
+                    ),
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    size: screenWidth * 0.1,
+                    color: Colors.black,
+                  ),
+                  contentPadding: EdgeInsets.fromLTRB(
+                    screenWidth * 0.02,
+                    screenWidth * 0.01,
+                    screenWidth * 0.02,
+                    screenWidth * 0.07,
+                  ),
+                ),
+              ),
+            );
+          } else {
+            int vocabIndex = index - 1; // Adjust index for the vocabulary list
+            return Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: screenWidth * 0.05,
+                vertical: screenHeight * 0.01,
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(screenWidth * 0.05),
+                ),
+                child: ListTile(
+                  leading: Image.network(
+                    filteredVocabulary[vocabIndex]['image']!,
+                    width: screenWidth * 0.1,
+                    height: screenHeight * 0.1,
+                    fit: BoxFit.contain,
+                  ),
+                  title: Text(
+                    filteredVocabulary[vocabIndex][AppLocalizations.of(context)!.vocabularykey]!,
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.05,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  subtitle:AppLocalizations.of(context)!.localeName != 'ko' ? Text(
+                    filteredVocabulary[vocabIndex]['korean']!,
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.05,
+                      color: Colors.grey[700],
+                    ),
+                  ):null,
+                  trailing: Icon(Icons.more_vert),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => VocabularyDetailsScreen(word: filteredVocabulary[vocabIndex]),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            );
+          }
+        },
       ),
     );
-  }
-
-  @override
-  double get maxExtent => screenHeight * 0.1;
-
-  @override
-  double get minExtent => screenHeight * 0.1;
-
-  @override
-  bool shouldRebuild(_SearchBarDelegate oldDelegate) {
-    return oldDelegate.searchController != searchController ||
-        oldDelegate.focusNode != focusNode ||
-        oldDelegate.screenWidth != screenWidth ||
-        oldDelegate.screenHeight != screenHeight;
   }
 }

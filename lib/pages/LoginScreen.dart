@@ -4,7 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:myapp/pages/home_screen.dart';
+import 'package:myapp/pages/home_screen.dart';
 import 'package:myapp/pages/optSreen.dart';
+import 'package:myapp/pages/home_screen.dart';
 
 class Loginscreen extends StatefulWidget {
   @override
@@ -28,9 +30,9 @@ class _LoginscreenState extends State<Loginscreen> {
         r'^\+?[0-9]{10,15}$'; // Ví dụ: kiểm tra số điện thoại có từ 10 đến 15 chữ số và có thể có dấu +
     RegExp regex = RegExp(pattern);
     print(fullPhoneNumber);
-    if (fullPhoneNumber .isNotEmpty && regex.hasMatch(fullPhoneNumber )) {
+    if (fullPhoneNumber.isNotEmpty && regex.hasMatch(fullPhoneNumber)) {
       await _auth.verifyPhoneNumber(
-        phoneNumber: fullPhoneNumber ,
+        phoneNumber: fullPhoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
           await _auth.signInWithCredential(credential);
         },
@@ -56,10 +58,10 @@ class _LoginscreenState extends State<Loginscreen> {
   Future<void> _signInWithGoogle(BuildContext context) async {
     try {
       final GoogleSignInAccount? googleSignInAccount =
-      await _googleSignIn.signIn();
+          await _googleSignIn.signIn();
       if (googleSignInAccount != null) {
         final GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount.authentication;
+            await googleSignInAccount.authentication;
         final AuthCredential credential = GoogleAuthProvider.credential(
           idToken: googleSignInAuthentication.idToken,
           accessToken: googleSignInAuthentication.accessToken,
@@ -67,6 +69,7 @@ class _LoginscreenState extends State<Loginscreen> {
         await _firebaseAuth.signInWithCredential(credential);
         Navigator.pushReplacement(
           context,
+          MaterialPageRoute(builder: (context) => HomeScreen()),
           MaterialPageRoute(builder: (context) => HomeScreen()),
         );
       }
@@ -150,29 +153,30 @@ class _LoginscreenState extends State<Loginscreen> {
                                           child: TextFormField(
                                             decoration: InputDecoration(
                                               hintText:
-                                              'Enter your phone number...',
+                                                  'Enter your phone number...',
                                               enabledBorder: OutlineInputBorder(
                                                 borderRadius:
-                                                BorderRadius.circular(10),
+                                                    BorderRadius.circular(10),
                                                 borderSide: const BorderSide(
                                                   color: Colors.black,
                                                 ),
                                               ),
                                               focusedBorder: OutlineInputBorder(
                                                 borderRadius:
-                                                BorderRadius.circular(10),
+                                                    BorderRadius.circular(10),
                                                 borderSide: const BorderSide(
                                                   color: Colors.black,
                                                 ),
                                               ),
                                               prefixIcon: Container(
-                                                padding: const EdgeInsets.all(10.0),
+                                                padding:
+                                                    const EdgeInsets.all(10.0),
                                                 child: InkWell(
                                                   onTap: () {
                                                     showCountryPicker(
                                                       context: context,
                                                       countryListTheme:
-                                                      const CountryListThemeData(
+                                                          const CountryListThemeData(
                                                         bottomSheetHeight: 500,
                                                       ),
                                                       onSelect:
@@ -185,19 +189,22 @@ class _LoginscreenState extends State<Loginscreen> {
                                                     );
                                                   },
                                                   child: Row(
-                                                    mainAxisSize: MainAxisSize.min,
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
                                                     children: [
                                                       Text(
                                                         "${selectedCountry.flagEmoji}",
                                                         style: TextStyle(
-                                                          fontSize: screenWidth * 0.05, // Adjust the size as needed
+                                                          fontSize: screenWidth *
+                                                              0.05, // Adjust the size as needed
                                                         ),
                                                       ),
                                                       SizedBox(width: 5),
                                                       Text(
                                                         "+${selectedCountry.phoneCode}",
                                                         style: TextStyle(
-                                                          fontSize: screenWidth * 0.04, // Adjust the size as needed
+                                                          fontSize: screenWidth *
+                                                              0.04, // Adjust the size as needed
                                                         ),
                                                       ),
                                                     ],
@@ -313,4 +320,3 @@ class _LoginscreenState extends State<Loginscreen> {
     );
   }
 }
-

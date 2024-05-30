@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:myapp/pages/pages_menu/page_quiz/detailresult_quiz_screen.dart';
 import 'package:myapp/pages/pages_menu/page_quiz/result_quiz_screen.dart';
-
 class PictureandchoosewordScreen extends StatefulWidget {
   final int durationInSeconds;
 
@@ -227,7 +226,7 @@ class _ListenandfillwordScreenState extends State<PictureandchoosewordScreen> {
                               'abv', // Nội dung văn bản
                               style: TextStyle(
                                 fontSize:
-                                    screenHeight * 0.025, // Kích thước văn bản
+                                screenHeight * 0.025, // Kích thước văn bản
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black, // Màu văn bản
                               ),
@@ -257,7 +256,7 @@ class _ListenandfillwordScreenState extends State<PictureandchoosewordScreen> {
                               'abv', // Nội dung văn bản
                               style: TextStyle(
                                 fontSize:
-                                    screenHeight * 0.025, // Kích thước văn bản
+                                screenHeight * 0.025, // Kích thước văn bản
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black, // Màu văn bản
                               ),
@@ -287,7 +286,7 @@ class _ListenandfillwordScreenState extends State<PictureandchoosewordScreen> {
                               'abv', // Nội dung văn bản
                               style: TextStyle(
                                 fontSize:
-                                    screenHeight * 0.025, // Kích thước văn bản
+                                screenHeight * 0.025, // Kích thước văn bản
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black, // Màu văn bản
                               ),
@@ -317,7 +316,7 @@ class _ListenandfillwordScreenState extends State<PictureandchoosewordScreen> {
                               'abv', // Nội dung văn bản
                               style: TextStyle(
                                 fontSize:
-                                    screenHeight * 0.025, // Kích thước văn bản
+                                screenHeight * 0.025, // Kích thước văn bản
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black, // Màu văn bản
                               ),
