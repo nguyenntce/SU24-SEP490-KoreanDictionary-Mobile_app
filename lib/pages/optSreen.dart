@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:myapp/pages/home_sreen.dart';
+import 'package:myapp/pages/home_screen.dart';
 import 'package:pinput/pinput.dart';
 
 class OptScreen extends StatelessWidget {
