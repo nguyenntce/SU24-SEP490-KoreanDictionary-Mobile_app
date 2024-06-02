@@ -30,6 +30,9 @@ class _CameraScreenState extends State<CameraScreen> {
       ResolutionPreset.high,
     );
     await _controller.initialize();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -45,7 +48,7 @@ class _CameraScreenState extends State<CameraScreen> {
       if (!mounted) return;
       await Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => DisplayPictureScreen(imagePath: image.path),
+          builder: (context) => ResultPictureScreen(imagePath: image.path),
         ),
       );
     } catch (e) {
@@ -59,7 +62,7 @@ class _CameraScreenState extends State<CameraScreen> {
       await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) =>
-              DisplayPictureScreen(imagePath: pickedFile.path),
+              ResultPictureScreen(imagePath: pickedFile.path),
         ),
       );
     }
@@ -77,8 +80,15 @@ class _CameraScreenState extends State<CameraScreen> {
             future: _initializeControllerFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
-                return Positioned.fill(
-                  child: CameraPreview(_controller),
+                return SizedBox(
+                  height: screenHeight,
+                  child: AspectRatio(
+                    aspectRatio: _controller.value.aspectRatio,
+                    child: RotatedBox(
+                      quarterTurns: 1, // Xoay camera 90 độ để hiển thị theo hướng dọc
+                      child: CameraPreview(_controller),
+                    ),
+                  ),
                 );
               } else {
                 return Center(child: CircularProgressIndicator());
@@ -189,34 +199,3 @@ class _CameraScreenState extends State<CameraScreen> {
     );
   }
 }
-
-class DisplayPictureScreen extends StatelessWidget {
-  final String imagePath;
-  const DisplayPictureScreen({Key? key, required this.imagePath})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Display the Picture'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.arrow_circle_right), // Biểu tượng chuyển trang
-            onPressed: () {
-              // Xử lý khi người dùng nhấn vào biểu tượng chuyển trang
-              // Ví dụ: Chuyển sang màn hình khác
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ResultPictureScreen()),
-              );
-            },
-          ),
-        ],
-      ),
-      body: Image.file(File(imagePath)),
-    );
-  }
-}
-
-void main() => runApp(MaterialApp(home: CameraScreen()));

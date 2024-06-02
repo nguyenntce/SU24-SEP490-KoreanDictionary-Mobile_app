@@ -1,6 +1,95 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
 
-class ResultPictureScreen extends StatelessWidget {
+class ResultPictureScreen extends StatefulWidget {
+  final String imagePath;
+  const ResultPictureScreen({Key? key, required this.imagePath}) : super(key: key);
+
+  @override
+  _ResultPictureScreenState createState() => _ResultPictureScreenState();
+}
+
+class _ResultPictureScreenState extends State<ResultPictureScreen> {
+  final DatabaseReference _database = FirebaseDatabase.instance.reference().child('Vocabulary');
+  int? targetId;
+  Map<String, dynamic>? vocabularyData;
+  bool isLoading = true;
+  String? errorMessage;
+
+  Future<void> _sendImageToServer() async {
+    var request = http.MultipartRequest('POST', Uri.parse('http://192.168.2.23:8000/predict'));
+    request.files.add(await http.MultipartFile.fromPath('image', widget.imagePath));
+    print('goi dc api ');
+
+    var response = await request.send();
+    var responseData = await response.stream.bytesToString();
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      var jsonResponse = json.decode(responseData) as List;
+      if (jsonResponse.isNotEmpty) {
+        // Kiểm tra và chuyển đổi kiểu dữ liệu cho jsonId
+        dynamic jsonIdDynamic = jsonResponse[0]['id'];
+        int jsonId;
+        if (jsonIdDynamic is double) {
+          jsonId = jsonIdDynamic.toInt();
+        } else if (jsonIdDynamic is int) {
+          jsonId = jsonIdDynamic;
+        } else {
+          throw Exception("Unexpected type for jsonId: ${jsonIdDynamic.runtimeType}");
+        }
+
+        targetId = jsonId + 1;
+        print('Target ID: $targetId'); // In ra targetId để kiểm tra
+        _fetchVocabulary();
+      }
+    } else {
+      setState(() {
+        isLoading = false;
+        errorMessage = 'Failed to upload image. Status Code: ${response.statusCode}';
+      });
+    }
+  }
+
+  void _fetchVocabulary() async {
+    try {
+      Query query = _database.orderByChild('Id').equalTo(targetId);
+      DataSnapshot snapshot = await query.get();
+
+      if (snapshot.exists) {
+        print('Fetched data from Firebase: ${snapshot.value}');
+        Map<dynamic, dynamic> values = snapshot.value as Map<dynamic, dynamic>;
+        values.forEach((key, value) {
+          if (value != null && value['Id'] == targetId) {
+            setState(() {
+              vocabularyData = Map<String, dynamic>.from(value);
+              isLoading = false;
+            });
+          }
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+          errorMessage = 'No matching item found';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        errorMessage = 'An error occurred: $e';
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _sendImageToServer();
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -30,17 +119,25 @@ class ResultPictureScreen extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : errorMessage != null
+          ? Center(child: Text(errorMessage!))
+          : SingleChildScrollView(
         child: Column(
           children: [
             Container(
-              // Change from Positioned to Container
-              alignment:
-                  Alignment.topCenter, // Align the image to the top center
-              child: Image.asset(
-                'assets/waxapple_picture.png',
-                fit: BoxFit.cover,
-                width: screenWidth, // Set width to match the screen width
+              alignment: Alignment.topCenter,
+              child: ClipRect(
+                child: Align(
+                  alignment: Alignment.center,
+                  heightFactor: 0.3, // Hiển thị phần giữa tấm hình
+                  child: Image.file(
+                    File(widget.imagePath),
+                    fit: BoxFit.cover,
+                    width: screenWidth,
+                  ),
+                ),
               ),
             ),
             SizedBox(height: screenHeight * 0.02),
@@ -70,7 +167,7 @@ class ResultPictureScreen extends StatelessWidget {
                     Row(
                       children: [
                         Image.asset(
-                          'assets/english_flag.png',
+                          'assets/${AppLocalizations.of(context)!.localeName == 'en' ? 'english_flag.png' : AppLocalizations.of(context)!.localeName == 'ko' ? 'korean_flag.png' : 'vietnam_flag.png'}',
                           width: screenWidth * 0.2,
                         ),
                         Container(
@@ -81,7 +178,7 @@ class ResultPictureScreen extends StatelessWidget {
                                 child: Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                    'Wax Apple',
+                                    '${AppLocalizations.of(context)!.localeName == 'en' ? vocabularyData!['English'] : AppLocalizations.of(context)!.localeName == 'ko' ? vocabularyData!['Korean'] : vocabularyData!['Vietnamese']}',
                                     style: TextStyle(
                                       fontSize: titleFontSize * 0.9,
                                       fontWeight: FontWeight.bold,
@@ -106,6 +203,7 @@ class ResultPictureScreen extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: screenHeight * 0.02),
+                    if(AppLocalizations.of(context)!.localeName != 'ko')
                     Row(
                       children: [
                         Image.asset(
@@ -120,7 +218,7 @@ class ResultPictureScreen extends StatelessWidget {
                                 child: Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                    '잠부 과일',
+                                    '${vocabularyData!['Korean']}',
                                     style: TextStyle(
                                       fontSize: titleFontSize * 0.9,
                                       fontWeight: FontWeight.bold,
@@ -152,16 +250,18 @@ class ResultPictureScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30.0),
               child: Text(
-                'A small, round fruit with a thin, smooth, red purple or yellow skin, sweet, soft flesh, and a single large, hard seed.',
+                '${AppLocalizations.of(context)!.localeName == 'en' ? vocabularyData!['Example_EN'] :
+                AppLocalizations.of(context)!.localeName == 'ko' ? vocabularyData!['Example_KR'] : vocabularyData!['Example_VN']}',
                 style: TextStyle(fontSize: titleFontSize * 1),
                 textAlign: TextAlign.justify,
               ),
             ),
             SizedBox(height: screenHeight * 0.02),
+            if(AppLocalizations.of(context)!.localeName != 'ko')
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30.0),
               child: Text(
-                '얇고 매끄러운 붉은 보라색 또는 노란색 껍질, 달콤하고 부드러운 과육, 크고 단단한 씨앗 하나가 있는 작고 둥근 과일입니다.',
+                '${vocabularyData!['Example_KR']}',
                 style: TextStyle(fontSize: titleFontSize * 1),
                 textAlign: TextAlign.justify,
               ),
@@ -189,8 +289,8 @@ class ResultPictureScreen extends StatelessWidget {
                           border: Border.all(color: Colors.black),
                           borderRadius: BorderRadius.circular(imageSize * 0.1),
                         ),
-                        child: Image.asset(
-                          'assets/wax_apple.png',
+                        child: Image.network(
+                          vocabularyData!["Fruits_img"],
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -201,8 +301,8 @@ class ResultPictureScreen extends StatelessWidget {
                           border: Border.all(color: Colors.black),
                           borderRadius: BorderRadius.circular(imageSize * 0.1),
                         ),
-                        child: Image.asset(
-                          'assets/wax_apple.png',
+                        child: Image.network(
+                          vocabularyData!["Fruits_img"],
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -219,8 +319,8 @@ class ResultPictureScreen extends StatelessWidget {
                           border: Border.all(color: Colors.black),
                           borderRadius: BorderRadius.circular(imageSize * 0.1),
                         ),
-                        child: Image.asset(
-                          'assets/wax_apple.png',
+                        child: Image.network(
+                          vocabularyData!["Fruits_img"],
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -231,8 +331,8 @@ class ResultPictureScreen extends StatelessWidget {
                           border: Border.all(color: Colors.black),
                           borderRadius: BorderRadius.circular(imageSize * 0.1),
                         ),
-                        child: Image.asset(
-                          'assets/wax_apple.png',
+                        child: Image.network(
+                          vocabularyData!["Fruits_img"],
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -247,4 +347,3 @@ class ResultPictureScreen extends StatelessWidget {
     );
   }
 }
-

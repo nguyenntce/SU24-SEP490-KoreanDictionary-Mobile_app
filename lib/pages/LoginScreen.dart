@@ -15,6 +15,7 @@ class _LoginscreenState extends State<Loginscreen> {
   final TextEditingController phoneController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final user = FirebaseAuth.instance.currentUser;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   Country selectedCountry = CountryParser.parseCountryCode('VN');
@@ -313,4 +314,3 @@ class _LoginscreenState extends State<Loginscreen> {
     );
   }
 }
-
