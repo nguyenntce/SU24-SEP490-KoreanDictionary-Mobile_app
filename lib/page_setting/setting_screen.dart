@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:myapp/page_setting/aboutus_screen.dart';
 import 'package:myapp/page_setting/feedback_screen.dart';
 import 'package:myapp/page_setting/profile_screen.dart';
@@ -14,6 +15,29 @@ class SettingScreen extends StatefulWidget {
 
 class _SettingScreenState extends State<SettingScreen> {
   bool notificationsEnabled = true; // Trạng thái ban đầu là bật
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  Future<void> _signOut(BuildContext context) async {
+    try {
+           User? user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        if (user.providerData.any((userInfo) => userInfo.providerId == 'google.com')) {
+          await _googleSignIn.signOut();
+        }
+        await FirebaseAuth.instance.signOut();
+      }
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => index()),
+      );
+    } catch (e) {
+      print("Error signing out: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error signing out: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -454,13 +478,7 @@ class _SettingScreenState extends State<SettingScreen> {
                   ),
                 ),SizedBox(height: screenHeight * 0.02),
                 GestureDetector(
-                  onTap: () async {
-                    await FirebaseAuth.instance.signOut();
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => index()),
-                    );
-                  },
+                  onTap: ()=> _signOut(context),
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
