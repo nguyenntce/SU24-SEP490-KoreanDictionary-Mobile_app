@@ -21,7 +21,7 @@ class _ResultPictureScreenState extends State<ResultPictureScreen> {
   String? errorMessage;
 
   Future<void> _sendImageToServer() async {
-    var request = http.MultipartRequest('POST', Uri.parse('http://192.168.2.23:8000/predict'));
+    var request = http.MultipartRequest('POST', Uri.parse('http://192.168.1.19:8000/predict'));
     request.files.add(await http.MultipartFile.fromPath('image', widget.imagePath));
     print('goi dc api ');
 
