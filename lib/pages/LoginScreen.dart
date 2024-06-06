@@ -66,20 +66,33 @@ class _LoginscreenState extends State<Loginscreen> {
     final snapshot = await _database.orderByChild('Email').equalTo(email).once();
     return snapshot.snapshot.value != null;
   }
+  Future<bool> _isPhoneExist(int phone) async {
+    final snapshot = await _database.orderByChild('Phone').equalTo(phone).once();
+    return snapshot.snapshot.value != null;
+  }
   void sendOTP(BuildContext context) async {
     String phone = phoneController.text.trim();
     String fullPhoneNumber = "+${selectedCountry.phoneCode}$phone";
 
     // Kiểm tra định dạng số điện thoại
-    String pattern =
-        r'^\+?[0-9]{10,15}$'; // Ví dụ: kiểm tra số điện thoại có từ 10 đến 15 chữ số và có thể có dấu +
+    String pattern = r'^\+?[0-9]{10,15}$'; // Ví dụ: kiểm tra số điện thoại có từ 10 đến 15 chữ số và có thể có dấu +
     RegExp regex = RegExp(pattern);
     print(fullPhoneNumber);
-    if (fullPhoneNumber .isNotEmpty && regex.hasMatch(fullPhoneNumber )) {
+    if (fullPhoneNumber.isNotEmpty && regex.hasMatch(fullPhoneNumber)) {
+
+      // Loại bỏ dấu "+" và chuyển đổi chuỗi số điện thoại thành số nguyên
+      int phoneNumber = int.parse(fullPhoneNumber.replaceFirst('+', ''));
+      bool phoneExists = await _isPhoneExist(phoneNumber);
+      print(phoneExists);
+      if (!phoneExists) {
+        int newId = await _getNextUserId();
+        _saveUserToDatabase(newId, phone: phoneNumber);
+      }
       await _auth.verifyPhoneNumber(
-        phoneNumber: fullPhoneNumber ,
+        phoneNumber: fullPhoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
           await _auth.signInWithCredential(credential);
+
         },
         verificationFailed: (FirebaseAuthException e) {
           Fluttertoast.showToast(
