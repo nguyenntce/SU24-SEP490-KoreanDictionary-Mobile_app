@@ -85,7 +85,7 @@ class _CameraScreenState extends State<CameraScreen> {
                   child: AspectRatio(
                     aspectRatio: _controller.value.aspectRatio,
                     child: RotatedBox(
-                      quarterTurns: 1, // Xoay camera 90 độ để hiển thị theo hướng dọc
+                      quarterTurns: 0, // Xoay camera 90 độ để hiển thị theo hướng dọc
                       child: CameraPreview(_controller),
                     ),
                   ),

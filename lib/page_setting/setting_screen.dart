@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:myapp/page_setting/aboutus_screen.dart';
@@ -16,6 +17,10 @@ class SettingScreen extends StatefulWidget {
 class _SettingScreenState extends State<SettingScreen> {
   bool notificationsEnabled = true; // Trạng thái ban đầu là bật
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+
+
+
+
   Future<void> _signOut(BuildContext context) async {
     try {
            User? user = FirebaseAuth.instance.currentUser;
@@ -100,14 +105,14 @@ class _SettingScreenState extends State<SettingScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'User Name',
+                        'username',
                         style: TextStyle(
                           fontSize: titleFontSize * 1,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
-                        'User Email',
+                        'email',
                         style: TextStyle(
                           fontSize: titleFontSize * 0.6,
                           color: Colors.black,
