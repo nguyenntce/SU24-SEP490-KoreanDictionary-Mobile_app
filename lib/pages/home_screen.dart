@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:myapp/page_setting/setting_screen.dart';
 import 'package:myapp/pages/pages_menu/camera_screen.dart';
@@ -18,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FirebaseDatabase.instance.reference().child('Vocabulary');
   List<Map<String, String>> vocabulary = [];
   List<Map<String, String>> filteredVocabulary = [];
+  List<Map<String, String>> randomVocabulary = [];
   TextEditingController searchController = TextEditingController();
   FocusNode _focusNode = FocusNode();
 
@@ -59,25 +62,47 @@ class _HomeScreenState extends State<HomeScreen> {
         });
         setState(() {
           vocabulary = tempList;
-          filteredVocabulary = tempList;
+          _getRandomVocabulary();
         });
       }
     });
   }
 
+  void _getRandomVocabulary() {
+    Random random = Random();
+    if (vocabulary.length > 10) {
+      Set<int> randomIndexes = {};
+      while (randomIndexes.length < 10) {
+        randomIndexes.add(random.nextInt(vocabulary.length));
+      }
+      randomVocabulary =
+          randomIndexes.map((index) => vocabulary[index]).toList();
+    } else {
+      randomVocabulary = List.from(vocabulary);
+    }
+    filteredVocabulary = List.from(randomVocabulary);
+    setState(() {});
+  }
+
   void _filterVocabulary() {
     String query = searchController.text.toLowerCase();
-    List<Map<String, String>> tempList = [];
-    vocabulary.forEach((vocab) {
-      if (vocab['english']!.toLowerCase().contains(query) ||
-          vocab['korean']!.toLowerCase().contains(query) ||
-          vocab['vietnamese']!.toLowerCase().contains(query)) {
-        tempList.add(vocab);
-      }
-    });
-    setState(() {
-      filteredVocabulary = tempList;
-    });
+    if (query.isEmpty) {
+      setState(() {
+        filteredVocabulary = List.from(randomVocabulary);
+      });
+    } else {
+      List<Map<String, String>> tempList = [];
+      randomVocabulary.forEach((vocab) {
+        if (vocab['english']!.toLowerCase().contains(query) ||
+            vocab['korean']!.toLowerCase().contains(query) ||
+            vocab['vietnamese']!.toLowerCase().contains(query)) {
+          tempList.add(vocab);
+        }
+      });
+      setState(() {
+        filteredVocabulary = tempList;
+      });
+    }
   }
 
   @override
@@ -100,6 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   SizedBox(height: verticalPadding),
                   TextField(
+                    controller: searchController,
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.findSomeNewWord,
                       labelStyle: TextStyle(
@@ -796,7 +822,8 @@ class _HomeScreenState extends State<HomeScreen> {
               right: screenWidth * 0.7,
               child: GestureDetector(
                 onTap: () {
-                  Navigator.pop(context);
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => HomeScreen()));
                 },
                 child: Image.asset(
                   'assets/footer_icon_home.png',

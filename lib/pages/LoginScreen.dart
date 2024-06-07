@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,17 +16,66 @@ class _LoginscreenState extends State<Loginscreen> {
   final TextEditingController phoneController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final user = FirebaseAuth.instance.currentUser;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
-
+  final DatabaseReference _database = FirebaseDatabase.instance.reference().child('Account');
   Country selectedCountry = CountryParser.parseCountryCode('VN');
+  Future<int> _getNextUserId() async {
+    int newId = 1;
+    await _database.orderByKey().limitToLast(1).once().then((DatabaseEvent event) {
+      if (event.snapshot.value != null) {
+        var value = event.snapshot.value;
+        if (value is Map) {
+          value.forEach((key, value) {
+            if (value != null && value is Map && value.containsKey('Id')) {
+              var lastId = value['Id'] as int;
+              newId = lastId + 1;
+            }
+          });
+        } else if (value is List) {
+          // Handling the case if the database returns a List instead of a Map
+          for (var entry in value) {
+            if (entry != null && entry is Map && entry.containsKey('Id')) {
+              var lastId = entry['Id'] as int;
+              newId = lastId + 1;
+            }
+          }
+        }
+      }
+    });
+    return newId;
+  }
 
+
+  void _saveUserToDatabase(int uid, {int? phone, String? email}) async {
+    int p =0;
+    int status =1;
+    await _database.child(uid.toString()).set({
+      "Avatar": "",
+      "Country": "",
+      "Dob": "",
+      "Email": email ?? "",
+      "Fullname": "",
+      "Gender": "",
+      "Id": uid,
+      "Phone": phone ?? p,
+      "Status": status
+    });
+  }
+  Future<bool> _isEmailExist(String email) async {
+    final snapshot = await _database.orderByChild('Email').equalTo(email).once();
+    return snapshot.snapshot.value != null;
+  }
+  Future<bool> _isPhoneExist(int phone) async {
+    final snapshot = await _database.orderByChild('Phone').equalTo(phone).once();
+    return snapshot.snapshot.value != null;
+  }
   void sendOTP(BuildContext context) async {
     String phone = phoneController.text.trim();
     String fullPhoneNumber = "+${selectedCountry.phoneCode}$phone";
 
     // Kiểm tra định dạng số điện thoại
-    String pattern =
-        r'^\+?[0-9]{10,15}$'; // Ví dụ: kiểm tra số điện thoại có từ 10 đến 15 chữ số và có thể có dấu +
+    String pattern = r'^\+?[0-9]{10,15}$'; // Ví dụ: kiểm tra số điện thoại có từ 10 đến 15 chữ số và có thể có dấu +
     RegExp regex = RegExp(pattern);
     print(fullPhoneNumber);
     if (fullPhoneNumber.isNotEmpty && regex.hasMatch(fullPhoneNumber)) {
@@ -33,6 +83,7 @@ class _LoginscreenState extends State<Loginscreen> {
         phoneNumber: fullPhoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
           await _auth.signInWithCredential(credential);
+
         },
         verificationFailed: (FirebaseAuthException e) {
           Fluttertoast.showToast(
@@ -64,6 +115,14 @@ class _LoginscreenState extends State<Loginscreen> {
           idToken: googleSignInAuthentication.idToken,
           accessToken: googleSignInAuthentication.accessToken,
         );
+        String email = googleSignInAccount.email;
+        bool emailExists = await _isEmailExist(email);
+        if (!emailExists) {
+          int newId = await _getNextUserId();
+          _saveUserToDatabase(newId, email: googleSignInAccount.email);
+
+        }
+
         await _firebaseAuth.signInWithCredential(credential);
         Navigator.pushReplacement(
           context,

@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
         builder: (context, provider, child) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
-            title: 'Flutter Demo',
+            title: 'KFruitTech',
             theme: ThemeData(
               primarySwatch: Colors.blue,
               visualDensity: VisualDensity.adaptivePlatformDensity,

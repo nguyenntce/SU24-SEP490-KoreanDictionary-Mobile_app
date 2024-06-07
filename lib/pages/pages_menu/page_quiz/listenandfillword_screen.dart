@@ -208,6 +208,7 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
                       style: TextStyle(
                         fontSize:
                         textFontSize * 1, // Adjust the font size as needed
+
                         color: Colors.black, // Change the color if needed
                         fontStyle: FontStyle.italic,
                         fontWeight: FontWeight.w900,
@@ -289,4 +290,6 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
       ),
     );
   }
+
 }
+

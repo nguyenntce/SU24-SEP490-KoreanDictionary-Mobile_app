@@ -28,7 +28,6 @@ class _QuizScreenState extends State<QuizScreen> {
               : selectedTime == '15 Minutes'
                   ? 15 * 60
                   : 0;
-
       switch (selectedType) {
         case 'Listen And Choose Picture':
           screen = ListenandfillwordScreen(durationInSeconds);
