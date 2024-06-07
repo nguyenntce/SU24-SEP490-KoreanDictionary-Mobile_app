@@ -1,6 +1,5 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/pages/home_screen.dart';
 import 'package:myapp/pages/pages_menu/instructions_screen.dart';
 import 'package:myapp/items/corner_camera_item.dart';
 import 'package:image_picker/image_picker.dart';
