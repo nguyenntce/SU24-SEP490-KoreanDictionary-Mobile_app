@@ -8,6 +8,7 @@ import 'package:myapp/page_setting/language_screen.dart';
 import 'package:myapp/pages/index.dart'; // Import the language screen
 import 'package:myapp/page_setting/fag_screen.dart';
 import 'package:myapp/pages/pages_menu/instructions_screen.dart';
+import 'package:share_plus/share_plus.dart';
 
 class SettingScreen extends StatefulWidget {
   @override
@@ -18,15 +19,13 @@ class _SettingScreenState extends State<SettingScreen> {
   bool notificationsEnabled = true; // Trạng thái ban đầu là bật
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-
-
-
   Future<void> _signOut(BuildContext context) async {
     try {
-           User? user = FirebaseAuth.instance.currentUser;
+      User? user = FirebaseAuth.instance.currentUser;
 
       if (user != null) {
-        if (user.providerData.any((userInfo) => userInfo.providerId == 'google.com')) {
+        if (user.providerData
+            .any((userInfo) => userInfo.providerId == 'google.com')) {
           await _googleSignIn.signOut();
         }
         await FirebaseAuth.instance.signOut();
@@ -168,7 +167,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     height: containerHeight,
                     child: Padding(
                       padding:
-                      EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                          EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                       child: Row(
                         children: [
                           Icon(Icons.language, size: iconSize),
@@ -204,7 +203,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     height: containerHeight,
                     child: Padding(
                       padding:
-                      EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                          EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                       child: Row(
                         children: [
                           Icon(Icons.notifications_active, size: iconSize),
@@ -263,7 +262,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     height: containerHeight,
                     child: Padding(
                       padding:
-                      EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                          EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                       child: Row(
                         children: [
                           Icon(Icons.camera_alt, size: iconSize),
@@ -301,7 +300,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     height: containerHeight,
                     child: Padding(
                       padding:
-                      EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                          EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                       child: Row(
                         children: [
                           Icon(Icons.help, size: iconSize),
@@ -339,7 +338,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     height: containerHeight,
                     child: Padding(
                       padding:
-                      EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                          EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                       child: Row(
                         children: [
                           Icon(Icons.question_answer, size: iconSize),
@@ -371,11 +370,8 @@ class _SettingScreenState extends State<SettingScreen> {
                 SizedBox(height: screenHeight * 0.01),
                 GestureDetector(
                   onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => ProfileScreen(),
-                      ),
-                    );
+                    Share.share(
+                        'Check out this Facebook profile: https://www.facebook.com/truong.khang.3939');
                   },
                   child: Container(
                     decoration: BoxDecoration(
@@ -386,7 +382,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     height: containerHeight,
                     child: Padding(
                       padding:
-                      EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                          EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                       child: Row(
                         children: [
                           Icon(Icons.share, size: iconSize),
@@ -424,7 +420,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     height: containerHeight,
                     child: Padding(
                       padding:
-                      EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                          EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                       child: Row(
                         children: [
                           Icon(Icons.star, size: iconSize),
@@ -462,7 +458,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     height: containerHeight,
                     child: Padding(
                       padding:
-                      EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                          EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                       child: Row(
                         children: [
                           Icon(Icons.info, size: iconSize),
@@ -481,9 +477,10 @@ class _SettingScreenState extends State<SettingScreen> {
                       ),
                     ),
                   ),
-                ),SizedBox(height: screenHeight * 0.02),
+                ),
+                SizedBox(height: screenHeight * 0.02),
                 GestureDetector(
-                  onTap: ()=> _signOut(context),
+                  onTap: () => _signOut(context),
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -493,7 +490,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     height: containerHeight,
                     child: Padding(
                       padding:
-                      EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                          EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                       child: Row(
                         children: [
                           Icon(Icons.logout, size: iconSize),
@@ -549,10 +546,8 @@ class _SettingScreenState extends State<SettingScreen> {
               // Đặt vị trí ngang cho hình ảnh camera
               child: GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ProfileScreen()));
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => ProfileScreen()));
                 },
                 child: Image.asset(
                   'assets/footer_camera.png',
