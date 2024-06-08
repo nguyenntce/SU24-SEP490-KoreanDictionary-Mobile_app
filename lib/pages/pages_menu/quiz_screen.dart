@@ -22,7 +22,7 @@ class _QuizScreenState extends State<QuizScreen> {
     if (selectedType != null && selectedTime != null) {
       Widget screen;
       int durationInSeconds = selectedTime == '5 Minutes'
-          ? 1 * 10
+          ? 5 * 60
           : selectedTime == '10 Minutes'
               ? 10 * 60
               : selectedTime == '15 Minutes'
