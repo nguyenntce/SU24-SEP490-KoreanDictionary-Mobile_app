@@ -3,34 +3,42 @@ import 'package:myapp/pages/pages_menu/page_quiz/detailresult_quiz_screen.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 class ResultQuizScreen extends StatefulWidget {
+  final List<Map<String, dynamic>> results;
+
+  const ResultQuizScreen({Key? key, required this.results}) : super(key: key);
+
   @override
   _ResultQuizScreenState createState() => _ResultQuizScreenState();
 }
 
 class _ResultQuizScreenState extends State<ResultQuizScreen> {
-  static const double _titleFontSizeRatio = 0.05;
-  static const double _indicatorSizeRatio = 0.2;
-  static const double _indicatorLineWidthRatio = 0.021;
-  static const double _indicatorTextSizeRatio = 0.1;
-  static const double _appBarHeight = kToolbarHeight;
+  late double _percent;
+  late int _correctAnswers;
+  late int _incorrectAnswers;
 
-  double _percent = 0.4; // Thay đổi giá trị percent tùy thuộc vào kết quả
+  @override
+  void initState() {
+    super.initState();
+    _correctAnswers = widget.results.where((result) => result['isCorrect'] as bool).length;
+    _incorrectAnswers = widget.results.length - _correctAnswers;
+    _percent = _correctAnswers / widget.results.length;
+  }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-    double titleFontSize = screenWidth * _titleFontSizeRatio;
-    double indicatorSize = screenWidth * _indicatorSizeRatio;
-    double indicatorLineWidth = screenWidth * _indicatorLineWidthRatio;
-    double indicatorTextSize = screenWidth * _indicatorTextSizeRatio;
+    double titleFontSize = screenWidth * 0.05;
+    double indicatorSize = screenWidth * 0.2;
+    double indicatorLineWidth = screenWidth * 0.021;
+    double indicatorTextSize = screenWidth * 0.1;
     double editFontSize = screenWidth * 0.05;
     return Scaffold(
       backgroundColor: const Color(0xFFA4FFB3),
       appBar: AppBar(
-        backgroundColor: Color(0xFF154F41),
+        backgroundColor: const Color(0xFF154F41),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -49,7 +57,7 @@ class _ResultQuizScreenState extends State<ResultQuizScreen> {
       body: Stack(
         children: [
           Positioned(
-            top: _appBarHeight + screenHeight * 0.1,
+            top: kToolbarHeight + screenHeight * 0.1,
             left: screenWidth * 0.3,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -64,7 +72,7 @@ class _ResultQuizScreenState extends State<ResultQuizScreen> {
                   backgroundColor: Colors.red,
                   circularStrokeCap: CircularStrokeCap.round,
                   center: AnimatedSwitcher(
-                    duration: Duration(milliseconds: 500),
+                    duration: const Duration(milliseconds: 500),
                     child: Text(
                       '${(_percent * 100).toStringAsFixed(0)}%',
                       key: ValueKey<double>(_percent),
@@ -83,18 +91,18 @@ class _ResultQuizScreenState extends State<ResultQuizScreen> {
             ),
           ),
           Positioned(
-            top: _appBarHeight + screenHeight * 0.3,
+            top: kToolbarHeight + screenHeight * 0.3,
             left: 0,
             right: 0,
             child: Column(
               children: [
                 Text(
-                  'NOT PASS',
+                  _percent >= 0.5 ? 'PASS' : 'NOT PASS',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: editFontSize * 1.4,
                     fontWeight: FontWeight.w800,
-                    color: Colors.red,
+                    color: _percent >= 0.5 ? Colors.green : Colors.red,
                     fontStyle: FontStyle.italic,
                   ),
                 ),
@@ -102,14 +110,14 @@ class _ResultQuizScreenState extends State<ResultQuizScreen> {
                   padding: EdgeInsets.symmetric(
                     horizontal: screenWidth * 0.15,
                   ),
-                  child: Divider(
+                  child: const Divider(
                     color: Colors.black,
                     thickness: 2,
                   ),
                 ),
                 SizedBox(height: screenHeight * 0.03),
                 Text(
-                  'Correct:',
+                  'Correct: $_correctAnswers',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: editFontSize * 1.5,
@@ -119,7 +127,7 @@ class _ResultQuizScreenState extends State<ResultQuizScreen> {
                 ),
                 SizedBox(height: screenHeight * 0.03),
                 Text(
-                  'Incorrect:',
+                  'Incorrect: $_incorrectAnswers',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: editFontSize * 1.5,
@@ -133,14 +141,14 @@ class _ResultQuizScreenState extends State<ResultQuizScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        // Code xử lý khi nhấn nút Restart
+                        Navigator.of(context).pop();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF35FF3D),
+                        backgroundColor: const Color(0xFF35FF3D),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),
                         ),
-                        side: BorderSide(
+                        side: const BorderSide(
                           width: 3,
                           color: Colors.white,
                         ),
@@ -163,14 +171,18 @@ class _ResultQuizScreenState extends State<ResultQuizScreen> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        // Code xử lý khi nhấn nút Detail
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => DetailresultQuizScreen(results: widget.results),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF35FF3D),
+                        backgroundColor: const Color(0xFF35FF3D),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),
                         ),
-                        side: BorderSide(
+                        side: const BorderSide(
                           width: 3,
                           color: Colors.white,
                         ),
@@ -180,24 +192,13 @@ class _ResultQuizScreenState extends State<ResultQuizScreen> {
                           horizontal: screenWidth * 0.07,
                           vertical: screenHeight * 0.01,
                         ),
-                        child: GestureDetector(
-                          onTap: () {
-                            // Thực hiện hành động khi nhấn vào phần tử này
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      DetailresultQuizScreen()),
-                            );
-                          },
-                          child: Text(
-                            'Detail',
-                            style: TextStyle(
-                              fontSize: titleFontSize * 1.2,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontStyle: FontStyle.italic,
-                            ),
+                        child: Text(
+                          'Detail',
+                          style: TextStyle(
+                            fontSize: titleFontSize * 1.2,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontStyle: FontStyle.italic,
                           ),
                         ),
                       ),
@@ -212,4 +213,3 @@ class _ResultQuizScreenState extends State<ResultQuizScreen> {
     );
   }
 }
-

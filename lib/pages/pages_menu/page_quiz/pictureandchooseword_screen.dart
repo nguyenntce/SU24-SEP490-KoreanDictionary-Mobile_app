@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:myapp/pages/pages_menu/page_quiz/detailresult_quiz_screen.dart';
+import 'package:myapp/models/vocabulary.dart';
+import 'package:myapp/models/vocabulary_service.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:myapp/pages/pages_menu/page_quiz/result_quiz_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PictureandchoosewordScreen extends StatefulWidget {
   final int durationInSeconds;
@@ -9,20 +13,57 @@ class PictureandchoosewordScreen extends StatefulWidget {
   PictureandchoosewordScreen(this.durationInSeconds);
 
   @override
-  _ListenandfillwordScreenState createState() =>
-      _ListenandfillwordScreenState();
+  _PictureandchoosewordScreenState createState() => _PictureandchoosewordScreenState();
 }
 
-class _ListenandfillwordScreenState extends State<PictureandchoosewordScreen> {
+class _PictureandchoosewordScreenState extends State<PictureandchoosewordScreen> {
   late Timer _timer;
+  late AudioPlayer _audioPlayer;
   int _start = 0;
-  bool _isPressed = false;
+  int _totalQuestions = 0;
+  int _currentQuestionIndex = 0;
+  List<Vocabulary> _vocabularies = [];
+  List<Map<String, dynamic>> _results = [];
+  int _selectedAnswer = -1;
+  bool _showCorrectAnswer = false;
+  List<Vocabulary> _currentOptions = [];
 
+  Future<void> printUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? userId = prefs.getInt('userId');
+    print('User ID retrieved: $userId');
+  }
   @override
   void initState() {
     super.initState();
+    printUserId();
     _start = widget.durationInSeconds;
+    _totalQuestions = _start ~/ 30; // Assuming 30 seconds per question
+    _audioPlayer = AudioPlayer();
     startTimer();
+    _loadVocabularies();
+  }
+
+  Future<void> _loadVocabularies() async {
+    List<Vocabulary> vocabularies = await getRandomVocabularies(_totalQuestions);
+    setState(() {
+      _vocabularies = vocabularies;
+      _setCurrentOptions();
+    });
+  }
+
+  void _setCurrentOptions() {
+    if (_currentQuestionIndex < _vocabularies.length) {
+      List<Vocabulary> tempList = List.from(_vocabularies);
+      Vocabulary correctAnswer = tempList.removeAt(_currentQuestionIndex);
+      tempList.shuffle();
+      List<Vocabulary> wrongAnswers = tempList.take(3).toList();
+      wrongAnswers.add(correctAnswer);
+      wrongAnswers.shuffle();
+      setState(() {
+        _currentOptions = wrongAnswers;
+      });
+    }
   }
 
   void startTimer() {
@@ -31,12 +72,7 @@ class _ListenandfillwordScreenState extends State<PictureandchoosewordScreen> {
         setState(() {
           timer.cancel();
         });
-        // Kiểm tra nếu hết thời gian, thực hiện điều hướng tới trang mới
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-              builder: (context) =>
-                  DetailresultQuizScreen()), // Thay NewPage bằng tên trang bạn muốn chuyển đến
-        );
+        _navigateToResultScreen();
       } else {
         setState(() {
           _start--;
@@ -53,15 +89,49 @@ class _ListenandfillwordScreenState extends State<PictureandchoosewordScreen> {
     }
   }
 
-  void _togglePressed() {
-    setState(() {
-      _isPressed = !_isPressed;
-    });
+  void _nextQuestion() {
+
+    if (_selectedAnswer != -1) {
+      Vocabulary currentVocabulary = _vocabularies[_currentQuestionIndex];
+      Vocabulary selectedVocabulary = _currentOptions[_selectedAnswer];
+      _results.add({
+        'vietnamese':currentVocabulary.vietnamese,
+        'english': currentVocabulary.english,
+        'korean': currentVocabulary.korean,
+        'image': currentVocabulary.image,
+        'answer': selectedVocabulary.image,
+        'answerEN': selectedVocabulary.english,
+        'answerVN': selectedVocabulary.vietnamese,
+        'answerKR': selectedVocabulary.korean,
+        'voiceVN':currentVocabulary.voiceVn,
+        'voiceKo':currentVocabulary.voiceKr,
+        'voiceEn': currentVocabulary.voiceEn,
+        'isCorrect': currentVocabulary.image == selectedVocabulary.image,
+      });
+      setState(() {
+        _currentQuestionIndex++;
+        _selectedAnswer = -1;
+        _showCorrectAnswer = false;
+        if (_currentQuestionIndex < _vocabularies.length) {
+          _setCurrentOptions();
+        } else {
+          stopTimer();
+          _navigateToResultScreen();
+        }
+      });
+    }
+  }
+
+  void _navigateToResultScreen() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => ResultQuizScreen(results: _results)),
+    );
   }
 
   @override
   void dispose() {
     _timer.cancel();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -71,12 +141,30 @@ class _ListenandfillwordScreenState extends State<PictureandchoosewordScreen> {
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
+  void _onOptionSelected(int index) {
+    setState(() {
+      _selectedAnswer = index;
+      _showCorrectAnswer = true;
+    });
+    Future.delayed(Duration(seconds: 1), () {
+      _nextQuestion();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
     double titleFontSize = screenWidth * 0.05;
     double textFontSize = screenWidth * 0.04;
+
+    if (_vocabularies.isEmpty || _currentOptions.isEmpty) {
+      return Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    Vocabulary currentVocabulary = _vocabularies[_currentQuestionIndex];
 
     return Scaffold(
       backgroundColor: const Color(0xFFA4FFB3),
@@ -89,7 +177,7 @@ class _ListenandfillwordScreenState extends State<PictureandchoosewordScreen> {
           },
         ),
         title: Text(
-          'Listen And Fill Word',
+          'Picture And Choose Word',
           style: TextStyle(
             fontSize: titleFontSize,
             fontWeight: FontWeight.bold,
@@ -112,7 +200,7 @@ class _ListenandfillwordScreenState extends State<PictureandchoosewordScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Question : 1/51',
+                    'Question : ${_currentQuestionIndex + 1}/$_totalQuestions',
                     style: TextStyle(
                       fontSize: textFontSize * 1.2,
                       fontWeight: FontWeight.w900,
@@ -129,8 +217,7 @@ class _ListenandfillwordScreenState extends State<PictureandchoosewordScreen> {
                         ),
                         decoration: BoxDecoration(
                           color: const Color.fromARGB(255, 67, 235, 72),
-                          borderRadius: BorderRadius.circular(screenHeight *
-                              0.03), // Sử dụng phần trăm hoặc tỷ lệ để xác định góc bo tròn
+                          borderRadius: BorderRadius.circular(50),
                         ),
                         child: Row(
                           children: [
@@ -156,11 +243,7 @@ class _ListenandfillwordScreenState extends State<PictureandchoosewordScreen> {
                       ElevatedButton(
                         onPressed: () {
                           stopTimer();
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => ResultQuizScreen(),
-                            ),
-                          );
+                          _navigateToResultScreen();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
@@ -190,142 +273,50 @@ class _ListenandfillwordScreenState extends State<PictureandchoosewordScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Stack(
-                      children: [
-                        Image.asset(
-                          'assets/wax_apple.png',
-                          width: screenHeight * 0.2,
-                          height: screenHeight * 0.2,
-                          fit: BoxFit.fill,
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          child: Container(),
-                        ),
-                      ],
+                    Image.network(
+                      currentVocabulary.image,
+                      width: screenHeight * 0.2,
+                      height: screenHeight * 0.2,
+                      fit: BoxFit.fill,
                     ),
-                    SizedBox(height: screenHeight * 0.1), // Add some spacing
-                    GestureDetector(
-                      onTap: _togglePressed,
-                      child: Container(
-                        width: screenWidth * 0.6,
-                        height: screenHeight * 0.05,
-                        decoration: BoxDecoration(
-                          color: _isPressed
-                              ? const Color.fromARGB(255, 59, 238, 65)
-                              : Colors.white, // Màu nền trắng
-                          border: Border.all(color: Colors.black), // Viền đen
-                          borderRadius: BorderRadius.circular(screenHeight *
-                              0.025), // Sử dụng phần trăm hoặc tỷ lệ để xác định góc bo tròn
-                        ),
-                        child: Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text(
-                              'abv', // Nội dung văn bản
-                              style: TextStyle(
-                                fontSize:
-                                    screenHeight * 0.025, // Kích thước văn bản
-
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black, // Màu văn bản
+                    SizedBox(height: screenHeight * 0.1),
+                    Column(
+                      children: List.generate(4, (index) {
+                        String option = AppLocalizations.of(context)!.localeName == 'en'
+                            ? _currentOptions[index].english
+                            : AppLocalizations.of(context)!.localeName == 'ko'
+                            ? _currentOptions[index].korean
+                            : _currentOptions[index].vietnamese;
+                        return GestureDetector(
+                          onTap: () => _onOptionSelected(index),
+                          child: Container(
+                            margin: EdgeInsets.only(bottom: screenHeight * 0.02),
+                            width: screenWidth * 0.6,
+                            height: screenHeight * 0.05,
+                            decoration: BoxDecoration(
+                              color: _showCorrectAnswer
+                                  ? (_currentOptions[index].korean == currentVocabulary.korean
+                                  ? Colors.green
+                                  : _selectedAnswer == index
+                                  ? Colors.red
+                                  : Colors.white)
+                                  : Colors.white,
+                              border: Border.all(color: Colors.black),
+                              borderRadius: BorderRadius.circular(screenHeight * 0.025),
+                            ),
+                            child: Center(
+                              child: Text(
+                                option,
+                                style: TextStyle(
+                                  fontSize: screenHeight * 0.025,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: screenHeight * 0.02), // Add some spacing
-                    GestureDetector(
-                      onTap: _togglePressed,
-                      child: Container(
-                        width: screenWidth * 0.6,
-                        height: screenHeight * 0.05,
-                        decoration: BoxDecoration(
-                          color: _isPressed
-                              ? const Color.fromARGB(255, 59, 238, 65)
-                              : Colors.white, // Màu nền trắng
-                          border: Border.all(color: Colors.black), // Viền đen
-                          borderRadius: BorderRadius.circular(screenHeight *
-                              0.025), // Sử dụng phần trăm hoặc tỷ lệ để xác định góc bo tròn
-                        ),
-                        child: Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text(
-                              'abv', // Nội dung văn bản
-                              style: TextStyle(
-                                fontSize:
-                                    screenHeight * 0.025, // Kích thước văn bản
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black, // Màu văn bản
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: screenHeight * 0.02), // Add some spacing
-                    GestureDetector(
-                      onTap: _togglePressed,
-                      child: Container(
-                        width: screenWidth * 0.6,
-                        height: screenHeight * 0.05,
-                        decoration: BoxDecoration(
-                          color: _isPressed
-                              ? const Color.fromARGB(255, 59, 238, 65)
-                              : Colors.white, // Màu nền trắng
-                          border: Border.all(color: Colors.black), // Viền đen
-                          borderRadius: BorderRadius.circular(screenHeight *
-                              0.025), // Sử dụng phần trăm hoặc tỷ lệ để xác định góc bo tròn
-                        ),
-                        child: Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text(
-                              'abv', // Nội dung văn bản
-                              style: TextStyle(
-                                fontSize:
-                                screenHeight * 0.025, // Kích thước văn bản
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black, // Màu văn bản
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: screenHeight * 0.02), // Add some spacing
-                    GestureDetector(
-                      onTap: _togglePressed,
-                      child: Container(
-                        width: screenWidth * 0.6,
-                        height: screenHeight * 0.05,
-                        decoration: BoxDecoration(
-                          color: _isPressed
-                              ? const Color.fromARGB(255, 59, 238, 65)
-                              : Colors.white, // Màu nền trắng
-                          border: Border.all(color: Colors.black), // Viền đen
-                          borderRadius: BorderRadius.circular(screenHeight *
-                              0.025), // Sử dụng phần trăm hoặc tỷ lệ để xác định góc bo tròn
-                        ),
-                        child: Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text(
-                              'abv', // Nội dung văn bản
-                              style: TextStyle(
-                                fontSize:
-                                screenHeight * 0.025, // Kích thước văn bản
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black, // Màu văn bản
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                        );
+                      }),
                     ),
                   ],
                 ),
@@ -337,4 +328,3 @@ class _ListenandfillwordScreenState extends State<PictureandchoosewordScreen> {
     );
   }
 }
-
