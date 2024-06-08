@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:myapp/page_setting/aboutus_screen.dart';
@@ -8,6 +7,7 @@ import 'package:myapp/page_setting/profile_screen.dart';
 import 'package:myapp/page_setting/language_screen.dart';
 import 'package:myapp/pages/index.dart'; // Import the language screen
 import 'package:myapp/page_setting/fag_screen.dart';
+import 'package:myapp/pages/pages_menu/instructions_screen.dart';
 
 class SettingScreen extends StatefulWidget {
   @override
@@ -250,7 +250,7 @@ class _SettingScreenState extends State<SettingScreen> {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => ProfileScreen(),
+                        builder: (context) => InstructionsScreen(),
                       ),
                     );
                   },
