@@ -6,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:myapp/pages/home_screen.dart';
 import 'package:myapp/pages/optSreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Loginscreen extends StatefulWidget {
   @override
@@ -117,12 +118,38 @@ class _LoginscreenState extends State<Loginscreen> {
         );
         String email = googleSignInAccount.email;
         bool emailExists = await _isEmailExist(email);
+        int userId;
         if (!emailExists) {
           int newId = await _getNextUserId();
           _saveUserToDatabase(newId, email: googleSignInAccount.email);
+          userId = newId;
+        } else {
+          DatabaseEvent event = await _database.orderByChild('Email').equalTo(email).once();
+          DataSnapshot snapshot = event.snapshot;
 
+          userId = -1; // default value
+          if (snapshot.value != null) {
+            if (snapshot.value is Map<dynamic, dynamic>) {
+              Map<dynamic, dynamic> values = snapshot.value as Map<dynamic, dynamic>;
+              values.forEach((key, value) {
+                userId = value['Id'];
+                print("userId : ${userId}");
+              });
+            } else if (snapshot.value is List) {
+              List<dynamic> values = snapshot.value as List<dynamic>;
+              for (var value in values) {
+                if (value != null && value['Id'] != null) {
+                  userId = value['Id'];
+                  print("userId : ${userId}");
+                  break;
+                }
+              }
+            }
+          }
         }
 
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('userId', userId);
         await _firebaseAuth.signInWithCredential(credential);
         Navigator.pushReplacement(
           context,
@@ -135,6 +162,7 @@ class _LoginscreenState extends State<Loginscreen> {
       print(errorMessage);
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

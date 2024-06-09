@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:myapp/pages/pages_menu/page_quiz/detailresult_quiz_screen.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:myapp/models/vocabulary.dart';
+import 'package:myapp/models/vocabulary_service.dart'; // Import file chứa hàm getRandomVocabularies
 import 'package:myapp/pages/pages_menu/page_quiz/result_quiz_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
 
 class ListenandfillwordScreen extends StatefulWidget {
   final int durationInSeconds;
@@ -9,38 +12,65 @@ class ListenandfillwordScreen extends StatefulWidget {
   ListenandfillwordScreen(this.durationInSeconds);
 
   @override
-  _ListenandfillwordScreenState createState() =>
-      _ListenandfillwordScreenState();
+  _ListenandfillwordScreenState createState() => _ListenandfillwordScreenState();
 }
 
 class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
   late Timer _timer;
-  int _start = 0;
+  late AudioPlayer _audioPlayer;
+  int _totalTime = 0;
+  int _timePerQuestion = 30; // 30 seconds per question
+  int _currentQuestionIndex = 0;
+  int _selectedAnswer = -1;
+  List<Vocabulary> _vocabularies = [];
+  List<Map<String, dynamic>> _results = [];
+  List<Vocabulary> _currentOptions = [];
 
   @override
   void initState() {
     super.initState();
-    _start = widget.durationInSeconds;
+    _audioPlayer = AudioPlayer();
+    _totalTime = widget.durationInSeconds;
     startTimer();
+    _loadVocabularies();
+  }
+
+  Future<void> _loadVocabularies() async {
+    int numberOfQuestions = widget.durationInSeconds ~/ _timePerQuestion;
+    List<Vocabulary> vocabularies = await getRandomVocabularies(numberOfQuestions);
+    setState(() {
+      _vocabularies = vocabularies;
+      _setCurrentOptions();
+    });
+  }
+
+  void _setCurrentOptions() {
+    if (_currentQuestionIndex < _vocabularies.length) {
+      List<Vocabulary> tempList = List.from(_vocabularies);
+      Vocabulary correctAnswer = tempList.removeAt(_currentQuestionIndex);
+      tempList.shuffle();
+      List<Vocabulary> wrongAnswers = tempList.take(3).toList();
+      wrongAnswers.add(correctAnswer);
+      wrongAnswers.shuffle();
+      setState(() {
+        _currentOptions = wrongAnswers;
+      });
+    }
   }
 
   void startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
-      if (_start == 0) {
-        setState(() {
+      setState(() {
+        if (_totalTime == 0) {
           timer.cancel();
-        });
-        // Kiểm tra nếu hết thời gian, thực hiện điều hướng tới trang mới
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-              builder: (context) =>
-                  DetailresultQuizScreen()), // Thay NewPage bằng tên trang bạn muốn chuyển đến
-        );
-      } else {
-        setState(() {
-          _start--;
-        });
-      }
+          _navigateToResultScreen();
+        } else {
+          _totalTime--;
+          if (_totalTime % _timePerQuestion == 0) {
+            _nextQuestion();
+          }
+        }
+      });
     });
   }
 
@@ -55,6 +85,7 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
   @override
   void dispose() {
     _timer.cancel();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -64,12 +95,64 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
+  void _nextQuestion() {
+    if (_selectedAnswer != -1) {
+      Vocabulary currentVocabulary = _vocabularies[_currentQuestionIndex];
+      Vocabulary selectedVocabulary = _currentOptions[_selectedAnswer];
+      _results.add({
+        'vietnamese':currentVocabulary.vietnamese,
+        'english': currentVocabulary.english,
+        'korean': currentVocabulary.korean,
+        'image': currentVocabulary.image,
+        'answer': selectedVocabulary.image,
+        'answerEN': selectedVocabulary.english,
+        'answerVN': selectedVocabulary.vietnamese,
+        'answerKR': selectedVocabulary.korean,
+        'voiceVN':currentVocabulary.voiceVn,
+        'voiceKo':currentVocabulary.voiceKr,
+        'voiceEn': currentVocabulary.voiceEn,
+        'isCorrect': currentVocabulary.image == selectedVocabulary.image,
+      });
+      setState(() {
+        _currentQuestionIndex++;
+        _selectedAnswer = -1;
+        if (_currentQuestionIndex < _vocabularies.length) {
+          _setCurrentOptions();
+        } else {
+          stopTimer();
+          _navigateToResultScreen();
+        }
+      });
+    }
+  }
+
+  void _navigateToResultScreen() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => ResultQuizScreen(results: _results),
+      ),
+    );
+  }
+
+  void _playAudio(String url) async {
+    await _audioPlayer.stop(); // Stop any currently playing audio
+    await _audioPlayer.play(UrlSource(url)); // Play the new audio
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
     double titleFontSize = screenWidth * 0.05;
     double textFontSize = screenWidth * 0.04;
+
+    if (_vocabularies.isEmpty || _currentOptions.isEmpty) {
+      return Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    Vocabulary currentVocabulary = _vocabularies[_currentQuestionIndex];
 
     return Scaffold(
       backgroundColor: const Color(0xFFA4FFB3),
@@ -105,7 +188,7 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Question : 1/51',
+                    'Question : ${_currentQuestionIndex + 1}/${_vocabularies.length}',
                     style: TextStyle(
                       fontSize: textFontSize * 1.2,
                       fontWeight: FontWeight.w900,
@@ -133,7 +216,7 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
                             ),
                             SizedBox(width: screenWidth * 0.03),
                             Text(
-                              formatTime(_start),
+                              formatTime(_totalTime),
                               style: TextStyle(
                                 fontSize: textFontSize * 1.2,
                                 fontWeight: FontWeight.w900,
@@ -150,7 +233,7 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
                           stopTimer();
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
-                              builder: (context) => ResultQuizScreen(),
+                              builder: (context) => ResultQuizScreen(results: _results),
                             ),
                           );
                         },
@@ -184,32 +267,34 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
                   children: [
                     IconButton(
                       icon: Icon(
-                        Icons.volume_up, // You can change the icon here
-                        size: screenHeight * 0.2, // Adjust the size as needed
+                        Icons.volume_up, // Biểu tượng loa
+                        size: screenHeight * 0.2, // Kích thước biểu tượng
                         color: const Color.fromARGB(
                           255,
                           56,
                           71,
                           64,
-                        ), // Change the color if needed
+                        ), // Màu sắc của biểu tượng
                       ),
                       onPressed: () {
-                        // Add your onPressed functionality here
-                        // For example, you can add code to play a sound
-                        // or navigate to another screen
+                        String audioUrl = AppLocalizations.of(context)!.localeName == 'en'
+                            ? currentVocabulary.voiceEn
+                            : AppLocalizations.of(context)!.localeName == 'ko'
+                            ? currentVocabulary.voiceKr
+                            : currentVocabulary.voiceVn;
+                        _playAudio(audioUrl);
                       },
                     ),
                     SizedBox(
                       height: screenHeight *
-                          0.00, // Add some spacing between the icon and text
+                          0.00, // Khoảng cách giữa biểu tượng và văn bản
                     ),
                     Text(
-                      'Click The Icon To Hear The Sound', // Your text goes here
+                      'Click The Icon To Hear The Sound', // Văn bản hiển thị
                       style: TextStyle(
                         fontSize:
-                        textFontSize * 1, // Adjust the font size as needed
-
-                        color: Colors.black, // Change the color if needed
+                        textFontSize * 1, // Kích thước văn bản
+                        color: Colors.black, // Màu sắc văn bản
                         fontStyle: FontStyle.italic,
                         fontWeight: FontWeight.w900,
                       ),
@@ -218,78 +303,51 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
                 ),
               ),
             ),
-            SizedBox(
-                height: screenHeight * 0.02), // Khoảng cách giữa các phần tử
-            // Hàng chứa hai hình ảnh
+            SizedBox(height: screenHeight * 0.02), // Khoảng cách giữa các phần tử
             Padding(
               padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Container cho hình ảnh 1
-                  Container(
-                    width: screenWidth * 0.4,
-                    height: screenHeight * 0.2,
-                    child: Image.asset(
-                      'assets/correct_image1.png',
-                      fit: BoxFit.fill,
+              child: Column(
+                children: List.generate(2, (rowIndex) {
+                  return Padding(
+                    padding: EdgeInsets.only(bottom: screenHeight * 0.02),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: List.generate(2, (colIndex) {
+                        int answerIndex = rowIndex * 2 + colIndex;
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _selectedAnswer = answerIndex;
+                            });
+                            _nextQuestion();
+                          },
+                          child: Container(
+                            width: screenWidth * 0.4,
+                            height: screenHeight * 0.2,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: _selectedAnswer == answerIndex
+                                    ? Colors.blue
+                                    : Colors.transparent,
+                                width: 2,
+                              ),
+                            ),
+                            child: Image.network(
+                              _currentOptions[answerIndex].image,
+                              fit: BoxFit.fill,
+                            ),
+                          ),
+                        );
+                      }),
                     ),
-                  ),
-                  // Container cho hình ảnh 2
-                  Container(
-                    width: screenWidth * 0.4,
-                    height: screenHeight * 0.2,
-                    child: Image.asset(
-                      'assets/correct_image2.png',
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                ],
+                  );
+                }),
               ),
             ),
-            SizedBox(
-              height: screenHeight * 0.02,
-            ), // Khoảng cách giữa các phần tử
-            // Container cho hình ảnh 3
-            Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.05), // Hàng chứa hai hình ảnh
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Container cho hình ảnh 1
-                  Container(
-                    width: screenWidth * 0.4,
-                    height: screenHeight * 0.2,
-                    child: Image.asset(
-                      'assets/correct_image1.png',
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                  // Container cho hình ảnh 2
-                  SizedBox(
-                    width: screenWidth * 0.02,
-                  ),
-                  Container(
-                      width: screenWidth * 0.4,
-                      height: screenHeight * 0.2,
-                      child: GestureDetector(
-                        onTap: () {},
-                        child: Image.asset(
-                          'assets/correct_image1.png',
-                          fit: BoxFit.fill,
-                        ),
-                      )),
-                ],
-              ),
-            ),
-            SizedBox(
-                height: screenHeight * 0.05), // Khoảng cách giữa các phần tử
+            SizedBox(height: screenHeight * 0.02), // Khoảng cách giữa các phần tử
           ],
         ),
       ),
     );
   }
-
 }
-

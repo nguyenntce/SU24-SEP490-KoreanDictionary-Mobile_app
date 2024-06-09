@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class DetailresultQuizScreen extends StatefulWidget {
-  const DetailresultQuizScreen({Key? key});
+  final List<Map<String, dynamic>> results;
+
+  const DetailresultQuizScreen({Key? key, required this.results}) : super(key: key);
 
   @override
   State<DetailresultQuizScreen> createState() => _DetailresultQuizScreenState();
@@ -112,345 +114,182 @@ class _DetailresultQuizScreenState extends State<DetailresultQuizScreen> {
               ],
             ),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: screenHeight * 0.01,
-              horizontal: screenHeight * 0.01,
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(
-                  color: Colors.black,
-                  width: 1,
+          ListView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: widget.results.length,
+            itemBuilder: (context, index) {
+              final result = widget.results[index];
+              return Padding(
+                padding: EdgeInsets.symmetric(
+                  vertical: screenHeight * 0.01,
+                  horizontal: screenHeight * 0.01,
                 ),
-                borderRadius: BorderRadius.circular(30.0),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth * 0.03,
-                      ),
-                      child: Text(
-                        'Hahahaha',
-                        style: TextStyle(
-                            fontSize: screenWidth * 0.035,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontStyle: FontStyle.italic),
-                      ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(
+                      color: Colors.black,
+                      width: 1,
                     ),
+                    borderRadius: BorderRadius.circular(30.0),
                   ),
-                  SizedBox(
-                    width: screenWidth * 0.05,
-                    height: screenHeight * 0.15,
-                  ),
-                  Expanded(
-                    child: Container(
-                      height: screenHeight * 0.13,
-                      color: Colors.transparent,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Positioned(
-                            bottom: screenHeight * 0.028,
-                            left: 0,
-                            right: 0,
-                            child: Container(
-                              padding: EdgeInsets.all(screenHeight *
-                                  0.00), // Điều chỉnh khoảng cách viền với hình ảnh
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Colors.black,
-                                  width: 1.0,
-                                ),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: Image.asset(
-                                'assets/cherry.png',
-                                width: screenWidth * 0.1,
-                                height: screenHeight * 0.1,
-                                fit: BoxFit.contain,
-                              ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.03,
+                          ),
+                          child: Text(
+                            result['english'] ?? '',
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.035,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic,
                             ),
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Positioned(
-                              child: Container(
-                                height: screenHeight * 0.025,
-                                margin: EdgeInsets.only(
-                                    left: screenWidth * 0.02,
-                                    right: screenWidth * 0.02,
-                                    top: screenHeight * 0.105),
-                                decoration: BoxDecoration(
-                                  color: Color(0xFF35FF3D),
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  border: Border.all(
-                                    color: Colors.black,
-                                    width: 1.0,
+                        ),
+                      ),
+                      SizedBox(
+                        width: screenWidth * 0.05,
+                        height: screenHeight * 0.15,
+                      ),
+                      Expanded(
+                        child: Container(
+                          height: screenHeight * 0.13,
+                          color: Colors.transparent,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Positioned(
+                                bottom: screenHeight * 0.028,
+                                left: 0,
+                                right: 0,
+                                child: Container(
+                                  padding: EdgeInsets.all(screenHeight * 0.00),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Colors.black,
+                                      width: 1.0,
+                                    ),
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  child: Image.network(
+                                    result['image'] ?? '',
+                                    width: screenWidth * 0.1,
+                                    height: screenHeight * 0.1,
+                                    fit: BoxFit.contain,
                                   ),
                                 ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.volume_up,
-                                      size: screenWidth * 0.04,
-                                      color: Colors.black,
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  // Play the corresponding audio
+                                },
+                                child: Positioned(
+                                  child: Container(
+                                    height: screenHeight * 0.025,
+                                    margin: EdgeInsets.only(
+                                      left: screenWidth * 0.02,
+                                      right: screenWidth * 0.02,
+                                      top: screenHeight * 0.105,
                                     ),
-                                    // Khoảng cố định giữa icon và văn bản
-                                    Expanded(
-                                      child: Text(
-                                        '라asdasd즈베리',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: screenWidth * 0.025,
-                                          fontWeight: FontWeight.w900,
-                                          color: Colors.black,
-                                          fontStyle: FontStyle.italic,
-                                        ),
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFF35FF3D),
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      border: Border.all(
+                                        color: Colors.black,
+                                        width: 1.0,
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: screenWidth * 0.02),
-                  Expanded(
-                    child: Container(
-                      height: screenHeight * 0.13,
-                      color: Colors.transparent,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Positioned(
-                            bottom: screenHeight * 0.028,
-                            left: 0,
-                            right: 0,
-                            child: Container(
-                              padding: EdgeInsets.all(screenHeight *
-                                  0.00), // Điều chỉnh khoảng cách viền với hình ảnh
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Colors.black,
-                                  width: 1.0,
-                                ),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: Image.asset(
-                                'assets/banana.png',
-                                width: screenWidth * 0.1,
-                                height: screenHeight * 0.1,
-                                fit: BoxFit.contain,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: screenHeight * 0.0040,
-                            left: screenHeight * 0.01,
-                            right: screenHeight * 0.01,
-                            child: Center(
-                              child: Text(
-                                '딸기asdasdssssss',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: screenWidth * 0.025,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.red,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: screenWidth * 0.03),
-                ],
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: screenHeight * 0.01,
-              horizontal: screenHeight * 0.01,
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(
-                  color: Colors.black,
-                  width: 1,
-                ),
-                borderRadius: BorderRadius.circular(30.0),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth * 0.03,
-                      ),
-                      child: Text(
-                        'Water Apple',
-                        style: TextStyle(
-                            fontSize: screenWidth * 0.035,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontStyle: FontStyle.italic),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: screenWidth * 0.05,
-                    height: screenHeight * 0.15,
-                  ),
-                  Expanded(
-                    child: Container(
-                      height: screenHeight * 0.13,
-                      color: Colors.transparent,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Positioned(
-                            bottom: screenHeight * 0.028,
-                            left: 0,
-                            right: 0,
-                            child: Container(
-                              padding: EdgeInsets.all(screenHeight *
-                                  0.00), // Điều chỉnh khoảng cách viền với hình ảnh
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Colors.black,
-                                  width: 1.0,
-                                ),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: Image.asset(
-                                'assets/kiwi.png',
-                                width: screenWidth * 0.1,
-                                height: screenHeight * 0.1,
-                                fit: BoxFit.contain,
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Positioned(
-                              child: Container(
-                                height: screenHeight * 0.025,
-                                margin: EdgeInsets.only(
-                                    left: screenWidth * 0.02,
-                                    right: screenWidth * 0.02,
-                                    top: screenHeight * 0.105),
-                                decoration: BoxDecoration(
-                                  color: Color(0xFF35FF3D),
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  border: Border.all(
-                                    color: Colors.black,
-                                    width: 1.0,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.volume_up,
+                                          size: screenWidth * 0.04,
+                                          color: Colors.black,
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            result['korean'] ?? '',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: screenWidth * 0.025,
+                                              fontWeight: FontWeight.w900,
+                                              color: Colors.black,
+                                              fontStyle: FontStyle.italic,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.volume_up,
-                                      size: screenWidth * 0.04,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: screenWidth * 0.02),
+                      Expanded(
+                        child: Container(
+                          height: screenHeight * 0.13,
+                          color: Colors.transparent,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Positioned(
+                                bottom: screenHeight * 0.028,
+                                left: 0,
+                                right: 0,
+                                child: Container(
+                                  padding: EdgeInsets.all(screenHeight * 0.00),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
                                       color: Colors.black,
+                                      width: 1.0,
                                     ),
-                                    // Khoảng cố định giữa icon và văn bản
-                                    Expanded(
-                                      child: Text(
-                                        '라즈베리',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: screenWidth * 0.025,
-                                          fontWeight: FontWeight.w900,
-                                          color: Colors.black,
-                                          fontStyle: FontStyle.italic,
-                                        ),
-                                      ),
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  child: Image.network(
+                                    result['answer'] ?? '',
+                                    width: screenWidth * 0.1,
+                                    height: screenHeight * 0.1,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: screenHeight * 0.0040,
+                                left: screenHeight * 0.01,
+                                right: screenHeight * 0.01,
+                                child: Center(
+                                  child: Text(
+                                    result['answerEN'],
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: screenWidth * 0.025,
+                                      fontWeight: FontWeight.w900,
+                                      color: result['isCorrect'] ? Colors.green : Colors.red,
+                                      fontStyle: FontStyle.italic,
                                     ),
-                                  ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: screenWidth * 0.02),
-                  Expanded(
-                    child: Container(
-                      height: screenHeight * 0.13,
-                      color: Colors.transparent,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Positioned(
-                            bottom: screenHeight * 0.028,
-                            left: 0,
-                            right: 0,
-                            child: Container(
-                              padding: EdgeInsets.all(screenHeight *
-                                  0.00), // Điều chỉnh khoảng cách viền với hình ảnh
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Colors.black,
-                                  width: 1.0,
-                                ),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: Image.asset(
-                                'assets/strawberry.png',
-                                width: screenWidth * 0.1,
-                                height: screenHeight * 0.1,
-                                fit: BoxFit.contain,
-                              ),
-                            ),
+                            ],
                           ),
-                          Positioned(
-                            bottom: screenHeight * 0.0040,
-                            left: screenHeight * 0.01,
-                            right: screenHeight * 0.01,
-                            child: Center(
-                              child: Text(
-                                '딸기ssssss',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: screenWidth * 0.025,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.red,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
+                      SizedBox(width: screenWidth * 0.03),
+                    ],
                   ),
-                  SizedBox(width: screenWidth * 0.03),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
         ],
       ),
