@@ -6,10 +6,11 @@ import 'package:pinput/pinput.dart';
 
 class OptScreen extends StatelessWidget {
   final String verificationId;
+  final String uid; // Add this line
   final TextEditingController otpController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  OptScreen({required this.verificationId});
+  OptScreen({required this.verificationId, required this.uid}); // Modify the constructor
 
   void verifyOTP(BuildContext context) async {
     String otp = otpController.text.trim();
@@ -24,7 +25,7 @@ class OptScreen extends StatelessWidget {
         await _auth.signInWithCredential(credential);
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context)=>HomeScreen()),
+          MaterialPageRoute(builder: (context) => HomeScreen(uid: uid)), // Use the passed uid here
         );
       } catch (e) {
         Fluttertoast.showToast(msg: "Failed to sign in: $e");
@@ -33,7 +34,6 @@ class OptScreen extends StatelessWidget {
       Fluttertoast.showToast(msg: "Please enter the OTP");
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +104,6 @@ class OptScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         SizedBox(height: screenHeight * 0.2),
-                        // SizedBox(height: screenWidth * 0.2),
                       ],
                     ),
                   ),
@@ -147,11 +146,9 @@ class OptScreen extends StatelessWidget {
                     left: 0,
                     right: screenWidth * 0.01,
                     child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth * 0.03,
-                      ),
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03),
                       child: ElevatedButton(
-                        onPressed:() => verifyOTP(context),
+                        onPressed: () => verifyOTP(context),
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.all(screenWidth * 0.04),
                           shape: CircleBorder(),
@@ -182,9 +179,7 @@ class OptScreen extends StatelessWidget {
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenWidth * 0.01,
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.01),
                     child: Text(
                       'Or Sign In With',
                       style: TextStyle(
@@ -212,9 +207,7 @@ class OptScreen extends StatelessWidget {
                       color: Colors.black,
                       width: screenWidth * 0.005,
                     ),
-                    borderRadius: BorderRadius.circular(
-                      screenWidth * 0.05,
-                    ),
+                    borderRadius: BorderRadius.circular(screenWidth * 0.05),
                   ),
                   child: Image.asset(
                     'assets/google_logo.png',

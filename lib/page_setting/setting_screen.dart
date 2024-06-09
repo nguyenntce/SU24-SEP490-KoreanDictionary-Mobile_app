@@ -15,23 +15,62 @@ class SettingScreen extends StatefulWidget {
 }
 
 class _SettingScreenState extends State<SettingScreen> {
-  bool notificationsEnabled = true; // Trạng thái ban đầu là bật
+  bool notificationsEnabled = true;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+  User? _currentUser;
+  DatabaseReference _database = FirebaseDatabase.instance.reference().child('Account');
+  String _username = '';
+  String _email = '';
+  String _accountId = '';
 
-
-
-
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentUser();
+  }
+  Future<void> _getCurrentUser() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      setState(() {
+        _currentUser = user;
+        _email = user.email ?? '';
+      });
+      // Fetch user data from Firebase Realtime Database by Email
+      DatabaseEvent emailEvent = await _database.orderByChild('Email').equalTo(user.email).once();
+      DataSnapshot emailSnapshot = emailEvent.snapshot;
+      if (emailSnapshot.exists) {
+        Map<String, dynamic> userData = Map<String, dynamic>.from(emailSnapshot.value as Map);
+        userData.forEach((key, value) {
+          setState(() {
+            _username = value['Fullname'] ?? '';
+            _accountId = key;
+          });
+        });
+      } else {
+        // Fetch user data from Firebase Realtime Database by Phone
+        String phoneNumber = user.phoneNumber!.replaceAll('+', '');
+        DatabaseEvent phoneEvent = await _database.orderByChild('Phone').equalTo(phoneNumber).once();
+        DataSnapshot phoneSnapshot = phoneEvent.snapshot;
+        if (phoneSnapshot.exists) {
+          Map<String, dynamic> userData = Map<String, dynamic>.from(phoneSnapshot.value as Map);
+          userData.forEach((key, value) {
+            setState(() {
+              _username = value['Fullname'] ?? '';
+              _accountId = key;
+            });
+          });
+        }
+      }
+    }
+  }
   Future<void> _signOut(BuildContext context) async {
     try {
-           User? user = FirebaseAuth.instance.currentUser;
-
-      if (user != null) {
-        if (user.providerData.any((userInfo) => userInfo.providerId == 'google.com')) {
+      if (_currentUser != null) {
+        if (_currentUser!.providerData.any((userInfo) => userInfo.providerId == 'google.com')) {
           await _googleSignIn.signOut();
         }
         await FirebaseAuth.instance.signOut();
       }
-
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => index()),
@@ -105,14 +144,14 @@ class _SettingScreenState extends State<SettingScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'username',
+                        _username,
                         style: TextStyle(
                           fontSize: titleFontSize * 1,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
-                        'email',
+                        _email,
                         style: TextStyle(
                           fontSize: titleFontSize * 0.6,
                           color: Colors.black,
@@ -126,7 +165,8 @@ class _SettingScreenState extends State<SettingScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ProfileScreen()),
+                          builder: (context) => ProfileScreen(uid: _accountId, isGoogleSignIn: _currentUser!.providerData.any((userInfo) => userInfo.providerId == 'google.com')),
+                        ),
                       );
                     },
                     child: Icon(Icons.account_circle, size: iconSize * 1.3),
@@ -167,8 +207,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     ),
                     height: containerHeight,
                     child: Padding(
-                      padding:
-                      EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                       child: Row(
                         children: [
                           Icon(Icons.language, size: iconSize),
@@ -203,8 +242,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     ),
                     height: containerHeight,
                     child: Padding(
-                      padding:
-                      EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                       child: Row(
                         children: [
                           Icon(Icons.notifications_active, size: iconSize),
@@ -225,9 +263,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               });
                             },
                             child: Icon(
-                              notificationsEnabled
-                                  ? Icons.toggle_on
-                                  : Icons.toggle_off,
+                              notificationsEnabled ? Icons.toggle_on : Icons.toggle_off,
                               size: iconSize,
                             ),
                           ),
@@ -250,7 +286,7 @@ class _SettingScreenState extends State<SettingScreen> {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => ProfileScreen(),
+                        builder: (context) => ProfileScreen(uid: _accountId, isGoogleSignIn: _currentUser!.providerData.any((userInfo) => userInfo.providerId == 'google.com')),
                       ),
                     );
                   },
@@ -262,8 +298,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     ),
                     height: containerHeight,
                     child: Padding(
-                      padding:
-                      EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                       child: Row(
                         children: [
                           Icon(Icons.camera_alt, size: iconSize),
@@ -300,8 +335,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     ),
                     height: containerHeight,
                     child: Padding(
-                      padding:
-                      EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                       child: Row(
                         children: [
                           Icon(Icons.help, size: iconSize),
@@ -338,8 +372,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     ),
                     height: containerHeight,
                     child: Padding(
-                      padding:
-                      EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                       child: Row(
                         children: [
                           Icon(Icons.question_answer, size: iconSize),
@@ -373,7 +406,7 @@ class _SettingScreenState extends State<SettingScreen> {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => ProfileScreen(),
+                        builder: (context) => ProfileScreen(uid: _accountId, isGoogleSignIn: _currentUser!.providerData.any((userInfo) => userInfo.providerId == 'google.com')),
                       ),
                     );
                   },
@@ -385,8 +418,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     ),
                     height: containerHeight,
                     child: Padding(
-                      padding:
-                      EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                       child: Row(
                         children: [
                           Icon(Icons.share, size: iconSize),
@@ -411,7 +443,7 @@ class _SettingScreenState extends State<SettingScreen> {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => ProfileScreen(),
+                        builder: (context) => ProfileScreen(uid: _accountId, isGoogleSignIn: _currentUser!.providerData.any((userInfo) => userInfo.providerId == 'google.com')),
                       ),
                     );
                   },
@@ -423,8 +455,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     ),
                     height: containerHeight,
                     child: Padding(
-                      padding:
-                      EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                       child: Row(
                         children: [
                           Icon(Icons.star, size: iconSize),
@@ -461,8 +492,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     ),
                     height: containerHeight,
                     child: Padding(
-                      padding:
-                      EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                       child: Row(
                         children: [
                           Icon(Icons.info, size: iconSize),
@@ -481,9 +511,10 @@ class _SettingScreenState extends State<SettingScreen> {
                       ),
                     ),
                   ),
-                ),SizedBox(height: screenHeight * 0.02),
+                ),
+                SizedBox(height: screenHeight * 0.02),
                 GestureDetector(
-                  onTap: ()=> _signOut(context),
+                  onTap: () => _signOut(context),
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -492,8 +523,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     ),
                     height: containerHeight,
                     child: Padding(
-                      padding:
-                      EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                       child: Row(
                         children: [
                           Icon(Icons.logout, size: iconSize),
@@ -536,10 +566,16 @@ class _SettingScreenState extends State<SettingScreen> {
                 onTap: () {
                   Navigator.pop(context);
                 },
+                // onTap: () {
+                //   Navigator.of(context).push(
+                //     MaterialPageRoute(
+                //       builder: (context) => HomeScreen(),
+                //     ),
+                //   );
+                // },
                 child: Image.asset(
                   'assets/footer_icon_home.png',
-                  width: screenWidth *
-                      0.15, // Kích thước icon dựa trên chiều rộng màn hình
+                  width: screenWidth * 0.15, // Kích thước icon dựa trên chiều rộng màn hình
                 ),
               ),
             ),
@@ -550,14 +586,13 @@ class _SettingScreenState extends State<SettingScreen> {
               child: GestureDetector(
                 onTap: () {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ProfileScreen()));
+                    context,
+                    MaterialPageRoute(builder: (context) => ProfileScreen(uid: _accountId, isGoogleSignIn: _currentUser!.providerData.any((userInfo) => userInfo.providerId == 'google.com'))),
+                  );
                 },
                 child: Image.asset(
                   'assets/footer_camera.png',
-                  width: screenWidth *
-                      0.20, // Kích thước icon dựa trên chiều rộng màn hình
+                  width: screenWidth * 0.20, // Kích thước icon dựa trên chiều rộng màn hình
                 ),
               ),
             ),
@@ -566,8 +601,7 @@ class _SettingScreenState extends State<SettingScreen> {
               left: screenWidth * 0.7,
               child: GestureDetector(
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => SettingScreen()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => SettingScreen()));
                 },
                 child: Image.asset(
                   'assets/setting.png',

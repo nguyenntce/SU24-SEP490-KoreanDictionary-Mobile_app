@@ -7,6 +7,7 @@ import 'package:myapp/provider/locale_provider.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
 class AuthenticationWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -46,9 +48,11 @@ class AuthenticationWrapper extends StatelessWidget {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator(); // Hoặc màn hình tải
+          return CircularProgressIndicator(); // Or loading screen
         } else if (snapshot.hasData) {
-          return HomeScreen();
+          final User? user = FirebaseAuth.instance.currentUser;
+          final String uid = user?.uid ?? '';
+          return HomeScreen(uid: uid);
         } else {
           return index();
         }
@@ -56,4 +60,3 @@ class AuthenticationWrapper extends StatelessWidget {
     );
   }
 }
-

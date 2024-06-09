@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:firebase_database/firebase_database.dart';
 import 'package:myapp/page_setting/setting_screen.dart';
 import 'package:myapp/pages/pages_menu/camera_screen.dart';
@@ -12,13 +11,16 @@ import '../pages/pages_menu/flashcard_screen.dart';
 import 'package:myapp/pages/pages_menu/page_vocabulary/vocabulary_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {
+  final String uid; // Add this line to accept uid
+
+  HomeScreen({required this.uid}); // Modify the constructor
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final DatabaseReference _database =
-      FirebaseDatabase.instance.reference().child('Vocabulary');
+  final DatabaseReference _database = FirebaseDatabase.instance.reference().child('Vocabulary');
   List<Map<String, String>> vocabulary = [];
   List<Map<String, String>> filteredVocabulary = [];
   List<Map<String, String>> randomVocabulary = [];
@@ -68,6 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
   }
+
   void _getRandomVocabulary() {
     Random random = Random();
     if (vocabulary.length > 10) {
@@ -82,6 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
     filteredVocabulary = List.from(randomVocabulary);
     setState(() {});
   }
+
   void _filterVocabulary() {
     String query = searchController.text.toLowerCase();
     if (query.isEmpty) {
@@ -113,7 +117,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Color(0xFFA4FFB3),
       body: SingleChildScrollView(
-        // Wrap with SingleChildScrollView
         child: Column(
           children: [
             Padding(
@@ -276,7 +279,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         SizedBox(height: verticalPadding / 10),
                         _buildVocabularyList(screenWidth, screenHeight),
-                        // Thêm các hàng khác tương tự ở đây
                       ],
                     ),
                   ),
@@ -304,7 +306,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => HomeScreen()));
+                          builder: (context) => HomeScreen(uid: widget.uid))); // Pass uid here
                 },
                 child: Image.asset(
                   'assets/footer_icon_home.png',
@@ -345,11 +347,11 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
   Widget _buildVocabularyList(double screenWidth, double screenHeight) {
     List<Widget> rows = [];
     for (int i = 0; i < filteredVocabulary.length; i += 2) {
       rows.add(
-
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
@@ -363,13 +365,14 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     return Column(children: rows);
   }
+
   Widget _buildVocabularyItem(Map<String, String> vocab, double screenWidth, double screenHeight) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => VocabularyDetailsScreen( word: vocab),
+            builder: (context) => VocabularyDetailsScreen(word: vocab),
           ),
         );
       },
@@ -417,16 +420,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                if(AppLocalizations.of(context)!.localeName != 'ko')
-                Text(
-                  vocab['korean']!,
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: screenWidth * 0.03,
-                    fontWeight: FontWeight.bold,
+                if (AppLocalizations.of(context)!.localeName != 'ko')
+                  Text(
+                    vocab['korean']!,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: screenWidth * 0.03,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-
               ],
             ),
           ),
@@ -435,4 +437,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
