@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:myapp/pages/home_screen.dart';
 import 'package:pinput/pinput.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OptScreen extends StatelessWidget {
   final String verificationId;
@@ -23,6 +24,10 @@ class OptScreen extends StatelessWidget {
 
       try {
         await _auth.signInWithCredential(credential);
+        // Save UID to SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('uid', uid);
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => HomeScreen(uid: uid)), // Use the passed uid here
