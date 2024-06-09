@@ -34,7 +34,7 @@ class _FaqScreenState extends State<FaqScreen> {
           },
         ),
         title: Text(
-          'TAO AN CUT',
+          'Frequently Asked Questions',
           style: TextStyle(
             fontSize: titleFontSize,
             fontWeight: FontWeight.bold,
