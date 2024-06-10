@@ -6,6 +6,9 @@ import 'package:myapp/models/vocabulary_service.dart'; // Import file chứa hà
 import 'package:myapp/pages/pages_menu/page_quiz/detailresult_quiz_screen.dart';
 import 'package:myapp/pages/pages_menu/page_quiz/result_quiz_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
+import 'package:myapp/service/firebase_service.dart';
+import 'package:myapp/utils/utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ListenandfillwordScreen extends StatefulWidget {
   final int durationInSeconds;
@@ -24,18 +27,28 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
   int _currentQuestionIndex = 0;
   int _selectedAnswer = -1;
   List<Vocabulary> _vocabularies = [];
+  bool _showCorrectAnswer = false;
   List<Map<String, dynamic>> _results = [];
   List<Vocabulary> _currentOptions = [];
+  String testId = '';
+  int accountId = 0;
+  int startTime = 0;
 
   @override
   void initState() {
     super.initState();
     _audioPlayer = AudioPlayer();
     _totalTime = widget.durationInSeconds;
+    startTime = DateTime.now().millisecondsSinceEpoch;
     startTimer();
     _loadVocabularies();
+    _initUserId();
+    testId = generateUniqueId();
   }
-
+  Future<void> _initUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    accountId = prefs.getInt('UID') ?? 0;
+  }
   Future<void> _loadVocabularies() async {
     int numberOfQuestions = widget.durationInSeconds ~/ _timePerQuestion;
     List<Vocabulary> vocabularies = await getRandomVocabularies(numberOfQuestions);
@@ -96,10 +109,27 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
-  void _nextQuestion() {
+  void _nextQuestion()  async{
     if (_selectedAnswer != -1) {
       Vocabulary currentVocabulary = _vocabularies[_currentQuestionIndex];
       Vocabulary selectedVocabulary = _currentOptions[_selectedAnswer];
+      // Lưu dữ liệu câu trả lời vào Firebase
+      String historyId = generateUniqueId();
+      String questionId = generateUniqueId();
+
+      await saveQuestion(
+      questionId,
+      testId,
+      currentVocabulary.id,
+      );
+
+      await saveHistory(
+      historyId,
+      questionId,
+      accountId,
+      selectedVocabulary.korean,
+      currentVocabulary.image == selectedVocabulary.image,
+      );
       _results.add({
         'vietnamese':currentVocabulary.vietnamese,
         'english': currentVocabulary.english,
@@ -117,6 +147,7 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
       setState(() {
         _currentQuestionIndex++;
         _selectedAnswer = -1;
+        _showCorrectAnswer = false;
         if (_currentQuestionIndex < _vocabularies.length) {
           _setCurrentOptions();
         } else {
@@ -127,11 +158,18 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
     }
   }
 
-  void _navigateToResultScreen() {
+  void _navigateToResultScreen() async  {
+    int endTime = DateTime.now().millisecondsSinceEpoch;
+    int elapsedTime = (endTime - startTime) ~/ 1000; // Thời gian kết thúc
+    await saveTest(
+      testId,
+      accountId,
+      0,
+      elapsedTime,
+      widget.durationInSeconds,
+    );
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => ResultQuizScreen(results: _results),
-      ),
+      MaterialPageRoute(builder: (context) => ResultQuizScreen(results: _results)),
     );
   }
 
@@ -232,11 +270,7 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
                       ElevatedButton(
                         onPressed: () {
                           stopTimer();
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => ResultQuizScreen(results: _results),
-                            ),
-                          );
+                          _navigateToResultScreen();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,

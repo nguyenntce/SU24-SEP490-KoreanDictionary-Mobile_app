@@ -55,6 +55,8 @@ dependencies:
   http: ^1.2.1
   shared_preferences: ^2.2.3
 
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -83,6 +85,7 @@ flutter:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
   assets:
+    - assets/icon_img.jpg
     - assets/avocado.png
     - assets/google_logo.png
     - assets/duahau.png

@@ -1,11 +1,80 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class ProfileScreen extends StatefulWidget {
+  final String uid; // Pass the user ID when creating the ProfileScreen
+  final bool isGoogleSignIn;
+
+  ProfileScreen({required this.uid, required this.isGoogleSignIn});
+
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final TextEditingController _fullnameController = TextEditingController();
+  final TextEditingController _dobController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  String _gender = 'Male';
+
+  final DatabaseReference _database = FirebaseDatabase.instance.reference().child('Account');
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  void _loadUserData() async {
+    try {
+      print('Loading user data for uid: ${widget.uid}');
+      DatabaseEvent event = await _database.child(widget.uid).once();
+      DataSnapshot snapshot = event.snapshot;
+      print('Snapshot data: ${snapshot.value}');
+
+      if (snapshot.exists) {
+        var userData = snapshot.value as Map;
+        _populateUserData(Map<String, dynamic>.from(userData));
+      } else {
+        print('No data exists for the user with uid: ${widget.uid}');
+      }
+    } catch (e) {
+      print('Failed to load user data: $e');
+    }
+  }
+
+  void _populateUserData(Map<String, dynamic> userData) {
+    setState(() {
+      _fullnameController.text = userData['Fullname'] ?? '';
+      _dobController.text = userData['Dob'] ?? '';
+      _emailController.text = userData['Email'] ?? '';
+      _phoneController.text = userData['Phone']?.toString().replaceFirst('84', '0') ?? '';
+      _addressController.text = userData['Country'] ?? '';
+      _gender = ['Male', 'Female', 'Other'].contains(userData['Gender']) ? userData['Gender'] : 'Male';
+    });
+  }
+
+  void _saveUserToDatabase(String uid, {String? phone, String? email}) async {
+    try {
+      final formattedPhone = phone?.replaceFirst('0', '84');
+      await _database.child(uid).update({
+        "Avatar": "",
+        "Country": _addressController.text,
+        "Dob": _dobController.text,
+        "Email": email ?? _emailController.text,
+        "Fullname": _fullnameController.text,
+        "Gender": _gender,
+        "Phone": formattedPhone ?? _phoneController.text.replaceFirst('0', '84'),
+        "Status": 1,
+      });
+      print('User data updated successfully');
+    } catch (e) {
+      print('Failed to save user data: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -15,6 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     double imageContainerHeight = screenHeight * 0.1;
     double imageSize = screenWidth * 0.17;
     double iconSize = screenWidth * 0.12;
+
     return Scaffold(
       backgroundColor: Color(0xFFA4FFB3),
       appBar: AppBar(
@@ -26,7 +96,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           },
         ),
         title: Text(
-          'Setting',
+          'Profile',
           style: TextStyle(
             fontSize: titleFontSize * 1.5,
             fontWeight: FontWeight.bold,
@@ -46,9 +116,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: Container(), // Container trống để căn giữa hình ảnh
-                  ),
+                  Expanded(child: Container()), // Container trống để căn giữa hình ảnh
                   Container(
                     width: imageSize * 1.5, // Tăng kích thước của hình ảnh lên
                     height: imageSize * 1.5, // Tăng kích thước của hình ảnh lên
@@ -63,12 +131,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         fit: BoxFit.cover,
                       ),
                     ),
-                    padding:
-                        EdgeInsets.all(4.0), // Tạo viền bằng cách thêm padding
+                    padding: EdgeInsets.all(4.0), // Tạo viền bằng cách thêm padding
                   ),
-                  Expanded(
-                    child: Container(), // Container trống để căn giữa hình ảnh
-                  ),
+                  Expanded(child: Container()), // Container trống để căn giữa hình ảnh
                 ],
               ),
             ),
@@ -96,20 +161,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   height: containerHeight,
                   child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                     child: Row(
                       children: [
                         Expanded(
                           child: TextField(
+                            controller: _fullnameController,
                             decoration: InputDecoration(
                               border: InputBorder.none,
-                              hintText: 'Truong Duy Khang',
+                              hintText: '---------------',
                               hintStyle: TextStyle(
                                 fontStyle: FontStyle.italic,
                                 fontSize: titleFontSize,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                color: Colors.grey, // Light grey color for hint text
                               ),
                             ),
                           ),
@@ -119,7 +184,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: screenHeight * 0.01), // Thêm khoảng cách
+                SizedBox(height: screenHeight * 0.01),
                 Text(
                   'Birthday',
                   style: TextStyle(
@@ -137,12 +202,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   height: containerHeight,
                   child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                     child: Row(
                       children: [
                         Expanded(
                           child: TextField(
+                            controller: _dobController,
                             decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText: '---------------',
@@ -150,66 +215,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 fontStyle: FontStyle.italic,
                                 fontSize: titleFontSize,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                color: Colors.grey, // Light grey color for hint text
                               ),
                             ),
                           ),
                         ),
-                        Icon(
-                          Icons.calendar_month,
-                          color: Colors.black,
-                          size: iconSize,
-                        ),
+                        Icon(Icons.calendar_month, color: Colors.black, size: iconSize),
                       ],
                     ),
-                  ),
-                ),
-                SizedBox(height: screenHeight * 0.01), // Thêm khoảng cách
-                Text(
-                  'Job',
-                  style: TextStyle(
-                    fontSize: titleFontSize * 1.2,
-                    fontWeight: FontWeight.w900,
-                    fontStyle: FontStyle.italic,
                   ),
                 ),
                 SizedBox(height: screenHeight * 0.01),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30.0),
-                    border: Border.all(color: Colors.black),
-                  ),
-                  height: containerHeight,
-                  child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: '---------------',
-                              hintStyle: TextStyle(
-                                fontStyle: FontStyle.italic,
-                                fontSize: titleFontSize,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Icon(
-                          Icons.work,
-                          color: Colors.black,
-                          size: iconSize,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: screenHeight * 0.01), // Thêm khoảng cách
                 Text(
                   'Email',
                   style: TextStyle(
@@ -227,12 +243,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   height: containerHeight,
                   child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                     child: Row(
                       children: [
                         Expanded(
                           child: TextField(
+                            controller: _emailController,
+                            enabled: !widget.isGoogleSignIn,
                             decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText: '---------------',
@@ -240,21 +257,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 fontStyle: FontStyle.italic,
                                 fontSize: titleFontSize,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                color: Colors.grey, // Light grey color for hint text
                               ),
                             ),
                           ),
                         ),
-                        Icon(
-                          Icons.mail,
-                          color: Colors.black,
-                          size: iconSize,
-                        ),
+                        Icon(Icons.mail, color: Colors.black, size: iconSize),
                       ],
                     ),
                   ),
                 ),
-                SizedBox(height: screenHeight * 0.01), // Thêm khoảng cách
+                SizedBox(height: screenHeight * 0.01),
                 Text(
                   'Phone',
                   style: TextStyle(
@@ -272,12 +285,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   height: containerHeight,
                   child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                     child: Row(
                       children: [
                         Expanded(
                           child: TextField(
+                            controller: _phoneController,
+                            enabled: widget.isGoogleSignIn,
                             decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText: '---------------',
@@ -285,21 +299,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 fontStyle: FontStyle.italic,
                                 fontSize: titleFontSize,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                color: Colors.grey, // Light grey color for hint text
                               ),
                             ),
                           ),
                         ),
-                        Icon(
-                          Icons.phone_in_talk,
-                          color: Colors.black,
-                          size: iconSize,
-                        ),
+                        Icon(Icons.phone_in_talk, color: Colors.black, size: iconSize),
                       ],
                     ),
                   ),
                 ),
-                SizedBox(height: screenHeight * 0.01), // Thêm khoảng cách
+                SizedBox(height: screenHeight * 0.01),
                 Text(
                   'Address',
                   style: TextStyle(
@@ -317,12 +327,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   height: containerHeight,
                   child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                     child: Row(
                       children: [
                         Expanded(
                           child: TextField(
+                            controller: _addressController,
                             decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText: '----------------',
@@ -330,35 +340,84 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 fontStyle: FontStyle.italic,
                                 fontSize: titleFontSize,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                color: Colors.grey, // Light grey color for hint text
                               ),
                             ),
                           ),
                         ),
-                        Icon(
-                          Icons.location_on,
-                          color: Colors.black,
-                          size: iconSize,
-                        ),
+                        Icon(Icons.location_on, color: Colors.black, size: iconSize),
                       ],
                     ),
                   ),
                 ),
-                SizedBox(height: screenHeight * 0.03), // Thêm khoảng cách
+                SizedBox(height: screenHeight * 0.01),
+                Text(
+                  'Gender',
+                  style: TextStyle(
+                    fontSize: titleFontSize * 1.2,
+                    fontWeight: FontWeight.w900,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+                SizedBox(height: screenHeight * 0.01),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(30.0),
+                    border: Border.all(color: Colors.black),
+                  ),
+                  height: containerHeight,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButton<String>(
+                            value: _gender,
+                            isExpanded: true,
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _gender = newValue!;
+                              });
+                            },
+                            items: <String>['Male', 'Female', 'Other']
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(
+                                  value,
+                                  style: TextStyle(
+                                    fontStyle: FontStyle.italic,
+                                    fontSize: titleFontSize,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                        Icon(Icons.person, color: Colors.black, size: iconSize),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: screenHeight * 0.03),
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
-                      // Code xử lý khi nhấn nút Save
+                      _saveUserToDatabase(
+                        widget.uid,
+                        phone: _phoneController.text,
+                        email: _emailController.text,
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF35FF3D),
-                      // Đặt màu xanh lá cho nút
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                       ),
-                      side: BorderSide(
-                          width: 3,
-                          color: Colors.white), // Thêm viền trắng cho nút
+                      side: BorderSide(width: 3, color: Colors.white), // Thêm viền trắng cho nút
                     ),
                     child: Padding(
                       padding: EdgeInsets.symmetric(

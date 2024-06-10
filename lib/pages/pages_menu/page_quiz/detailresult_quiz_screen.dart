@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
 class DetailresultQuizScreen extends StatefulWidget {
   final List<Map<String, dynamic>> results;
 
@@ -143,7 +143,11 @@ class _DetailresultQuizScreenState extends State<DetailresultQuizScreen> {
                             horizontal: screenWidth * 0.03,
                           ),
                           child: Text(
-                            result['english'] ?? '',
+                            AppLocalizations.of(context)!.localeName == 'en'
+                                ? result['english'] ?? ''
+                                : AppLocalizations.of(context)!.localeName == 'ko'
+                                ? result['korean'] ?? ''
+                                : result['vietnamese'] ?? '',
                             style: TextStyle(
                               fontSize: screenWidth * 0.035,
                               color: Colors.black,
@@ -269,7 +273,11 @@ class _DetailresultQuizScreenState extends State<DetailresultQuizScreen> {
                                 right: screenHeight * 0.01,
                                 child: Center(
                                   child: Text(
-                                    result['answerEN'],
+                                    AppLocalizations.of(context)!.localeName == 'en'
+                                        ? result['answerEN'] ?? ''
+                                        : AppLocalizations.of(context)!.localeName == 'ko'
+                                        ? result['answerKR'] ?? ''
+                                        : result['answerVN'] ?? '',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: screenWidth * 0.025,
