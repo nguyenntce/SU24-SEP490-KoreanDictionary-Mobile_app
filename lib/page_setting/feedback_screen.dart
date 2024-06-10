@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class FeedbackScreen extends StatefulWidget {
   @override
   _FeedbackScreenState createState() => _FeedbackScreenState();
+  
 }
 
 class _FeedbackScreenState extends State<FeedbackScreen> {
@@ -24,11 +25,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     const double textBottomPositionRatio = 0.2;
 
     return Scaffold(
-      backgroundColor: Color(0xFFA4FFB3),
+      backgroundColor: const Color(0xFFA4FFB3),
       appBar: AppBar(
-        backgroundColor: Color(0xFF154F41),
+        backgroundColor: const Color(0xFF154F41),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.of(context).pop();
           },

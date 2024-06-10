@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/page_setting/feedback_screen.dart';
 import 'package:myapp/pages/pages_menu/page_vocabulary/vocabulary_details_screen.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
@@ -105,7 +106,9 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
         itemBuilder: (context, index) {
           if (index == 0) {
             return Padding(
-              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: screenHeight * 0.02),
+              padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.05,
+                  vertical: screenHeight * 0.02),
               child: TextField(
                 controller: searchController,
                 focusNode: _focusNode,
@@ -177,28 +180,66 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                     fit: BoxFit.contain,
                   ),
                   title: Text(
-                    filteredVocabulary[vocabIndex][AppLocalizations.of(context)!.vocabularykey]!,
+                    filteredVocabulary[vocabIndex]
+                        [AppLocalizations.of(context)!.vocabularykey]!,
                     style: TextStyle(
                       fontSize: screenWidth * 0.05,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  subtitle:AppLocalizations.of(context)!.localeName != 'ko' ? Text(
-                    filteredVocabulary[vocabIndex]['korean']!,
-                    style: TextStyle(
-                      fontSize: screenWidth * 0.05,
-                      color: Colors.grey[700],
-                    ),
-                  ):null,
-                  trailing: Icon(Icons.more_vert),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => VocabularyDetailsScreen(word: filteredVocabulary[vocabIndex]),
+                  subtitle: AppLocalizations.of(context)!.localeName != 'ko'
+                      ? Text(
+                          filteredVocabulary[vocabIndex]['korean']!,
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.05,
+                            color: Colors.grey[700],
+                          ),
+                        )
+                      : null,
+                  trailing: PopupMenuButton<String>(
+                    onSelected: (String result) {
+                      if (result == 'Feedback') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => FeedbackScreen(),
+                          ),
+                        );
+                      } else if (result == 'Details') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => VocabularyDetailsScreen(
+                                word: filteredVocabulary[vocabIndex]),
+                          ),
+                        );
+                      }
+                    },
+                    itemBuilder: (BuildContext context) =>
+                        <PopupMenuEntry<String>>[
+                      const PopupMenuItem<String>(
+                        value: 'Feedback',
+                        child: Text(
+                          'Feedback',
+                          style: TextStyle(fontWeight: FontWeight.w900),
+                        ),
                       ),
-                    );
-                  },
+                      const PopupMenuItem<String>(
+                        value: 'Details',
+                        child: Text(
+                          'Details',
+                          style: TextStyle(fontWeight: FontWeight.w900),
+                        ),
+                      ),
+                    ],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(screenWidth * 0.06),
+                      side: BorderSide(
+                        color: Colors.black,
+                        width: screenWidth * 0.005,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             );
