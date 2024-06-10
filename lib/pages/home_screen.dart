@@ -12,6 +12,9 @@ import '../pages/pages_menu/flashcard_screen.dart';
 import 'package:myapp/pages/pages_menu/page_vocabulary/vocabulary_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {
+  final String uid; // Add this line to accept uid
+
+  HomeScreen({required this.uid}); // Modify the constructor
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -29,13 +32,11 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _fetchVocabulary();
-    searchController.addListener(_filterVocabulary);
+
   }
 
   @override
   void dispose() {
-    searchController.removeListener(_filterVocabulary);
-    searchController.dispose();
     _focusNode.dispose();
     super.dispose();
   }
@@ -82,26 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
     filteredVocabulary = List.from(randomVocabulary);
     setState(() {});
   }
-  void _filterVocabulary() {
-    String query = searchController.text.toLowerCase();
-    if (query.isEmpty) {
-      setState(() {
-        filteredVocabulary = List.from(randomVocabulary);
-      });
-    } else {
-      List<Map<String, String>> tempList = [];
-      randomVocabulary.forEach((vocab) {
-        if (vocab['english']!.toLowerCase().contains(query) ||
-            vocab['korean']!.toLowerCase().contains(query) ||
-            vocab['vietnamese']!.toLowerCase().contains(query)) {
-          tempList.add(vocab);
-        }
-      });
-      setState(() {
-        filteredVocabulary = tempList;
-      });
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -155,9 +137,21 @@ class _HomeScreenState extends State<HomeScreen> {
                           width: 3.0,
                         ),
                       ),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        size: screenWidth * 0.04,
+                      prefixIcon: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => VocabularyScreen(
+                                initialSearchQuery: searchController.text,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Icon(
+                          Icons.search,
+                          size: screenWidth * 0.04,
+                        ),
                       ),
                       contentPadding: EdgeInsets.fromLTRB(
                         screenWidth * 0.015,
@@ -167,6 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
+
                   SizedBox(height: verticalPadding),
                   Container(
                     width: double.infinity,
@@ -304,7 +299,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => HomeScreen()));
+                          builder: (context) => HomeScreen(uid: widget.uid))); // Pass uid here
                 },
                 child: Image.asset(
                   'assets/footer_icon_home.png',

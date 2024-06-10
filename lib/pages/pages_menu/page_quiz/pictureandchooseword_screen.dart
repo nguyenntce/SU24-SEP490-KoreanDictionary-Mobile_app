@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:myapp/models/vocabulary.dart';
@@ -5,6 +6,8 @@ import 'package:myapp/models/vocabulary_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:myapp/pages/pages_menu/page_quiz/result_quiz_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
+import 'package:myapp/service/firebase_service.dart';
+import 'package:myapp/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PictureandchoosewordScreen extends StatefulWidget {
@@ -27,23 +30,26 @@ class _PictureandchoosewordScreenState extends State<PictureandchoosewordScreen>
   int _selectedAnswer = -1;
   bool _showCorrectAnswer = false;
   List<Vocabulary> _currentOptions = [];
+  String testId = '';
+  int accountId = 0;
+  int startTime = 0;
 
-  Future<void> printUserId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int? userId = prefs.getInt('userId');
-    print('User ID retrieved: $userId');
-  }
   @override
   void initState() {
     super.initState();
-    printUserId();
     _start = widget.durationInSeconds;
     _totalQuestions = _start ~/ 30; // Assuming 30 seconds per question
     _audioPlayer = AudioPlayer();
+    startTime = DateTime.now().millisecondsSinceEpoch;
     startTimer();
     _loadVocabularies();
+    _initUserId();
+    testId = generateUniqueId();
   }
-
+  Future<void> _initUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    accountId = prefs.getInt('UID') ?? 0;
+  }
   Future<void> _loadVocabularies() async {
     List<Vocabulary> vocabularies = await getRandomVocabularies(_totalQuestions);
     setState(() {
@@ -89,13 +95,31 @@ class _PictureandchoosewordScreenState extends State<PictureandchoosewordScreen>
     }
   }
 
-  void _nextQuestion() {
-
+  void _nextQuestion() async {
     if (_selectedAnswer != -1) {
       Vocabulary currentVocabulary = _vocabularies[_currentQuestionIndex];
       Vocabulary selectedVocabulary = _currentOptions[_selectedAnswer];
+
+      // Lưu dữ liệu câu trả lời vào Firebase
+      String historyId = generateUniqueId();
+      String questionId = generateUniqueId();
+
+      await saveQuestion(
+        questionId,
+        testId,
+        currentVocabulary.id,
+      );
+
+      await saveHistory(
+        historyId,
+        questionId,
+        accountId,
+        selectedVocabulary.korean,
+        currentVocabulary.image == selectedVocabulary.image,
+      );
+
       _results.add({
-        'vietnamese':currentVocabulary.vietnamese,
+        'vietnamese': currentVocabulary.vietnamese,
         'english': currentVocabulary.english,
         'korean': currentVocabulary.korean,
         'image': currentVocabulary.image,
@@ -103,11 +127,12 @@ class _PictureandchoosewordScreenState extends State<PictureandchoosewordScreen>
         'answerEN': selectedVocabulary.english,
         'answerVN': selectedVocabulary.vietnamese,
         'answerKR': selectedVocabulary.korean,
-        'voiceVN':currentVocabulary.voiceVn,
-        'voiceKo':currentVocabulary.voiceKr,
+        'voiceVN': currentVocabulary.voiceVn,
+        'voiceKo': currentVocabulary.voiceKr,
         'voiceEn': currentVocabulary.voiceEn,
         'isCorrect': currentVocabulary.image == selectedVocabulary.image,
       });
+
       setState(() {
         _currentQuestionIndex++;
         _selectedAnswer = -1;
@@ -122,7 +147,16 @@ class _PictureandchoosewordScreenState extends State<PictureandchoosewordScreen>
     }
   }
 
-  void _navigateToResultScreen() {
+  void _navigateToResultScreen() async  {
+    int endTime = DateTime.now().millisecondsSinceEpoch;
+    int elapsedTime = (endTime - startTime) ~/ 1000; // Thời gian kết thúc
+    await saveTest(
+      testId,
+      accountId,
+      0,
+      elapsedTime,
+      widget.durationInSeconds,
+    );
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => ResultQuizScreen(results: _results)),
     );

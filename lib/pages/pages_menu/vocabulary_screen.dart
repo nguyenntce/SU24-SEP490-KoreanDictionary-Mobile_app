@@ -4,6 +4,9 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 
 class VocabularyScreen extends StatefulWidget {
+  final String? initialSearchQuery;
+
+  VocabularyScreen({this.initialSearchQuery});
   @override
   _VocabularyScreenState createState() => _VocabularyScreenState();
 }
@@ -21,6 +24,12 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
     super.initState();
     _fetchVocabulary();
     searchController.addListener(_filterVocabulary);
+    if (widget.initialSearchQuery != null) {
+      searchController.text = widget.initialSearchQuery!;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _filterVocabulary();
+      });
+    }
   }
 
   @override

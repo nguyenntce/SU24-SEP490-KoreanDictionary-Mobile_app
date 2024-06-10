@@ -4,9 +4,9 @@ import 'package:country_picker/country_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:myapp/pages/home_screen.dart';
 import 'package:myapp/pages/optSreen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Loginscreen extends StatefulWidget {
   @override
@@ -17,10 +17,11 @@ class _LoginscreenState extends State<Loginscreen> {
   final TextEditingController phoneController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final user = FirebaseAuth.instance.currentUser;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final DatabaseReference _database = FirebaseDatabase.instance.reference().child('Account');
   Country selectedCountry = CountryParser.parseCountryCode('VN');
+
+
   Future<int> _getNextUserId() async {
     int newId = 1;
     await _database.orderByKey().limitToLast(1).once().then((DatabaseEvent event) {
@@ -34,7 +35,6 @@ class _LoginscreenState extends State<Loginscreen> {
             }
           });
         } else if (value is List) {
-          // Handling the case if the database returns a List instead of a Map
           for (var entry in value) {
             if (entry != null && entry is Map && entry.containsKey('Id')) {
               var lastId = entry['Id'] as int;
@@ -46,11 +46,18 @@ class _LoginscreenState extends State<Loginscreen> {
     });
     return newId;
   }
-
-
-  void _saveUserToDatabase(int uid, {int? phone, String? email}) async {
-    int p =0;
-    int status =1;
+  Future<String?> _getUserIdByPhone(String phone) async {
+    final snapshot = await _database.orderByChild('Phone').equalTo(phone).once();
+    if (snapshot.snapshot.value != null) {
+      var data = snapshot.snapshot.value as Map;
+      var userId = data.keys.first;
+      return userId;
+    }
+    return null;
+  }
+  void _saveUserToDatabase(int uid, {String? phone, String? email}) async {
+    int p = 0;
+    int status = 1;
     await _database.child(uid.toString()).set({
       "Avatar": "",
       "Country": "",
@@ -59,68 +66,109 @@ class _LoginscreenState extends State<Loginscreen> {
       "Fullname": "",
       "Gender": "",
       "Id": uid,
-      "Phone": phone ?? p,
+      "Phone": phone ?? p.toString(),
       "Status": status
     });
   }
+
   Future<bool> _isEmailExist(String email) async {
     final snapshot = await _database.orderByChild('Email').equalTo(email).once();
     return snapshot.snapshot.value != null;
   }
-  Future<bool> _isPhoneExist(int phone) async {
+
+  Future<bool> _isPhoneExist(String phone) async {
     final snapshot = await _database.orderByChild('Phone').equalTo(phone).once();
     return snapshot.snapshot.value != null;
   }
+
   void sendOTP(BuildContext context) async {
     String phone = phoneController.text.trim();
     String fullPhoneNumber = "+${selectedCountry.phoneCode}$phone";
 
-    // Kiểm tra định dạng số điện thoại
-    String pattern = r'^\+?[0-9]{10,15}$'; // Ví dụ: kiểm tra số điện thoại có từ 10 đến 15 chữ số và có thể có dấu +
+    String pattern = r'^\+?[0-9]{10,15}$';
     RegExp regex = RegExp(pattern);
-    print(fullPhoneNumber);
     if (fullPhoneNumber.isNotEmpty && regex.hasMatch(fullPhoneNumber)) {
-
-      // Loại bỏ dấu "+" và chuyển đổi chuỗi số điện thoại thành số nguyên
-      int phoneNumber = int.parse(fullPhoneNumber.replaceFirst('+', ''));
+      String phoneNumber = fullPhoneNumber.replaceFirst('+', '');
       bool phoneExists = await _isPhoneExist(phoneNumber);
-      print(phoneExists);
+      int UID =0;
       if (!phoneExists) {
         int newId = await _getNextUserId();
+        UID = newId;
         _saveUserToDatabase(newId, phone: phoneNumber);
-      }
-      await _auth.verifyPhoneNumber(
-        phoneNumber: fullPhoneNumber,
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          await _auth.signInWithCredential(credential);
-
-        },
-        verificationFailed: (FirebaseAuthException e) {
-          Fluttertoast.showToast(
-              msg: "Failed to Verify Phone Number: ${e.message}");
-        },
-        codeSent: (String verificationId, int? resendToken) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => OptScreen(verificationId: verificationId),
-            ),
+        _saveSessionData(newId.toString());
+        _saveIDuser(newId);
+        _auth.verifyPhoneNumber(
+          phoneNumber: fullPhoneNumber,
+          verificationCompleted: (PhoneAuthCredential credential) async {
+            await _auth.signInWithCredential(credential);
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen(uid: newId.toString())),
+            );
+          },
+          verificationFailed: (FirebaseAuthException e) {
+            Fluttertoast.showToast(msg: "Failed to Verify Phone Number: ${e.message}");
+          },
+          codeSent: (String verificationId, int? resendToken) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => OptScreen(verificationId: verificationId, uid: newId.toString()),
+              ),
+            );
+          },
+          codeAutoRetrievalTimeout: (String verificationId) {},
+        );
+      } else {
+        String? existingUserId = await _getUserIdByPhone(phoneNumber);
+        if (existingUserId != null) {
+          _saveSessionData(existingUserId);
+          _auth.verifyPhoneNumber(
+            phoneNumber: fullPhoneNumber,
+            verificationCompleted: (PhoneAuthCredential credential) async {
+              await _auth.signInWithCredential(credential);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => HomeScreen(uid: existingUserId)),
+              );
+            },
+            verificationFailed: (FirebaseAuthException e) {
+              Fluttertoast.showToast(msg: "Failed to Verify Phone Number: ${e.message}");
+            },
+            codeSent: (String verificationId, int? resendToken) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => OptScreen(verificationId: verificationId, uid: existingUserId),
+                ),
+              );
+            },
+            codeAutoRetrievalTimeout: (String verificationId) {},
           );
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {},
-      );
+        }
+      }
     } else {
       Fluttertoast.showToast(msg: "Please enter a valid phone number");
     }
   }
 
+  void _saveSessionData(String userId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userId', userId);
+
+  }
+  void _saveIDuser(int userId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('UID', userId);
+
+  }
+
+
   Future<void> _signInWithGoogle(BuildContext context) async {
     try {
-      final GoogleSignInAccount? googleSignInAccount =
-      await _googleSignIn.signIn();
+      final GoogleSignInAccount? googleSignInAccount = await _googleSignIn.signIn();
       if (googleSignInAccount != null) {
-        final GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount.authentication;
+        final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
         final AuthCredential credential = GoogleAuthProvider.credential(
           idToken: googleSignInAuthentication.idToken,
           accessToken: googleSignInAuthentication.accessToken,
@@ -131,44 +179,51 @@ class _LoginscreenState extends State<Loginscreen> {
         if (!emailExists) {
           int newId = await _getNextUserId();
           _saveUserToDatabase(newId, email: googleSignInAccount.email);
+          _saveSessionData(newId.toString());
           userId = newId;
-        } else {
-          DatabaseEvent event = await _database.orderByChild('Email').equalTo(email).once();
-          DataSnapshot snapshot = event.snapshot;
 
-          userId = -1; // default value
+        } else {
+          userId = -1;
+          final event  = await _database.orderByChild('Email').equalTo(email).once();
+          DataSnapshot snapshot = event.snapshot;
           if (snapshot.value != null) {
             if (snapshot.value is Map<dynamic, dynamic>) {
               Map<dynamic, dynamic> values = snapshot.value as Map<dynamic, dynamic>;
               values.forEach((key, value) {
                 userId = value['Id'];
-                print("userId : ${userId}");
+
               });
             } else if (snapshot.value is List) {
               List<dynamic> values = snapshot.value as List<dynamic>;
               for (var value in values) {
                 if (value != null && value['Id'] != null) {
                   userId = value['Id'];
-                  print("userId : ${userId}");
+
                   break;
                 }
               }
             }
           }
+          if (event.snapshot.value != null) {
+            final userMap = event.snapshot.value as Map<dynamic, dynamic>;
+            String userId = userMap.keys.first.toString();
+            _saveSessionData(userId);
+          }
+
         }
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setInt('userId', userId);
         await _firebaseAuth.signInWithCredential(credential);
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? uid = prefs.getString('uid');
+        await prefs.setInt('UID', userId);
+
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
+          MaterialPageRoute(builder: (context) => HomeScreen(uid: uid!)),
         );
       }
     } catch (e) {
-      String errorMessage = "Some error occurred: $e";
-      Fluttertoast.showToast(msg: errorMessage);
-      print(errorMessage);
+      Fluttertoast.showToast(msg: "Some error occurred: $e");
     }
   }
 
@@ -245,21 +300,14 @@ class _LoginscreenState extends State<Loginscreen> {
                                         Expanded(
                                           child: TextFormField(
                                             decoration: InputDecoration(
-                                              hintText:
-                                              'Enter your phone number...',
+                                              hintText: 'Enter your phone number...',
                                               enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                BorderRadius.circular(10),
-                                                borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                ),
+                                                borderRadius: BorderRadius.circular(10),
+                                                borderSide: const BorderSide(color: Colors.black),
                                               ),
                                               focusedBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                BorderRadius.circular(10),
-                                                borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                ),
+                                                borderRadius: BorderRadius.circular(10),
+                                                borderSide: const BorderSide(color: Colors.black),
                                               ),
                                               prefixIcon: Container(
                                                 padding: const EdgeInsets.all(10.0),
@@ -267,15 +315,12 @@ class _LoginscreenState extends State<Loginscreen> {
                                                   onTap: () {
                                                     showCountryPicker(
                                                       context: context,
-                                                      countryListTheme:
-                                                      const CountryListThemeData(
+                                                      countryListTheme: const CountryListThemeData(
                                                         bottomSheetHeight: 500,
                                                       ),
-                                                      onSelect:
-                                                          (Country country) {
+                                                      onSelect: (Country country) {
                                                         setState(() {
-                                                          selectedCountry =
-                                                              country;
+                                                          selectedCountry = country;
                                                         });
                                                       },
                                                     );
@@ -330,9 +375,7 @@ class _LoginscreenState extends State<Loginscreen> {
                       left: 0,
                       right: screenWidth * 0.01,
                       child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: screenWidth * 0.03,
-                        ),
+                        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03),
                         child: ElevatedButton(
                           onPressed: () => sendOTP(context),
                           style: ElevatedButton.styleFrom(
@@ -365,9 +408,7 @@ class _LoginscreenState extends State<Loginscreen> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth * 0.01,
-                      ),
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.01),
                       child: Text(
                         'Or Sign In With',
                         style: TextStyle(
