@@ -1,6 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
+import 'package:myapp/page_setting/feedback_screen.dart';
+import 'package:myapp/page_setting/feedback_vocabulary_screen.dart';
 
 class VocabularyDetailsScreen extends StatelessWidget {
   final Map<String, String> word;
@@ -9,12 +11,12 @@ class VocabularyDetailsScreen extends StatelessWidget {
   void _playAudio(String url) async {
     try {
       await audioPlayer.play(UrlSource(url)); // Sử dụng UrlSource cho URL
-
     } catch (e) {
       print('Error: $e');
       print(url);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -22,13 +24,14 @@ class VocabularyDetailsScreen extends StatelessWidget {
     double titleFontSize = screenWidth * 0.05;
     double imageSize = screenWidth * 0.3;
     double imageContainerHeight = screenHeight * 0.25;
+    double iconSize = screenWidth * 0.1;
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Color(0xFF154F41),
+        backgroundColor: const Color(0xFF154F41),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -49,20 +52,43 @@ class VocabularyDetailsScreen extends StatelessWidget {
           children: [
             SizedBox(height: screenHeight * 0.02),
             Center(
-              child: Text(
-                '왁스 사과',
-                style: TextStyle(
-                  fontSize: titleFontSize * 1.5,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.black,
-                  shadows: [
-                    Shadow(
-                      color: Colors.black.withOpacity(0.5),
-                      offset: Offset(2, 2),
-                      blurRadius: 6,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const Spacer(), // Để dịch chuyển văn bản sang phải
+                  Text(
+                    '왁스 사과',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: titleFontSize * 1.5,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withOpacity(0.5),
+                          offset: const Offset(2, 2),
+                          blurRadius: 6,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+               GestureDetector(
+  onTap: () {
+     Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => FeedbackVocabularyScreen(),
+                      ),
+                    );
+  },
+  child: SizedBox(
+    width: screenWidth * 0.35, // Kích thước của Icon
+    child: Icon(
+      Icons.report_gmailerrorred,
+      size: iconSize * 1.05,
+    ),
+  ),
+),
+                ],
               ),
             ),
             SizedBox(height: screenHeight * 0.02),
@@ -101,7 +127,15 @@ class VocabularyDetailsScreen extends StatelessWidget {
                                   size: screenWidth * 0.1,
                                 ),
                                 onPressed: () {
-                                  _playAudio(AppLocalizations.of(context)!.localeName == 'en' ? word['voice_en']! : AppLocalizations.of(context)!.localeName == 'ko' ? word['voice_kr']! : word['voice_vn']!);
+                                  _playAudio(AppLocalizations.of(context)!
+                                              .localeName ==
+                                          'en'
+                                      ? word['voice_en']!
+                                      : AppLocalizations.of(context)!
+                                                  .localeName ==
+                                              'ko'
+                                          ? word['voice_kr']!
+                                          : word['voice_vn']!);
                                 },
                               ),
                             ],
@@ -111,44 +145,44 @@ class VocabularyDetailsScreen extends StatelessWidget {
                     ),
                     SizedBox(height: screenHeight * 0.02),
                     if (AppLocalizations.of(context)!.localeName != 'ko')
-                    Row(
-                      children: [
-                        Image.asset(
-                          'assets/korean_flag.png',
-                          width: screenWidth * 0.2,
-                        ),
-                        Container(
-                          width: screenWidth * 0.6,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    '${word['korean']}',
-                                    style: TextStyle(
-                                      fontSize: titleFontSize * 0.9,
-                                      fontWeight: FontWeight.bold,
+                      Row(
+                        children: [
+                          Image.asset(
+                            'assets/korean_flag.png',
+                            width: screenWidth * 0.2,
+                          ),
+                          Container(
+                            width: screenWidth * 0.6,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      '${word['korean']}',
+                                      style: TextStyle(
+                                        fontSize: titleFontSize * 0.9,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              IconButton(
-                                alignment: Alignment.centerRight,
-                                icon: Icon(
-                                  Icons.volume_up,
-                                  color: Colors.black,
-                                  size: screenWidth * 0.1,
+                                IconButton(
+                                  alignment: Alignment.centerRight,
+                                  icon: Icon(
+                                    Icons.volume_up,
+                                    color: Colors.black,
+                                    size: screenWidth * 0.1,
+                                  ),
+                                  onPressed: () {
+                                    _playAudio(word['voice_kr']!);
+                                  },
                                 ),
-                                onPressed: () {
-                                  _playAudio(word['voice_kr']!);
-                                },
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
                   ],
                 ),
               ],
@@ -164,14 +198,14 @@ class VocabularyDetailsScreen extends StatelessWidget {
             ),
             SizedBox(height: screenHeight * 0.02),
             if (AppLocalizations.of(context)!.localeName != 'ko')
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30.0),
-              child: Text(
-                '${word['ex_kr']}',
-                style: TextStyle(fontSize: titleFontSize * 1),
-                textAlign: TextAlign.justify,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                child: Text(
+                  '${word['ex_kr']}',
+                  style: TextStyle(fontSize: titleFontSize * 1),
+                  textAlign: TextAlign.justify,
+                ),
               ),
-            ),
             SizedBox(height: screenHeight * 0.02),
             Text(
               'Image Of ${AppLocalizations.of(context)!.localeName == 'en' ? word['english'] : AppLocalizations.of(context)!.localeName == 'ko' ? word['korean'] : word['vietnamese']}',
@@ -181,67 +215,30 @@ class VocabularyDetailsScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: screenHeight * 0.02),
-            Container(
+            SizedBox(
               height: imageContainerHeight,
               child: Column(
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Container(
-                        width: imageSize * 1.3,
-                        height: imageSize * 0.7,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black),
-                          borderRadius: BorderRadius.circular(imageSize * 0.1),
+                      Padding(
+                        padding: EdgeInsets.all(screenHeight *
+                            0.03), // Điều chỉnh padding theo nhu cầu của bạn
+                        child: Container(
+                          width: imageSize * 1.5,
+                          height: imageSize * 1,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black),
+                            borderRadius:
+                                BorderRadius.circular(imageSize * 0.1),
+                          ),
+                          child: Image.network(
+                            '${word['image']}',
+                            fit: BoxFit.contain,
+                          ),
                         ),
-                        child: Image.network(
-                          '${word['image']}',
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                      Container(
-                        width: imageSize * 1.3,
-                        height: imageSize * 0.7,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black),
-                          borderRadius: BorderRadius.circular(imageSize * 0.1),
-                        ),
-                        child: Image.network(
-                          '${word['image']}',
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: screenHeight * 0.02),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Container(
-                        width: imageSize * 1.3,
-                        height: imageSize * 0.7,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black),
-                          borderRadius: BorderRadius.circular(imageSize * 0.1),
-                        ),
-                        child: Image.network(
-                          '${word['image']}',
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                      Container(
-                        width: imageSize * 1.3,
-                        height: imageSize * 0.7,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black),
-                          borderRadius: BorderRadius.circular(imageSize * 0.1),
-                        ),
-                        child: Image.network(
-                          '${word['image']}',
-                          fit: BoxFit.contain,
-                        ),
-                      ),
+                      )
                     ],
                   ),
                 ],
@@ -249,9 +246,7 @@ class VocabularyDetailsScreen extends StatelessWidget {
             ),
           ],
         ),
-
       ),
-
     );
   }
 }

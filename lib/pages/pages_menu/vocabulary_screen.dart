@@ -62,19 +62,21 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
   }
 
   void _filterVocabulary() {
-    String query = searchController.text.toLowerCase();
-    List<Map<String, String>> tempList = [];
-    vocabulary.forEach((vocab) {
-      if (vocab['english']!.toLowerCase().contains(query) ||
-          vocab['korean']!.toLowerCase().contains(query) ||
-          vocab['vietnamese']!.toLowerCase().contains(query)) {
-        tempList.add(vocab);
-      }
-    });
+  String query = searchController.text.toLowerCase();
+  List<Map<String, String>> tempList = [];
+  vocabulary.forEach((vocab) {
+    if (vocab['english']!.toLowerCase().contains(query) ||
+        vocab['korean']!.toLowerCase().contains(query) ||
+        vocab['vietnamese']!.toLowerCase().contains(query)) {
+      tempList.add(vocab);
+    }
+  });
+  if (mounted) {
     setState(() {
       filteredVocabulary = tempList;
     });
   }
+}
 
   // Hàm xử lý sự kiện nhấn vào box
   void _onBoxTap(int vocabIndex) {
@@ -163,7 +165,7 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                   ),
                   contentPadding: EdgeInsets.fromLTRB(
                     screenWidth * 0.02,
-                    screenWidth * 0.01,
+                    screenWidth * 0.02,
                     screenWidth * 0.02,
                     screenWidth * 0.07,
                   ),

@@ -34,11 +34,12 @@ class _HomeScreenState extends State<HomeScreen> {
     searchController.addListener(_filterVocabulary);
   }
 
-  @override
+ @override
   void dispose() {
-    searchController.removeListener(_filterVocabulary);
-    searchController.dispose();
-    _focusNode.dispose();
+    // Hủy bỏ sự kiện và controller
+    _database.onValue.listen((event) {}); // Dừng lắng nghe sự kiện
+    searchController.dispose(); // Hủy bỏ controller
+    _focusNode.dispose(); // Hủy bỏ focus node
     super.dispose();
   }
 
