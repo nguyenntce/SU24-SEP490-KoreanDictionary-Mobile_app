@@ -116,35 +116,42 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                           ],
                         ),
                         SizedBox(height: screenWidth * 0.02),
-                      Container(
-  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-  width: screenWidth * 0.8,
-  height: screenHeight * 0.06,
-  decoration: BoxDecoration(
-    color: Colors.white,
-    border: Border.all(color: Colors.black),
-    borderRadius: BorderRadius.circular(screenHeight * 0.08),
-  ),
-  child: DropdownButtonFormField<String>(
-    decoration: InputDecoration(
-      border: InputBorder.none, // Để loại bỏ border mặc định của DropdownButtonFormField
-    ),
-    hint: const Text("Select Type"),
-    value: selectedType,
-    isExpanded: true,
-    onChanged: (newValue) {
-      setState(() {
-        selectedType = newValue;
-      });
-    },
-    items: types.map<DropdownMenuItem<String>>((String value) {
-      return DropdownMenuItem<String>(
-        value: value,
-        child: Text(value),
-      );
-    }).toList(),
-  ),
-),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: screenWidth * 0.04),
+                          width: screenWidth * 0.8,
+                          height: screenHeight * 0.06,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(
+                                color: Colors.black,
+                                width:
+                                    2.0), // Điều chỉnh kích thước border ở đây
+                            borderRadius:
+                                BorderRadius.circular(screenHeight * 0.1),
+                          ),
+                          child: DropdownButtonFormField<String>(
+                            decoration: const InputDecoration(
+                              border: InputBorder
+                                  .none, // Để loại bỏ border mặc định của DropdownButtonFormField
+                            ),
+                            hint: const Text("Select Type"),
+                            value: selectedType,
+                            isExpanded: true,
+                            onChanged: (newValue) {
+                              setState(() {
+                                selectedType = newValue;
+                              });
+                            },
+                            items: types
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
+                        ),
                         SizedBox(height: screenWidth * 0.02),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,

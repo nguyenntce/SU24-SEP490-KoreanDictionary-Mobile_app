@@ -76,6 +76,16 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
     });
   }
 
+  // Hàm xử lý sự kiện nhấn vào box
+  void _onBoxTap(int vocabIndex) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FeedbackScreen(), // Chuyển sang màn hình feedback
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
@@ -167,77 +177,50 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                 horizontal: screenWidth * 0.05,
                 vertical: screenHeight * 0.01,
               ),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(screenWidth * 0.05),
-                ),
-                child: ListTile(
-                  leading: Image.network(
-                    filteredVocabulary[vocabIndex]['image']!,
-                    width: screenWidth * 0.1,
-                    height: screenHeight * 0.1,
-                    fit: BoxFit.contain,
-                  ),
-                  title: Text(
-                    filteredVocabulary[vocabIndex]
-                        [AppLocalizations.of(context)!.vocabularykey]!,
-                    style: TextStyle(
-                      fontSize: screenWidth * 0.05,
-                      fontWeight: FontWeight.bold,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => VocabularyDetailsScreen(
+                          word: filteredVocabulary[vocabIndex]),
                     ),
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(screenWidth * 0.05),
                   ),
-                  subtitle: AppLocalizations.of(context)!.localeName != 'ko'
-                      ? Text(
-                          filteredVocabulary[vocabIndex]['korean']!,
-                          style: TextStyle(
-                            fontSize: screenWidth * 0.05,
-                            color: Colors.grey[700],
-                          ),
-                        )
-                      : null,
-                  trailing: PopupMenuButton<String>(
-                    onSelected: (String result) {
-                      if (result == 'Feedback') {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => FeedbackScreen(),
-                          ),
-                        );
-                      } else if (result == 'Details') {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => VocabularyDetailsScreen(
-                                word: filteredVocabulary[vocabIndex]),
-                          ),
-                        );
-                      }
-                    },
-                    itemBuilder: (BuildContext context) =>
-                        <PopupMenuEntry<String>>[
-                      const PopupMenuItem<String>(
-                        value: 'Feedback',
-                        child: Text(
-                          'Feedback',
-                          style: TextStyle(fontWeight: FontWeight.w900),
-                        ),
+                  child: ListTile(
+                    leading: Image.network(
+                      filteredVocabulary[vocabIndex]['image']!,
+                      width: screenWidth * 0.1,
+                      height: screenHeight * 0.1,
+                      fit: BoxFit.contain,
+                    ),
+                    title: Text(
+                      filteredVocabulary[vocabIndex]
+                          [AppLocalizations.of(context)!.vocabularykey]!,
+                      style: TextStyle(
+                        fontSize: screenWidth * 0.05,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const PopupMenuItem<String>(
-                        value: 'Details',
-                        child: Text(
-                          'Details',
-                          style: TextStyle(fontWeight: FontWeight.w900),
-                        ),
-                      ),
-                    ],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(screenWidth * 0.06),
-                      side: BorderSide(
-                        color: Colors.black,
-                        width: screenWidth * 0.005,
-                      ),
+                    ),
+                    subtitle: AppLocalizations.of(context)!.localeName != 'ko'
+                        ? Text(
+                            filteredVocabulary[vocabIndex]['korean']!,
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.05,
+                              color: Colors.grey[700],
+                            ),
+                          )
+                        : null,
+                    trailing: GestureDetector(
+                      onTap: () {
+                        _onBoxTap(vocabIndex);
+                      },
+                      child: const Icon(Icons.more_vert),
                     ),
                   ),
                 ),

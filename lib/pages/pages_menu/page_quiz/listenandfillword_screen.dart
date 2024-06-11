@@ -147,7 +147,7 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
     double textFontSize = screenWidth * 0.04;
 
     if (_vocabularies.isEmpty || _currentOptions.isEmpty) {
-      return Scaffold(
+      return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
