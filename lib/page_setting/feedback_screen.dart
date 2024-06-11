@@ -1,14 +1,43 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class FeedbackScreen extends StatefulWidget {
   @override
   _FeedbackScreenState createState() => _FeedbackScreenState();
-  
 }
 
 class _FeedbackScreenState extends State<FeedbackScreen> {
-  List<String> types = ['Vocabulary', 'Application', 'Other'];
+  List<String> types = [
+    'Vocabulary',
+    'Take Picture',
+    'Quiz',
+    'Flashcard',
+    'Other'
+  ];
   String? selectedType;
+
+  File? image;
+
+  bool isImageSelected = false;
+
+  Future<void> _pickImage(int boxNumber) async {
+    final pickedImage = await ImagePicker().pickImage(
+      source: ImageSource.gallery, // Chọn hình từ thư viện ảnh
+      // source: ImageSource.camera, // Chọn hình từ máy ảnh
+    );
+    if (pickedImage != null) {
+      setState(() {
+        // Cập nhật hình ảnh đã chọn vào biến tương ứng
+        if (boxNumber == 1) {
+          image = File(pickedImage.path);
+          isImageSelected =
+              true; // Đặt biến isImage1Selected thành true khi chọn hình ảnh
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,13 +45,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     double screenHeight = MediaQuery.of(context).size.height;
     double titleFontSize = screenWidth * 0.05;
     double iconSize = screenWidth * 0.1;
-
-    const double containerMarginRatio = 0.04;
-    const double borderWidthRatio = 0.005;
-    const double borderRadiusRatio = 0.1;
-    const double textPaddingRatio = 0.075;
-    const double iconTopPositionRatio = 0.75;
-    const double textBottomPositionRatio = 0.2;
 
     return Scaffold(
       backgroundColor: const Color(0xFFA4FFB3),
@@ -47,222 +69,203 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          return CustomScrollView(
-            slivers: [
-              SliverFillRemaining(
-                hasScrollBody: true,
-                child: Container(
-                  margin: EdgeInsets.all(screenWidth * containerMarginRatio),
+          return SingleChildScrollView(
+            // Sử dụng SingleChildScrollView thay vì CustomScrollView
+            child: Column(
+              children: [
+                Container(
+                  margin: EdgeInsets.symmetric(
+                      horizontal: screenHeight * 0.03,
+                      vertical: screenHeight * 0.01),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border.all(
-                        color: Colors.black,
-                        width: screenWidth * borderWidthRatio),
-                    borderRadius:
-                        BorderRadius.circular(screenWidth * borderRadiusRatio),
+                        color: Colors.black, width: screenWidth * 0.005),
+                    borderRadius: BorderRadius.circular(screenWidth * 0.1),
                   ),
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        top: screenHeight * textBottomPositionRatio / 3,
-                        left: 0,
-                        right: 0,
-                        child: Center(
-                          child: Padding(
-                            padding:
-                                EdgeInsets.all(screenWidth * textPaddingRatio),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Give App Feedback',
-                                  style: TextStyle(
-                                    fontSize: titleFontSize * 1.3,
-                                    fontWeight: FontWeight.w900,
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                SizedBox(height: screenWidth * 0.02),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Email Address',
-                                      style: TextStyle(
-                                        fontSize: titleFontSize * 0.9,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    SizedBox(width: screenWidth * 0.02),
-                                    // Add some space between the texts
-                                  ],
-                                ),
-                                Container(
-                                  width: screenWidth * 0.8,
-                                  // Set the width of the container
-                                  height: screenHeight * 0.06,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border: Border.all(color: Colors.black),
-                                    borderRadius: BorderRadius.circular(
-                                        screenWidth * 0.06),
-                                  ),
-                                  child: TextField(
-                                    decoration: InputDecoration(
-                                      hintText: 'abc@gmail.com',
-                                      // Display hint text
-                                      border: InputBorder.none,
-                                      // Remove default border of TextField
-                                      contentPadding: EdgeInsets.symmetric(
-                                          horizontal: screenWidth *
-                                              0.03), // Padding inside TextField
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: screenWidth * 0.02),
-                                // Add some space between the texts
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Type',
-                                      style: TextStyle(
-                                        fontSize: titleFontSize * 0.9,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: screenWidth * 0.02),
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: screenWidth * 0.04),
-                                  width: screenWidth * 0.8,
-                                  // Set the width of the container
-                                  height: screenHeight * 0.06,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border: Border.all(color: Colors.black),
-                                    borderRadius: BorderRadius.circular(
-                                        screenHeight * 0.06),
-                                  ),
-                                  child: DropdownButtonFormField<String>(
-                                    hint: Text("Select Type"),
-                                    value: selectedType,
-                                    isExpanded: true,
-                                    onChanged: (newValue) {
-                                      setState(() {
-                                        selectedType = newValue;
-                                      });
-                                    },
-                                    items: types.map<DropdownMenuItem<String>>(
-                                        (String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(value),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                                SizedBox(height: screenWidth * 0.02),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Description',
-                                      style: TextStyle(
-                                        fontSize: titleFontSize * 0.9,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: screenWidth * 0.02),
-                                Container(
-                                  width: screenWidth * 0.8,
-                                  // Set the width of the container
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border: Border.all(color: Colors.black),
-                                    borderRadius: BorderRadius.circular(
-                                        screenWidth * 0.06),
-                                  ),
-                                  child: TextField(
-                                    maxLines:
-                                        null, // Cho phép TextField tự mở rộng theo số dòng văn bản
-                                    keyboardType: TextInputType
-                                        .multiline, // Cho phép nhập nhiều dòng
-                                    decoration: InputDecoration(
-                                      hintText: 'Your description...',
-                                      // Display hint text
-                                      border: InputBorder.none,
-                                      // Remove default border of TextField
-                                      contentPadding: EdgeInsets.symmetric(
-                                        horizontal: screenWidth * 0.03,
-                                        vertical: screenHeight *
-                                            0.02, // Thêm padding theo chiều dọc
-                                      ), // Padding inside TextField
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: screenWidth * 0.02),
-                                Center(
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      // Code xử lý khi nhấn nút Save
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Color(0xFF35FF3D),
-                                      // Đặt màu xanh lá cho nút
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(30.0),
-                                      ),
-                                      side: const BorderSide(
-                                          width: 2,
-                                          color: Colors.black
-                                              ), // Thêm viền trắng cho nút
-                                    ),
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: screenWidth * 0.1,
-                                        vertical: screenHeight * 0.02,
-                                      ),
-                                      child: Text(
-                                        'Send',
-                                        style: TextStyle(
-                                            fontSize: titleFontSize,
-                                            color: Colors.black,
-                                            fontStyle: FontStyle.italic,
-                                            fontWeight: FontWeight.w900),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                  child: Padding(
+                    padding: EdgeInsets.all(screenWidth * 0.05),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.question_answer_outlined,
+                          size: iconSize * 2,
+                          color: Colors.black,
+                        ),
+                        Text(
+                          'Give App Feedback',
+                          style: TextStyle(
+                            fontSize: titleFontSize * 1.3,
+                            fontWeight: FontWeight.w900,
+                            fontStyle: FontStyle.italic,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: screenWidth * 0.02),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Type',
+                              style: TextStyle(
+                                fontSize: titleFontSize * 0.9,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: screenWidth * 0.02),
+                      Container(
+  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+  width: screenWidth * 0.8,
+  height: screenHeight * 0.06,
+  decoration: BoxDecoration(
+    color: Colors.white,
+    border: Border.all(color: Colors.black),
+    borderRadius: BorderRadius.circular(screenHeight * 0.08),
+  ),
+  child: DropdownButtonFormField<String>(
+    decoration: InputDecoration(
+      border: InputBorder.none, // Để loại bỏ border mặc định của DropdownButtonFormField
+    ),
+    hint: const Text("Select Type"),
+    value: selectedType,
+    isExpanded: true,
+    onChanged: (newValue) {
+      setState(() {
+        selectedType = newValue;
+      });
+    },
+    items: types.map<DropdownMenuItem<String>>((String value) {
+      return DropdownMenuItem<String>(
+        value: value,
+        child: Text(value),
+      );
+    }).toList(),
+  ),
+),
+                        SizedBox(height: screenWidth * 0.02),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Description',
+                              style: TextStyle(
+                                fontSize: titleFontSize * 0.9,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: screenWidth * 0.02),
+                        Container(
+                          width: screenWidth * 0.8,
+                          height: screenHeight * 0.2,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: Colors.black),
+                            borderRadius:
+                                BorderRadius.circular(screenWidth * 0.05),
+                          ),
+                          child: TextField(
+                            maxLength: 100,
+                            maxLines: 5,
+                            decoration: InputDecoration(
+                              hintText: 'Your description...',
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.02,
+                                vertical: screenHeight * 0.01,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: screenHeight * iconTopPositionRatio * 1.1,
-                        child: Center(
-                          child: Icon(
-                            Icons.feedback,
-                            size: iconSize * 2,
-                            color: Colors.black,
-                          ),
+                        SizedBox(height: screenWidth * 0.02),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Choose Image',
+                              style: TextStyle(
+                                fontSize: titleFontSize * 0.9,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
+                        SizedBox(height: screenWidth * 0.03),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                _pickImage(1);
+                              },
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Container(
+                                    width: screenWidth * 0.3,
+                                    height: screenHeight * 0.1,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Colors.black,
+                                        width: 2.0,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                    child: isImageSelected
+                                        ? Image.file(image!)
+                                        : Icon(
+                                            Icons.add,
+                                            size: screenWidth * 0.05,
+                                            color: Colors.black,
+                                          ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    vertical: screenHeight * 0.04,
+                  ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Code xử lý khi nhấn nút Send
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF35FF3D),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      side: const BorderSide(width: 2, color: Colors.white),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.1,
+                        vertical: screenHeight * 0.01,
+                      ),
+                      child: Text(
+                        'Send',
+                        style: TextStyle(
+                          fontSize: titleFontSize,
+                          color: Colors.black,
+                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),
