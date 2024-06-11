@@ -128,7 +128,7 @@ class _SettingScreenState extends State<SettingScreen> {
                             builder: (context) => ProfileScreen()),
                       );
                     },
-                    child: Icon(Icons.account_circle, size: iconSize * 1.3),
+                    child: Icon(Icons.edit_square, size: iconSize * 1.3),
                   ),
                   SizedBox(width: screenWidth * 0.05),
                 ],

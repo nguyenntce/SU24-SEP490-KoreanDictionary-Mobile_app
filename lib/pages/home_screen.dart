@@ -13,17 +13,19 @@ import 'package:myapp/pages/pages_menu/page_vocabulary/vocabulary_details_screen
 
 class HomeScreen extends StatefulWidget {
   @override
+  // ignore: library_private_types_in_public_api
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
   final DatabaseReference _database =
+      // ignore: deprecated_member_use
       FirebaseDatabase.instance.reference().child('Vocabulary');
   List<Map<String, String>> vocabulary = [];
   List<Map<String, String>> filteredVocabulary = [];
   List<Map<String, String>> randomVocabulary = [];
   TextEditingController searchController = TextEditingController();
-  FocusNode _focusNode = FocusNode();
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
@@ -68,6 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
   }
+
   void _getRandomVocabulary() {
     Random random = Random();
     if (vocabulary.length > 10) {
@@ -75,13 +78,15 @@ class _HomeScreenState extends State<HomeScreen> {
       while (randomIndexes.length < 10) {
         randomIndexes.add(random.nextInt(vocabulary.length));
       }
-      randomVocabulary = randomIndexes.map((index) => vocabulary[index]).toList();
+      randomVocabulary =
+          randomIndexes.map((index) => vocabulary[index]).toList();
     } else {
       randomVocabulary = List.from(vocabulary);
     }
     filteredVocabulary = List.from(randomVocabulary);
     setState(() {});
   }
+
   void _filterVocabulary() {
     String query = searchController.text.toLowerCase();
     if (query.isEmpty) {
@@ -90,13 +95,13 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     } else {
       List<Map<String, String>> tempList = [];
-      randomVocabulary.forEach((vocab) {
+      for (var vocab in randomVocabulary) {
         if (vocab['english']!.toLowerCase().contains(query) ||
             vocab['korean']!.toLowerCase().contains(query) ||
             vocab['vietnamese']!.toLowerCase().contains(query)) {
           tempList.add(vocab);
         }
-      });
+      }
       setState(() {
         filteredVocabulary = tempList;
       });
@@ -111,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
     double verticalPadding = screenHeight * 0.02;
 
     return Scaffold(
-      backgroundColor: Color(0xFFA4FFB3),
+      backgroundColor: const Color(0xFFA4FFB3),
       body: SingleChildScrollView(
         // Wrap with SingleChildScrollView
         child: Column(
@@ -136,21 +141,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       fillColor: Colors.white,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20.0),
-                        borderSide: BorderSide(
+                        borderSide: const BorderSide(
                           color: Colors.black,
                           width: 2.5,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20.0),
-                        borderSide: BorderSide(
+                        borderSide: const BorderSide(
                           color: Colors.black,
                           width: 3.0,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20.0),
-                        borderSide: BorderSide(
+                        borderSide: const BorderSide(
                           color: Colors.black,
                           width: 3.0,
                         ),
@@ -180,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: Colors.grey.withOpacity(0.5),
                           spreadRadius: 5,
                           blurRadius: 7,
-                          offset: Offset(0, 3),
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
@@ -224,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           shadows: [
                             Shadow(
                               color: Colors.black.withOpacity(0.5),
-                              offset: Offset(0, 3),
+                              offset: const Offset(0, 3),
                               blurRadius: 5,
                             ),
                           ],
@@ -249,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   SizedBox(height: verticalPadding / 7),
-                  Container(
+                  SizedBox(
                     width: double.infinity,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,7 +272,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               shadows: [
                                 Shadow(
                                   color: Colors.black.withOpacity(0.5),
-                                  offset: Offset(0, 3),
+                                  offset: const Offset(0, 3),
                                   blurRadius: 5,
                                 ),
                               ],
@@ -287,7 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: Container(
+      bottomNavigationBar: SizedBox(
         width: double.infinity,
         child: Stack(
           children: [
@@ -301,10 +306,8 @@ class _HomeScreenState extends State<HomeScreen> {
               right: screenWidth * 0.7,
               child: GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => HomeScreen()));
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => HomeScreen()));
                 },
                 child: Image.asset(
                   'assets/footer_icon_home.png',
@@ -345,17 +348,19 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
   Widget _buildVocabularyList(double screenWidth, double screenHeight) {
     List<Widget> rows = [];
     for (int i = 0; i < filteredVocabulary.length; i += 2) {
       rows.add(
-
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildVocabularyItem(filteredVocabulary[i], screenWidth, screenHeight),
+            _buildVocabularyItem(
+                filteredVocabulary[i], screenWidth, screenHeight),
             if (i + 1 < filteredVocabulary.length)
-              _buildVocabularyItem(filteredVocabulary[i + 1], screenWidth, screenHeight),
+              _buildVocabularyItem(
+                  filteredVocabulary[i + 1], screenWidth, screenHeight),
           ],
         ),
       );
@@ -363,20 +368,22 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     return Column(children: rows);
   }
-  Widget _buildVocabularyItem(Map<String, String> vocab, double screenWidth, double screenHeight) {
+
+  Widget _buildVocabularyItem(
+      Map<String, String> vocab, double screenWidth, double screenHeight) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => VocabularyDetailsScreen( word: vocab),
+            builder: (context) => VocabularyDetailsScreen(word: vocab),
           ),
         );
       },
       child: Stack(
         children: [
           Container(
-            width: screenWidth * 0.4,
+            width: screenWidth * 0.43,
             height: screenHeight * 0.1,
             decoration: BoxDecoration(
               color: Colors.white,
@@ -388,7 +395,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             child: Padding(
               padding: EdgeInsets.only(
-                right: screenWidth * 0.22,
+                right: screenWidth * 0.25,
                 top: screenHeight * 0.01,
                 bottom: screenHeight * 0.01,
               ),
@@ -407,7 +414,7 @@ class _HomeScreenState extends State<HomeScreen> {
             top: screenHeight * 0.03,
             right: screenWidth * 0.03,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
                   '${AppLocalizations.of(context)!.localeName == 'en' ? vocab['english'] : AppLocalizations.of(context)!.localeName == 'ko' ? vocab['korean'] : vocab['vietnamese']}',
@@ -417,16 +424,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                if(AppLocalizations.of(context)!.localeName != 'ko')
-                Text(
-                  vocab['korean']!,
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: screenWidth * 0.03,
-                    fontWeight: FontWeight.bold,
+                SizedBox(height: screenHeight * 0.005),
+                if (AppLocalizations.of(context)!.localeName != 'ko')
+                  Text(
+                    vocab['korean']!,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: screenWidth * 0.03,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-
               ],
             ),
           ),
