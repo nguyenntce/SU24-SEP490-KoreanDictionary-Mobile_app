@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:country_picker/country_picker.dart';
+import 'package:intl/intl.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String uid; // Pass the user ID when creating the ProfileScreen
@@ -50,14 +52,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _fullnameController.text = userData['Fullname'] ?? '';
       _dobController.text = userData['Dob'] ?? '';
       _emailController.text = userData['Email'] ?? '';
-      _phoneController.text = userData['Phone']?.toString() ?? '';
+      String countryCode = userData['CountryCode'] ?? '84';
+      _phoneController.text = userData['Phone']?.toString().replaceFirst(countryCode, '0') ?? '';
       _addressController.text = userData['Country'] ?? '';
-      _gender = ['Male', 'Female', 'Other'].contains(userData['Gender']) ? userData['Gender'] : 'Male';
+      _gender = ['Male', 'Female'].contains(userData['Gender']) ? userData['Gender'] : 'Male';
     });
   }
 
-  void _saveUserToDatabase(String uid, {String? phone, String? email}) async {
+  void _saveUserToDatabase(String uid, {String? phone, String? email, String countryCode = '84'}) async {
+    if (!_validateEmail(_emailController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please enter a valid email address',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.transparent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+            side: BorderSide(color: Color(0xFF35FF3D), width: 2),
+          ),
+        ),
+      );
+      return;
+    }
+    if (!_validatePhoneNumber(_phoneController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please enter a valid phone number',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.transparent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+            side: BorderSide(color: Color(0xFF35FF3D), width: 2),
+          ),
+        ),
+      );
+      return;
+    }
     try {
+      final formattedPhone = phone?.replaceFirst('0', countryCode);
       await _database.child(uid).update({
         "Avatar": "",
         "Country": _addressController.text,
@@ -65,13 +103,81 @@ class _ProfileScreenState extends State<ProfileScreen> {
         "Email": email ?? _emailController.text,
         "Fullname": _fullnameController.text,
         "Gender": _gender,
-        "Phone": phone ?? _phoneController.text,
+        "Phone": formattedPhone ?? _phoneController.text.replaceFirst('0', countryCode),
         "Status": 1,
       });
-      print('User data updated successfully');
+      print('You have saved successfully');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'You have saved successfully',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.transparent, // Transparent background color
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+            // side: BorderSide(color: Color(0xFF35FF3D), width: 2),
+          ),
+        ),
+      );
     } catch (e) {
-      print('Failed to save user data: $e');
+      print('You have saved Failed: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'You have saved Failed: $e',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.transparent, // Transparent background color
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+            // side: BorderSide(color: Color(0xFF35FF3D), width: 1),
+          ),
+        ),
+      );
     }
+  }
+
+  bool _validatePhoneNumber(String phoneNumber) {
+    String pattern = r'^\+?[0-9]{10,15}$';
+    RegExp regex = RegExp(pattern);
+    return regex.hasMatch(phoneNumber);
+  }
+
+  bool _validateEmail(String email) {
+    String pattern =
+        r'^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$';
+    RegExp regex = RegExp(pattern);
+    return regex.hasMatch(email);
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1800),
+      lastDate: DateTime.now(), // Set the last date to the current date
+    );
+    if (picked != null) {
+      setState(() {
+        _dobController.text = DateFormat('dd-MM-yyyy').format(picked);
+      });
+    }
+  }
+
+
+  void _selectCountry(BuildContext context) {
+    showCountryPicker(
+      context: context,
+      showPhoneCode: false, // Optional. Shows phone code before the country name.
+      onSelect: (Country country) {
+        setState(() {
+          _addressController.text = country.name;
+        });
+      },
+    );
   }
 
   @override
@@ -207,6 +313,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Expanded(
                           child: TextField(
                             controller: _dobController,
+                            enabled: false,
                             decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText: '---------------',
@@ -219,7 +326,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                         ),
-                        Icon(Icons.calendar_month, color: Colors.black, size: iconSize),
+                        IconButton(
+                          icon: Icon(Icons.calendar_month, color: Colors.black, size: iconSize),
+                          onPressed: () => _selectDate(context),
+                        ),
                       ],
                     ),
                   ),
@@ -300,6 +410,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 fontWeight: FontWeight.bold,
                                 color: Colors.grey, // Light grey color for hint text
                               ),
+                              // errorText: _validatePhoneNumber(_phoneController.text) ? null : 'Invalid phone number',
                             ),
                           ),
                         ),
@@ -310,7 +421,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: screenHeight * 0.01),
                 Text(
-                  'Address',
+                  'Country',
                   style: TextStyle(
                     fontSize: titleFontSize * 1.2,
                     fontWeight: FontWeight.w900,
@@ -318,34 +429,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 SizedBox(height: screenHeight * 0.01),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30.0),
-                    border: Border.all(color: Colors.black),
-                  ),
-                  height: containerHeight,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _addressController,
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: '----------------',
-                              hintStyle: TextStyle(
-                                fontStyle: FontStyle.italic,
-                                fontSize: titleFontSize,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey, // Light grey color for hint text
+                GestureDetector(
+                  onTap: () => _selectCountry(context),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30.0),
+                      border: Border.all(color: Colors.black),
+                    ),
+                    height: containerHeight,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _addressController,
+                              enabled: false,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: '----------------',
+                                hintStyle: TextStyle(
+                                  fontStyle: FontStyle.italic,
+                                  fontSize: titleFontSize,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey, // Light grey color for hint text
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        Icon(Icons.location_on, color: Colors.black, size: iconSize),
-                      ],
+                          Icon(Icons.location_on, color: Colors.black, size: iconSize),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -379,7 +494,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 _gender = newValue!;
                               });
                             },
-                            items: <String>['Male', 'Female', 'Other']
+                            items: <String>['Male', 'Female']
                                 .map<DropdownMenuItem<String>>((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
