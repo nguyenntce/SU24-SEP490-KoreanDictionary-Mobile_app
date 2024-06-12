@@ -26,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, String>> filteredVocabulary = [];
   List<Map<String, String>> randomVocabulary = [];
   TextEditingController searchController = TextEditingController();
-  FocusNode _focusNode = FocusNode();
+  final _focusNode = FocusNode();
 
   @override
   void initState() {
@@ -93,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
     double verticalPadding = screenHeight * 0.02;
 
     return Scaffold(
-      backgroundColor: Color(0xFFA4FFB3),
+      backgroundColor: const  Color(0xFFA4FFB3),
       body: SingleChildScrollView(
         // Wrap with SingleChildScrollView
         child: Column(
@@ -118,21 +118,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       fillColor: Colors.white,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20.0),
-                        borderSide: BorderSide(
+                        borderSide: const BorderSide(
                           color: Colors.black,
                           width: 2.5,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20.0),
-                        borderSide: BorderSide(
+                        borderSide: const BorderSide(
                           color: Colors.black,
                           width: 3.0,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20.0),
-                        borderSide: BorderSide(
+                        borderSide: const BorderSide(
                           color: Colors.black,
                           width: 3.0,
                         ),
@@ -175,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: Colors.grey.withOpacity(0.5),
                           spreadRadius: 5,
                           blurRadius: 7,
-                          offset: Offset(0, 3),
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
@@ -219,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           shadows: [
                             Shadow(
                               color: Colors.black.withOpacity(0.5),
-                              offset: Offset(0, 3),
+                              offset: const Offset(0, 3),
                               blurRadius: 5,
                             ),
                           ],
@@ -244,7 +244,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   SizedBox(height: verticalPadding / 7),
-                  Container(
+                  SizedBox(
                     width: double.infinity,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,7 +262,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               shadows: [
                                 Shadow(
                                   color: Colors.black.withOpacity(0.5),
-                                  offset: Offset(0, 3),
+                                  offset: const Offset(0, 3),
                                   blurRadius: 5,
                                 ),
                               ],
@@ -282,7 +282,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: Container(
+      bottomNavigationBar: SizedBox(
         width: double.infinity,
         child: Stack(
           children: [
@@ -371,7 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Stack(
         children: [
           Container(
-            width: screenWidth * 0.4,
+            width: screenWidth * 0.43,
             height: screenHeight * 0.1,
             decoration: BoxDecoration(
               color: Colors.white,
@@ -383,7 +383,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             child: Padding(
               padding: EdgeInsets.only(
-                right: screenWidth * 0.22,
+                right: screenWidth * 0.25,
                 top: screenHeight * 0.01,
                 bottom: screenHeight * 0.01,
               ),
@@ -402,7 +402,7 @@ class _HomeScreenState extends State<HomeScreen> {
             top: screenHeight * 0.03,
             right: screenWidth * 0.03,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
                   '${AppLocalizations.of(context)!.localeName == 'en' ? vocab['english'] : AppLocalizations.of(context)!.localeName == 'ko' ? vocab['korean'] : vocab['vietnamese']}',
@@ -412,6 +412,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                SizedBox(height: screenHeight * 0.005),
                 if(AppLocalizations.of(context)!.localeName != 'ko')
                 Text(
                   vocab['korean']!,

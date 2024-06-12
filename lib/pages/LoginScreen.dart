@@ -59,7 +59,7 @@ class _LoginscreenState extends State<Loginscreen> {
     int p = 0;
     int status = 1;
     await _database.child(uid.toString()).set({
-      "Avatar": "",
+      "Avatar": "https://firebasestorage.googleapis.com/v0/b/su24-sep490-koreandictionary.appspot.com/o/avatars%2F3.jpg?alt=media&token=da42a20f-9f19-4014-a181-84bc41523cc4",
       "Country": "",
       "Dob": "",
       "Email": email ?? "",
@@ -80,6 +80,29 @@ class _LoginscreenState extends State<Loginscreen> {
     final snapshot = await _database.orderByChild('Phone').equalTo(phone).once();
     return snapshot.snapshot.value != null;
   }
+  Future<int?> _getIdbyphone(String phone) async {
+    final event = await _database.orderByChild('Phone').equalTo(phone).once();
+    DataSnapshot snapshot = event.snapshot;
+    int? userId;
+    if (snapshot.value != null) {
+      if (snapshot.value is Map<dynamic, dynamic>) {
+        Map<dynamic, dynamic> values = snapshot.value as Map<dynamic, dynamic>;
+        values.forEach((key, value) {
+          userId = value['Id'];
+        });
+      } else if (snapshot.value is List) {
+        List<dynamic> values = snapshot.value as List<dynamic>;
+        for (var value in values) {
+          if (value != null && value['Id'] != null) {
+            userId = value['Id'];
+            break;
+          }
+        }
+      }
+    }
+    return userId;
+  }
+
 
   void sendOTP(BuildContext context) async {
     String phone = phoneController.text.trim();
@@ -90,17 +113,19 @@ class _LoginscreenState extends State<Loginscreen> {
     if (fullPhoneNumber.isNotEmpty && regex.hasMatch(fullPhoneNumber)) {
       String phoneNumber = fullPhoneNumber.replaceFirst('+', '');
       bool phoneExists = await _isPhoneExist(phoneNumber);
-      int UID =0;
+
       if (!phoneExists) {
         int newId = await _getNextUserId();
-        UID = newId;
+
         _saveUserToDatabase(newId, phone: phoneNumber);
         _saveSessionData(newId.toString());
-        _saveIDuser(newId);
+
         _auth.verifyPhoneNumber(
           phoneNumber: fullPhoneNumber,
           verificationCompleted: (PhoneAuthCredential credential) async {
             await _auth.signInWithCredential(credential);
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setInt('UID', newId);
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => HomeScreen(uid: newId.toString())),
@@ -120,13 +145,18 @@ class _LoginscreenState extends State<Loginscreen> {
           codeAutoRetrievalTimeout: (String verificationId) {},
         );
       } else {
+
         String? existingUserId = await _getUserIdByPhone(phoneNumber);
+        int? userID = await _getIdbyphone(phoneNumber);
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('UID', userID!);
         if (existingUserId != null) {
           _saveSessionData(existingUserId);
           _auth.verifyPhoneNumber(
             phoneNumber: fullPhoneNumber,
             verificationCompleted: (PhoneAuthCredential credential) async {
               await _auth.signInWithCredential(credential);
+
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => HomeScreen(uid: existingUserId)),
@@ -157,11 +187,7 @@ class _LoginscreenState extends State<Loginscreen> {
     await prefs.setString('userId', userId);
 
   }
-  void _saveIDuser(int userId) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('UID', userId);
 
-  }
 
 
   Future<void> _signInWithGoogle(BuildContext context) async {

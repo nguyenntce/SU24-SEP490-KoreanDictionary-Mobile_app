@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:myapp/pages/home_screen.dart';
 import 'package:pinput/pinput.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,6 +12,9 @@ class OptScreen extends StatelessWidget {
   final String uid; // Add this line
   final TextEditingController otpController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final DatabaseReference _database = FirebaseDatabase.instance.reference().child('Account');
 
   OptScreen({required this.verificationId, required this.uid}); // Modify the constructor
 
@@ -39,7 +44,116 @@ class OptScreen extends StatelessWidget {
       Fluttertoast.showToast(msg: "Please enter the OTP");
     }
   }
+  Future<int> _getNextUserId() async {
+    int newId = 1;
+    await _database.orderByKey().limitToLast(1).once().then((DatabaseEvent event) {
+      if (event.snapshot.value != null) {
+        var value = event.snapshot.value;
+        if (value is Map) {
+          value.forEach((key, value) {
+            if (value != null && value is Map && value.containsKey('Id')) {
+              var lastId = value['Id'] as int;
+              newId = lastId + 1;
+            }
+          });
+        } else if (value is List) {
+          for (var entry in value) {
+            if (entry != null && entry is Map && entry.containsKey('Id')) {
+              var lastId = entry['Id'] as int;
+              newId = lastId + 1;
+            }
+          }
+        }
+      }
+    });
+    return newId;
+  }
+  Future<bool> _isEmailExist(String email) async {
+    final snapshot = await _database.orderByChild('Email').equalTo(email).once();
+    return snapshot.snapshot.value != null;
+  }
+  void _saveSessionData(String userId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userId', userId);
 
+  }
+  void _saveUserToDatabase(int uid, {String? phone, String? email}) async {
+    int p = 0;
+    int status = 1;
+    await _database.child(uid.toString()).set({
+      "Avatar": "",
+      "Country": "",
+      "Dob": "",
+      "Email": email ?? "",
+      "Fullname": "",
+      "Gender": "",
+      "Id": uid,
+      "Phone": phone ?? p.toString(),
+      "Status": status
+    });
+  }
+  Future<void> _signInWithGoogle(BuildContext context) async {
+    try {
+      final GoogleSignInAccount? googleSignInAccount = await _googleSignIn.signIn();
+      if (googleSignInAccount != null) {
+        final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          idToken: googleSignInAuthentication.idToken,
+          accessToken: googleSignInAuthentication.accessToken,
+        );
+        String email = googleSignInAccount.email;
+        bool emailExists = await _isEmailExist(email);
+        int userId;
+        if (!emailExists) {
+          int newId = await _getNextUserId();
+          _saveUserToDatabase(newId, email: googleSignInAccount.email);
+          _saveSessionData(newId.toString());
+          userId = newId;
+
+        } else {
+          userId = -1;
+          final event  = await _database.orderByChild('Email').equalTo(email).once();
+          DataSnapshot snapshot = event.snapshot;
+          if (snapshot.value != null) {
+            if (snapshot.value is Map<dynamic, dynamic>) {
+              Map<dynamic, dynamic> values = snapshot.value as Map<dynamic, dynamic>;
+              values.forEach((key, value) {
+                userId = value['Id'];
+
+              });
+            } else if (snapshot.value is List) {
+              List<dynamic> values = snapshot.value as List<dynamic>;
+              for (var value in values) {
+                if (value != null && value['Id'] != null) {
+                  userId = value['Id'];
+
+                  break;
+                }
+              }
+            }
+          }
+          if (event.snapshot.value != null) {
+            final userMap = event.snapshot.value as Map<dynamic, dynamic>;
+            String userId = userMap.keys.first.toString();
+            _saveSessionData(userId);
+          }
+
+        }
+
+        await _firebaseAuth.signInWithCredential(credential);
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? uid = prefs.getString('uid');
+        await prefs.setInt('UID', userId);
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen(uid: uid!)),
+        );
+      }
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Some error occurred: $e");
+    }
+  }
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -204,7 +318,7 @@ class OptScreen extends StatelessWidget {
               SizedBox(height: screenHeight * 0.08),
               GestureDetector(
                 onTap: () {
-                  // Handle Google Sign In
+                  _signInWithGoogle(context);
                 },
                 child: Container(
                   decoration: BoxDecoration(

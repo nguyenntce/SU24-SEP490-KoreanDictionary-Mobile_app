@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:myapp/models/vocabulary.dart';
 import 'package:myapp/models/vocabulary_service.dart';
@@ -144,15 +145,18 @@ class _QuestionandchoosepictureScreenState extends State<Questionandchoosepictur
     }
   }
 
-  void _navigateToResultScreen() async{
+  void _navigateToResultScreen() async  {
+    DateTime created_date = DateTime.now();
+    String created_date_str = DateFormat('yyyy-MM-dd').format(created_date);
     int endTime = DateTime.now().millisecondsSinceEpoch;
     int elapsedTime = (endTime - startTime) ~/ 1000; // Thời gian kết thúc
     await saveTest(
-    testId,
-    accountId,
-    0,
-    elapsedTime,
-    widget.durationInSeconds,
+        testId,
+        accountId,
+        0,
+        elapsedTime,
+        widget.durationInSeconds,
+        created_date_str
     );
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => ResultQuizScreen(results: _results)),
@@ -208,7 +212,7 @@ class _QuestionandchoosepictureScreenState extends State<Questionandchoosepictur
           },
         ),
         title: Text(
-          'Question And Choose Picture',
+          AppLocalizations.of(context)!.question_and_choose_picture,
           style: TextStyle(
             fontSize: titleFontSize,
             fontWeight: FontWeight.bold,
@@ -231,7 +235,7 @@ class _QuestionandchoosepictureScreenState extends State<Questionandchoosepictur
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Question : ${_currentQuestionIndex + 1}/$_totalQuestions',
+                    '${AppLocalizations.of(context)!.question} : ${_currentQuestionIndex + 1}/$_totalQuestions',
                     style: TextStyle(
                       fontSize: textFontSize * 1.2,
                       fontWeight: FontWeight.w900,
@@ -280,7 +284,7 @@ class _QuestionandchoosepictureScreenState extends State<Questionandchoosepictur
                           backgroundColor: Colors.red,
                         ),
                         child: Text(
-                          'Stop',
+                          AppLocalizations.of(context)!.stop,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: textFontSize * 1.2,
@@ -309,11 +313,7 @@ class _QuestionandchoosepictureScreenState extends State<Questionandchoosepictur
                           0.05, // Add some spacing between the icon and text
                     ),
                     Text(
-                      "choose : ${AppLocalizations.of(context)!.localeName == 'en'
-                          ? currentVocabulary.english
-                          : AppLocalizations.of(context)!.localeName == 'ko'
-                          ? currentVocabulary.korean
-                          : currentVocabulary.vietnamese}"
+                      "${AppLocalizations.of(context)!.which_picture_is} : ${currentVocabulary.korean}"
                       ,
                       style: TextStyle(
                         fontSize: textFontSize * 1.5,

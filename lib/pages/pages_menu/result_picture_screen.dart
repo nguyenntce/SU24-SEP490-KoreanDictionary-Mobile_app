@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -19,9 +20,18 @@ class _ResultPictureScreenState extends State<ResultPictureScreen> {
   Map<String, dynamic>? vocabularyData;
   bool isLoading = true;
   String? errorMessage;
+  final AudioPlayer audioPlayer = AudioPlayer();
+  void _playAudio(String url) async {
+    try {
+      await audioPlayer.play(UrlSource(url)); // Sử dụng UrlSource cho URL
 
+    } catch (e) {
+      print('Error: $e');
+      print(url);
+    }
+  }
   Future<void> _sendImageToServer() async {
-    var request = http.MultipartRequest('POST', Uri.parse('http://192.168.1.19:8000/predict'));
+    var request = http.MultipartRequest('POST', Uri.parse('http://192.168.2.23:8000/predict'));
     request.files.add(await http.MultipartFile.fromPath('image', widget.imagePath));
     print('goi dc api ');
 
@@ -194,7 +204,9 @@ class _ResultPictureScreenState extends State<ResultPictureScreen> {
                                   size: screenWidth * 0.1,
                                 ),
                                 onPressed: () {
-                                  // Xử lý khi icon được nhấn vào
+                                  _playAudio(AppLocalizations.of(context)!.localeName == 'en' ? vocabularyData!['Voice_EN']!
+                                      : AppLocalizations.of(context)!.localeName == 'ko' ? vocabularyData!['Voice_KR']! :
+                                  vocabularyData!['Voice_VN']!);
                                 },
                               ),
                             ],
@@ -234,7 +246,7 @@ class _ResultPictureScreenState extends State<ResultPictureScreen> {
                                   size: screenWidth * 0.1,
                                 ),
                                 onPressed: () {
-                                  // Xử lý khi icon được nhấn vào
+                                  _playAudio(vocabularyData!['Voice_KR']);
                                 },
                               ),
                             ],

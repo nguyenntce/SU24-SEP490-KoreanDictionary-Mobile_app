@@ -2,45 +2,55 @@ import 'package:flutter/material.dart';
 import 'package:myapp/pages/pages_menu/page_quiz/listenandfillword_screen.dart';
 import 'package:myapp/pages/pages_menu/page_quiz/pictureandchooseword_screen.dart';
 import 'package:myapp/pages/pages_menu/page_quiz/questionandchoosepicture_screen.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
 class QuizScreen extends StatefulWidget {
   @override
   _QuizScreenState createState() => _QuizScreenState();
 }
 
 class _QuizScreenState extends State<QuizScreen> {
-  List<String> types = [
-    'Listen And Choose Picture',
-    'Picture And Choose Word',
-    'Question And Choose Picture'
-  ];
-  List<String> times = ['5 Minutes', '10 Minutes', '15 Minutes'];
+  List<String> types = [];
+  List<String> times = [];
+
   String? selectedType;
   String? selectedTime;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    types = [
+      '${AppLocalizations.of(context)!.listen_and_choose_picture}',
+      '${AppLocalizations.of(context)!.picture_and_choose_word}',
+      '${AppLocalizations.of(context)!.question_and_choose_picture}'
+    ];
+    times = [
+      '${AppLocalizations.of(context)!.five_minute}',
+      '${AppLocalizations.of(context)!.ten_minute}',
+      '${AppLocalizations.of(context)!.fifteen_minute}'
+    ];
+  }
 
   void navigateToSelectedScreen() {
     if (selectedType != null && selectedTime != null) {
       Widget screen;
-      int durationInSeconds = selectedTime == '5 Minutes'
+      int durationInSeconds = selectedTime == '${AppLocalizations.of(context)!.five_minute}'
           ? 5 * 60
-          : selectedTime == '10 Minutes'
-              ? 10 * 60
-              : selectedTime == '15 Minutes'
-                  ? 15 * 60
-                  : 0;
-      switch (selectedType) {
-        case 'Listen And Choose Picture':
-          screen = ListenandfillwordScreen(durationInSeconds);
-          break;
-        case 'Picture And Choose Word':
-          screen = PictureandchoosewordScreen(durationInSeconds);
-          break;
-        case 'Question And Choose Picture':
-          screen = QuestionandchoosepictureScreen(durationInSeconds);
-          break;
-        default:
-          return;
+          : selectedTime == '${AppLocalizations.of(context)!.ten_minute}'
+          ? 10 * 60
+          : selectedTime == '${AppLocalizations.of(context)!.fifteen_minute}'
+          ? 15 * 60
+          : 0;
+
+      if (selectedType == '${AppLocalizations.of(context)!.listen_and_choose_picture}') {
+        screen = ListenandfillwordScreen(durationInSeconds);
+      } else if (selectedType == '${AppLocalizations.of(context)!.picture_and_choose_word}') {
+        screen = PictureandchoosewordScreen(durationInSeconds);
+      } else if (selectedType == '${AppLocalizations.of(context)!.question_and_choose_picture}') {
+        screen = QuestionandchoosepictureScreen(durationInSeconds);
+      } else {
+        return;
       }
+
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => screen),
@@ -74,7 +84,7 @@ class _QuizScreenState extends State<QuizScreen> {
           },
         ),
         title: Text(
-          'Quiz',
+          AppLocalizations.of(context)!.quiz,
           style: TextStyle(
             fontSize: titleFontSize,
             fontWeight: FontWeight.bold,
@@ -112,7 +122,7 @@ class _QuizScreenState extends State<QuizScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  'Quiz Options',
+                                  AppLocalizations.of(context)!.quiz_option,
                                   style: TextStyle(
                                     fontSize: titleFontSize * 1.6,
                                     fontWeight: FontWeight.w900,
@@ -131,7 +141,7 @@ class _QuizScreenState extends State<QuizScreen> {
                                 Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                    'Time',
+                                    AppLocalizations.of(context)!.time,
                                     style: TextStyle(
                                       fontSize: titleFontSize * 0.9,
                                       fontWeight: FontWeight.bold,
@@ -165,7 +175,7 @@ class _QuizScreenState extends State<QuizScreen> {
                                       filled: true,
                                       fillColor: Colors.transparent,
                                     ),
-                                    hint: Text("Select Time"),
+                                    hint: Text("${AppLocalizations.of(context)!.select_time}"),
                                     value: selectedTime,
                                     isExpanded: true,
                                     onChanged: (newValue) {
@@ -186,7 +196,7 @@ class _QuizScreenState extends State<QuizScreen> {
                                 Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                    'Type',
+                                    AppLocalizations.of(context)!.type,
                                     style: TextStyle(
                                       fontSize: titleFontSize * 0.9,
                                       fontWeight: FontWeight.bold,
@@ -220,7 +230,7 @@ class _QuizScreenState extends State<QuizScreen> {
                                       filled: true,
                                       fillColor: Colors.transparent,
                                     ),
-                                    hint: Text("Select Type"),
+                                    hint: Text("${AppLocalizations.of(context)!.select_type}"),
                                     value: selectedType,
                                     isExpanded: true,
                                     onChanged: (newValue) {
@@ -243,7 +253,7 @@ class _QuizScreenState extends State<QuizScreen> {
                                     navigateToSelectedScreen();
                                   },
                                   child: Text(
-                                    'Start Quiz',
+                                    AppLocalizations.of(context)!.start_quiz,
                                     style: TextStyle(
                                         fontSize: titleFontSize * 0.9,
                                         fontWeight: FontWeight.bold,

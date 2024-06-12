@@ -9,7 +9,8 @@ import 'package:myapp/page_setting/language_screen.dart';
 import 'package:myapp/pages/index.dart'; // Import the language screen
 import 'package:myapp/page_setting/fag_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:share_plus/share_plus.dart';
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
 class SettingScreen extends StatefulWidget {
   @override
   _SettingScreenState createState() => _SettingScreenState();
@@ -23,6 +24,7 @@ class _SettingScreenState extends State<SettingScreen> {
   String _username = '';
   String _email = '';
   String _accountId = '';
+  String _avatar ='';
 
   @override
   void initState() {
@@ -44,6 +46,7 @@ class _SettingScreenState extends State<SettingScreen> {
         Map<String, dynamic> userData = Map<String, dynamic>.from(emailSnapshot.value as Map);
         userData.forEach((key, value) {
           setState(() {
+            _avatar = value['Avatar'] ?? '';
             _username = value['Fullname'] ?? '';
             _accountId = key;
           });
@@ -57,6 +60,7 @@ class _SettingScreenState extends State<SettingScreen> {
           Map<String, dynamic> userData = Map<String, dynamic>.from(phoneSnapshot.value as Map);
           userData.forEach((key, value) {
             setState(() {
+              _avatar = value['Avatar'] ?? '';
               _username = value['Fullname'] ?? '';
               _accountId = key;
             });
@@ -116,7 +120,7 @@ class _SettingScreenState extends State<SettingScreen> {
           },
         ),
         title: Text(
-          'Setting',
+          AppLocalizations.of(context)!.setting,
           style: TextStyle(
             fontSize: titleFontSize * 1.5,
             fontWeight: FontWeight.bold,
@@ -144,7 +148,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     height: imageSize,
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: AssetImage('assets/duahau.png'),
+                        image:  NetworkImage(_avatar),
                         fit: BoxFit.cover,
                       ),
                       borderRadius: BorderRadius.circular(imageSize * 0.5),
@@ -195,7 +199,7 @@ class _SettingScreenState extends State<SettingScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'General',
+                  AppLocalizations.of(context)!.general,
                   style: TextStyle(
                     fontSize: titleFontSize,
                     fontWeight: FontWeight.w900,
@@ -225,7 +229,7 @@ class _SettingScreenState extends State<SettingScreen> {
                           Icon(Icons.language, size: iconSize),
                           SizedBox(width: screenWidth * 0.05),
                           Text(
-                            'Set Language',
+                            AppLocalizations.of(context)!.setlanguage,
                             style: TextStyle(
                               fontSize: titleFontSize * 0.8,
                               fontStyle: FontStyle.italic,
@@ -260,7 +264,7 @@ class _SettingScreenState extends State<SettingScreen> {
                           Icon(Icons.notifications_active, size: iconSize),
                           SizedBox(width: screenWidth * 0.05),
                           Text(
-                            'Notification',
+                            AppLocalizations.of(context)!.notification,
                             style: TextStyle(
                               fontSize: titleFontSize * 0.8,
                               fontStyle: FontStyle.italic,
@@ -286,7 +290,7 @@ class _SettingScreenState extends State<SettingScreen> {
                 ),
                 SizedBox(height: screenHeight * 0.02),
                 Text(
-                  'Help',
+                  AppLocalizations.of(context)!.help,
                   style: TextStyle(
                     fontSize: titleFontSize,
                     fontWeight: FontWeight.w900,
@@ -316,7 +320,7 @@ class _SettingScreenState extends State<SettingScreen> {
                           Icon(Icons.camera_alt, size: iconSize),
                           SizedBox(width: screenWidth * 0.05),
                           Text(
-                            'How To Take A Picture',
+                            AppLocalizations.of(context)!.howtotakeapicture,
                             style: TextStyle(
                               fontSize: titleFontSize * 0.8,
                               fontStyle: FontStyle.italic,
@@ -353,7 +357,7 @@ class _SettingScreenState extends State<SettingScreen> {
                           Icon(Icons.help, size: iconSize),
                           SizedBox(width: screenWidth * 0.05),
                           Text(
-                            'Frequently Asked Questions',
+                            AppLocalizations.of(context)!.frequentlyaskedquestion,
                             style: TextStyle(
                               fontSize: titleFontSize * 0.8,
                               fontStyle: FontStyle.italic,
@@ -390,7 +394,7 @@ class _SettingScreenState extends State<SettingScreen> {
                           Icon(Icons.question_answer, size: iconSize),
                           SizedBox(width: screenWidth * 0.05),
                           Text(
-                            'Feedback',
+                            AppLocalizations.of(context)!.feedback,
                             style: TextStyle(
                               fontSize: titleFontSize * 0.8,
                               fontStyle: FontStyle.italic,
@@ -406,7 +410,7 @@ class _SettingScreenState extends State<SettingScreen> {
                 ),
                 SizedBox(height: screenHeight * 0.02),
                 Text(
-                  'Information',
+                  AppLocalizations.of(context)!.information,
                   style: TextStyle(
                     fontSize: titleFontSize,
                     fontWeight: FontWeight.w900,
@@ -415,12 +419,8 @@ class _SettingScreenState extends State<SettingScreen> {
                 ),
                 SizedBox(height: screenHeight * 0.01),
                 GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => ProfileScreen(uid: _accountId, isGoogleSignIn: _currentUser!.providerData.any((userInfo) => userInfo.providerId == 'google.com')),
-                      ),
-                    );
+                  onTap: () {Share.share(
+                      'Application download link: https://play.google.com/');
                   },
                   child: Container(
                     decoration: BoxDecoration(
@@ -436,7 +436,7 @@ class _SettingScreenState extends State<SettingScreen> {
                           Icon(Icons.share, size: iconSize),
                           SizedBox(width: screenWidth * 0.05),
                           Text(
-                            'Share To Friends',
+                            AppLocalizations.of(context)!.sharetofriends,
                             style: TextStyle(
                               fontSize: titleFontSize * 0.8,
                               fontStyle: FontStyle.italic,
@@ -473,7 +473,7 @@ class _SettingScreenState extends State<SettingScreen> {
                           Icon(Icons.star, size: iconSize),
                           SizedBox(width: screenWidth * 0.05),
                           Text(
-                            'Rate App',
+                            AppLocalizations.of(context)!.rateapp,
                             style: TextStyle(
                               fontSize: titleFontSize * 0.8,
                               fontStyle: FontStyle.italic,
@@ -510,7 +510,7 @@ class _SettingScreenState extends State<SettingScreen> {
                           Icon(Icons.info, size: iconSize),
                           SizedBox(width: screenWidth * 0.05),
                           Text(
-                            'About Us',
+                            AppLocalizations.of(context)!.aboutus,
                             style: TextStyle(
                               fontSize: titleFontSize * 0.8,
                               fontStyle: FontStyle.italic,
@@ -541,7 +541,7 @@ class _SettingScreenState extends State<SettingScreen> {
                           Icon(Icons.logout, size: iconSize),
                           SizedBox(width: screenWidth * 0.05),
                           Text(
-                            'Logout',
+                            AppLocalizations.of(context)!.logout,
                             style: TextStyle(
                               fontSize: titleFontSize * 0.8,
                               fontStyle: FontStyle.italic,

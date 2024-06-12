@@ -1,5 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'dart:async';
 import 'package:myapp/models/vocabulary.dart';
 import 'package:myapp/models/vocabulary_service.dart';
@@ -148,14 +149,17 @@ class _PictureandchoosewordScreenState extends State<PictureandchoosewordScreen>
   }
 
   void _navigateToResultScreen() async  {
+    DateTime created_date = DateTime.now();
+    String created_date_str = DateFormat('yyyy-MM-dd').format(created_date);
     int endTime = DateTime.now().millisecondsSinceEpoch;
     int elapsedTime = (endTime - startTime) ~/ 1000; // Thời gian kết thúc
     await saveTest(
-      testId,
-      accountId,
-      0,
-      elapsedTime,
-      widget.durationInSeconds,
+        testId,
+        accountId,
+        0,
+        elapsedTime,
+        widget.durationInSeconds,
+        created_date_str
     );
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => ResultQuizScreen(results: _results)),
@@ -211,7 +215,7 @@ class _PictureandchoosewordScreenState extends State<PictureandchoosewordScreen>
           },
         ),
         title: Text(
-          'Picture And Choose Word',
+          AppLocalizations.of(context)!.picture_and_choose_word,
           style: TextStyle(
             fontSize: titleFontSize,
             fontWeight: FontWeight.bold,
@@ -234,7 +238,7 @@ class _PictureandchoosewordScreenState extends State<PictureandchoosewordScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Question : ${_currentQuestionIndex + 1}/$_totalQuestions',
+                    '${AppLocalizations.of(context)!.question} : ${_currentQuestionIndex + 1}/$_totalQuestions',
                     style: TextStyle(
                       fontSize: textFontSize * 1.2,
                       fontWeight: FontWeight.w900,
@@ -283,7 +287,7 @@ class _PictureandchoosewordScreenState extends State<PictureandchoosewordScreen>
                           backgroundColor: Colors.red,
                         ),
                         child: Text(
-                          'Stop',
+                          AppLocalizations.of(context)!.stop,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: textFontSize * 1.2,
@@ -316,11 +320,7 @@ class _PictureandchoosewordScreenState extends State<PictureandchoosewordScreen>
                     SizedBox(height: screenHeight * 0.1),
                     Column(
                       children: List.generate(4, (index) {
-                        String option = AppLocalizations.of(context)!.localeName == 'en'
-                            ? _currentOptions[index].english
-                            : AppLocalizations.of(context)!.localeName == 'ko'
-                            ? _currentOptions[index].korean
-                            : _currentOptions[index].vietnamese;
+                        String option = _currentOptions[index].korean;
                         return GestureDetector(
                           onTap: () => _onOptionSelected(index),
                           child: Container(
