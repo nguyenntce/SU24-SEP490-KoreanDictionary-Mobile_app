@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/page_setting/feedback_screen.dart';
 import 'package:myapp/page_setting/feedback_vocabulary_screen.dart';
 import 'package:myapp/pages/pages_menu/page_vocabulary/vocabulary_details_screen.dart';
 import 'package:firebase_database/firebase_database.dart';
