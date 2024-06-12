@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/page_setting/feedback_screen.dart';
+import 'package:myapp/page_setting/feedback_vocabulary_screen.dart';
 import 'package:myapp/pages/pages_menu/page_vocabulary/vocabulary_details_screen.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
@@ -16,6 +17,7 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
   List<Map<String, String>> filteredVocabulary = [];
   TextEditingController searchController = TextEditingController();
   FocusNode _focusNode = FocusNode();
+
 
   @override
   void initState() {
@@ -83,7 +85,7 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => FeedbackScreen(), // Chuyển sang màn hình feedback
+        builder: (context) => FeedbackVocabularyScreen(), // Chuyển sang màn hình feedback
       ),
     );
   }
@@ -92,6 +94,7 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
+  double iconSize = screenWidth * 0.1;
     return Scaffold(
       backgroundColor: Color(0xFFA4FFB3),
       appBar: AppBar(
@@ -197,7 +200,7 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                   child: ListTile(
                     leading: Image.network(
                       filteredVocabulary[vocabIndex]['image']!,
-                      width: screenWidth * 0.1,
+                      width: screenWidth * 0.2,
                       height: screenHeight * 0.1,
                       fit: BoxFit.contain,
                     ),
@@ -222,7 +225,8 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                       onTap: () {
                         _onBoxTap(vocabIndex);
                       },
-                      child: const Icon(Icons.more_vert),
+                      child:  Icon( Icons.report_gmailerrorred,
+                        size: iconSize * 1.05,),
                     ),
                   ),
                 ),

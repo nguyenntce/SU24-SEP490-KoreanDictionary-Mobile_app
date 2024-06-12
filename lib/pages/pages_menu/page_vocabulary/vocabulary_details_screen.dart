@@ -1,7 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
-import 'package:myapp/page_setting/feedback_screen.dart';
 import 'package:myapp/page_setting/feedback_vocabulary_screen.dart';
 
 class VocabularyDetailsScreen extends StatelessWidget {
