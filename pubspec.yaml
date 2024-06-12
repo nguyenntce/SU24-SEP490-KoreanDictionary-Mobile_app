@@ -53,6 +53,7 @@ dependencies:
   audioplayers: ^6.0.0
   firebase_database: ^10.5.7
   image_picker: ^1.1.1
+  firebase_storage: ^11.7.7
   http: ^1.2.1
 
 dev_dependencies:
@@ -118,6 +119,7 @@ flutter:
     - assets/correct_image3.png
     - assets/correct_image4.png
     - assets/waxapple_picture.png
+    - assets/avatarprofile.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

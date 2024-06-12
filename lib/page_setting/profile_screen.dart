@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:country_picker/country_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'dart:io';
 
 class ProfileScreen extends StatefulWidget {
   final String uid; // Pass the user ID when creating the ProfileScreen
@@ -20,8 +23,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   String _gender = 'Male';
+  File? _image;
+  String _avatarUrl = '';
 
   final DatabaseReference _database = FirebaseDatabase.instance.reference().child('Account');
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -56,10 +62,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _phoneController.text = userData['Phone']?.toString().replaceFirst(countryCode, '0') ?? '';
       _addressController.text = userData['Country'] ?? '';
       _gender = ['Male', 'Female'].contains(userData['Gender']) ? userData['Gender'] : 'Male';
+      _avatarUrl = userData['Avatar'] ?? '';
     });
   }
 
-  void _saveUserToDatabase(String uid, {String? phone, String? email, String countryCode = '84'}) async {
+  Future<void> _saveUserToDatabase(String uid, {String? phone, String? email, String countryCode = '84'}) async {
     if (!_validateEmail(_emailController.text)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -95,9 +102,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
     try {
+      String imageUrl = _avatarUrl;
+      if (_image != null) {
+        imageUrl = await _uploadImageToFirebase(uid);
+      }
+
       final formattedPhone = phone?.replaceFirst('0', countryCode);
       await _database.child(uid).update({
-        "Avatar": "",
+        "Avatar": imageUrl, // Cập nhật URL của ảnh đại diện
         "Country": _addressController.text,
         "Dob": _dobController.text,
         "Email": email ?? _emailController.text,
@@ -105,6 +117,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         "Gender": _gender,
         "Phone": formattedPhone ?? _phoneController.text.replaceFirst('0', countryCode),
         "Status": 1,
+      });
+      setState(() {
+        _avatarUrl = imageUrl;
       });
       print('You have saved successfully');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -140,6 +155,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<String> _uploadImageToFirebase(String uid) async {
+    final storageReference = FirebaseStorage.instance.ref().child('avatars/$uid.jpg');
+    final uploadTask = storageReference.putFile(_image!);
+    final snapshot = await uploadTask;
+    final imageUrl = await snapshot.ref.getDownloadURL();
+    return imageUrl;
+  }
+
   bool _validatePhoneNumber(String phoneNumber) {
     String pattern = r'^\+?[0-9]{10,15}$';
     RegExp regex = RegExp(pattern);
@@ -167,7 +190,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-
   void _selectCountry(BuildContext context) {
     showCountryPicker(
       context: context,
@@ -178,6 +200,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
       },
     );
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
   }
 
   @override
@@ -222,21 +253,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Expanded(child: Container()), // Container trống để căn giữa hình ảnh
-                  Container(
-                    width: imageSize * 1.5, // Tăng kích thước của hình ảnh lên
-                    height: imageSize * 1.5, // Tăng kích thước của hình ảnh lên
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle, // Đảm bảo hình ảnh là hình tròn
-                      border: Border.all(
-                        color: Colors.white, // Màu viền trắng
-                        width: 3.0, // Độ dày của viền
+                  Stack(
+                    children: [
+                      Container(
+                        width: imageSize * 1.5, // Tăng kích thước của hình ảnh lên
+                        height: imageSize * 1.5, // Tăng kích thước của hình ảnh lên
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle, // Đảm bảo hình ảnh là hình tròn
+                          border: Border.all(
+                            color: Colors.white, // Màu viền trắng
+                            width: 3.0, // Độ dày của viền
+                          ),
+                          image: DecorationImage(
+                            image: _image != null
+                                ? FileImage(_image!)
+                                : (_avatarUrl.isNotEmpty
+                                ? NetworkImage(_avatarUrl)
+                                : AssetImage('assets/avatarprofile.png')) as ImageProvider,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        padding: EdgeInsets.all(4.0), // Tạo viền bằng cách thêm padding
                       ),
-                      image: DecorationImage(
-                        image: AssetImage('assets/duahau.png'),
-                        fit: BoxFit.cover,
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          width: 44, // Tăng kích thước của ô tròn để thêm padding
+                          height: 44, // Tăng kích thước của ô tròn để thêm padding
+                          padding: EdgeInsets.all(2), // Thêm padding để tạo viền trắng
+                          decoration: BoxDecoration(
+                            color: Colors.white, // Màu nền của ô tròn
+                            shape: BoxShape.circle, // Hình dạng tròn
+                            border: Border.all(
+                              color: Colors.blue, // Màu viền
+                              width: 2, // Độ dày của viền
+                            ),
+                          ),
+                          child: IconButton(
+                            icon: Icon(Icons.camera_alt_outlined, color: Colors.blue),
+                            onPressed: _pickImage,
+                            iconSize: 20, // Kích thước của icon
+                          ),
+                        ),
                       ),
-                    ),
-                    padding: EdgeInsets.all(4.0), // Tạo viền bằng cách thêm padding
+
+                    ],
                   ),
                   Expanded(child: Container()), // Container trống để căn giữa hình ảnh
                 ],
