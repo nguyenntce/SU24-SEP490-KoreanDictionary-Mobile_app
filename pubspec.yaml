@@ -119,6 +119,14 @@ flutter:
     - assets/correct_image3.png
     - assets/correct_image4.png
     - assets/waxapple_picture.png
+    - assets/about_us_vanhieu.png
+    - assets/about_us_duykhang.png
+    - assets/about_us_tringuyen.png
+    - assets/about_us_minhthuan.png
+    - assets/about_us_thanhphong.png
+    - assets/image_facebook.png
+    - assets/image_email.png
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

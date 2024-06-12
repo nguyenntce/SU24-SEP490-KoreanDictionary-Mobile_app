@@ -7,7 +7,7 @@ class AboutusScreen extends StatefulWidget {
 
 class _AboutusScreenState extends State<AboutusScreen> {
   late PageController _pageController;
-  int _currentPage = 1;
+  int _currentPage = 0;
 
   @override
   void initState() {
@@ -169,17 +169,17 @@ class _AboutusScreenState extends State<AboutusScreen> {
                     child: Image.asset(
                       // Danh sách các hình ảnh
                       index == 0
-                          ? 'assets/about_us.png'
+                          ? 'assets/about_us_tringuyen.png'
                           : index == 1
-                              ? 'assets/about_us.png'
+                              ? 'assets/about_us_minhthuan.png'
                               : index == 2
-                                  ? 'assets/about_us.png'
+                                  ? 'assets/about_us_thanhphong.png'
                                   : index == 3
-                                      ? 'assets/about_us.png'
-                                      : 'assets/about_us.png',
+                                      ? 'assets/about_us_vanhieu.png'
+                                      : 'assets/about_us_duykhang.png',
                       width: screenWidth * 0.8,
                       height: screenHeight * 0.35,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.contain,
                     ),
                   );
                 },
@@ -196,38 +196,40 @@ class _AboutusScreenState extends State<AboutusScreen> {
                   fontSize: titleFontSize * 1.2,
                   fontWeight: FontWeight.bold,
                   fontStyle: FontStyle.italic,
-                  color: Colors.black,
+                  color: const Color.fromARGB(255, 0, 0, 0),
                 ),
               ),
             ),
-            Container(
-              margin: EdgeInsets.only(top: screenHeight * 0.00),
-              alignment: Alignment.center,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.facebook,
-                        size: titleFontSize * 4), // Tăng kích thước
-                    onPressed: () {
-                      // Xử lý khi nhấn vào biểu tượng Facebook
-                      // Chuyển hướng đến đường link Facebook
-                    },
-                  ),
-                  SizedBox(
-                      width: screenWidth *
-                          0.15), // Khoảng cách giữa các biểu tượng
-                  IconButton(
-                    icon: Icon(Icons.email,
-                        size: titleFontSize * 4), // Tăng kích thước
-                    onPressed: () {
-                      // Xử lý khi nhấn vào biểu tượng Email
-                      // Ví dụ: Mở ứng dụng email mặc định của người dùng
-                    },
-                  ),
-                ],
-              ),
-            ),
+     Row(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+    GestureDetector(
+      onTap: () {
+        // Xử lý khi nhấn vào biểu tượng Facebook
+        // Chuyển hướng đến đường link Facebook
+      },
+      child: Image.asset(
+        'assets/image_facebook.png',
+        width: titleFontSize * 4, // Kích thước của hình ảnh
+        height: titleFontSize * 4, // Kích thước của hình ảnh
+      ),
+    ),
+    SizedBox(
+      width: screenWidth * 0.15, // Khoảng cách giữa các biểu tượng
+    ),
+    GestureDetector(
+      onTap: () {
+        // Xử lý khi nhấn vào biểu tượng Email
+        // Ví dụ: Mở ứng dụng email mặc định của người dùng
+      },
+      child: Image.asset(
+        'assets/image_email.png',
+        width: titleFontSize * 4, // Kích thước của hình ảnh
+        height: titleFontSize * 4, // Kích thước của hình ảnh
+      ),
+    ),
+  ],
+),
           ],
         ),
       ),
