@@ -1,14 +1,16 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 
-Future<void> saveTest(String testId, int accountId, int startDate, int endDate, int totalTime) async {
+Future<void> saveTest(String testId, int accountId, int startDate, int endDate, int totalTime,String Created_date ) async {
   DatabaseReference ref = FirebaseDatabase.instance.reference().child('Test').child(testId);
   await ref.set({
     'Account_Id': accountId,
-    'Start_date': startDate,
-    'End_date': endDate,
+    'Start_time': startDate,
+    'End_time': endDate,
     'Total_time': totalTime,
+    'Created_date':Created_date
   });
 }
 

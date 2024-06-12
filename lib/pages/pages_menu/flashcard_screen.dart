@@ -74,7 +74,7 @@ class _FlashcardScreen extends State<FlashcardScreen> {
           },
         ),
         title: Text(
-          'Flashcard',
+          AppLocalizations.of(context)!.flashcard,
           style: TextStyle(
             fontSize: titleFontSize,
             fontWeight: FontWeight.bold,
@@ -171,7 +171,7 @@ class _FlashcardScreen extends State<FlashcardScreen> {
                           Container(
                             margin: EdgeInsets.only(top: screenHeight * 0.01),
                             child: Text(
-                              'Click to see definition',
+                              AppLocalizations.of(context)!.click_to_see_definition,
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: screenWidth * 0.04,

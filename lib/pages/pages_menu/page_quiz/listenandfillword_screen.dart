@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:intl/intl.dart';
 import 'package:myapp/models/vocabulary.dart';
 import 'package:myapp/models/vocabulary_service.dart'; // Import file chứa hàm getRandomVocabularies
 import 'package:myapp/pages/pages_menu/page_quiz/detailresult_quiz_screen.dart';
@@ -159,6 +160,8 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
   }
 
   void _navigateToResultScreen() async  {
+    DateTime created_date = DateTime.now();
+    String created_date_str = DateFormat('yyyy-MM-dd').format(created_date);
     int endTime = DateTime.now().millisecondsSinceEpoch;
     int elapsedTime = (endTime - startTime) ~/ 1000; // Thời gian kết thúc
     await saveTest(
@@ -167,6 +170,7 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
       0,
       elapsedTime,
       widget.durationInSeconds,
+      created_date_str
     );
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => ResultQuizScreen(results: _results)),
@@ -204,7 +208,7 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
           },
         ),
         title: Text(
-          'Listen And Fill Word',
+          AppLocalizations.of(context)!.listen_and_choose_picture,
           style: TextStyle(
             fontSize: titleFontSize,
             fontWeight: FontWeight.bold,
@@ -227,7 +231,7 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Question : ${_currentQuestionIndex + 1}/${_vocabularies.length}',
+                    '${AppLocalizations.of(context)!.question} : ${_currentQuestionIndex + 1}/${_vocabularies.length}',
                     style: TextStyle(
                       fontSize: textFontSize * 1.2,
                       fontWeight: FontWeight.w900,
@@ -276,7 +280,7 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
                           backgroundColor: Colors.red,
                         ),
                         child: Text(
-                          'Stop',
+                          AppLocalizations.of(context)!.stop,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: textFontSize * 1.2,
@@ -312,11 +316,7 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
                         ), // Màu sắc của biểu tượng
                       ),
                       onPressed: () {
-                        String audioUrl = AppLocalizations.of(context)!.localeName == 'en'
-                            ? currentVocabulary.voiceEn
-                            : AppLocalizations.of(context)!.localeName == 'ko'
-                            ? currentVocabulary.voiceKr
-                            : currentVocabulary.voiceVn;
+                        String audioUrl=currentVocabulary.voiceKr;
                         _playAudio(audioUrl);
                       },
                     ),
@@ -325,7 +325,7 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
                           0.00, // Khoảng cách giữa biểu tượng và văn bản
                     ),
                     Text(
-                      'Click The Icon To Hear The Sound', // Văn bản hiển thị
+                      AppLocalizations.of(context)!.click_icon, // Văn bản hiển thị
                       style: TextStyle(
                         fontSize:
                         textFontSize * 1, // Kích thước văn bản

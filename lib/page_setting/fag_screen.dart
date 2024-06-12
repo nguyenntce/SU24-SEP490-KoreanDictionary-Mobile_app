@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
 class FaqScreen extends StatefulWidget {
   @override
   _FaqScreenState createState() => _FaqScreenState();
@@ -34,7 +34,7 @@ class _FaqScreenState extends State<FaqScreen> {
           },
         ),
         title: Text(
-          'Frequently Asked Questions',
+          AppLocalizations.of(context)!.frequentlyaskedquestion,
           style: TextStyle(
             fontSize: titleFontSize,
             fontWeight: FontWeight.bold,
@@ -49,8 +49,8 @@ class _FaqScreenState extends State<FaqScreen> {
         child: ListView(
           children: <Widget>[
             _buildExpansionPanel(
-              'How do I get more accurate recognition results?',
-              'To get more accurate recognition results in the "Korean Fruit Technology" app, ensure you use high-quality images with good lighting, follow any provided guidelines for taking or uploading images, keep the app updated to benefit from the latest improvements, and check your app settings to make sure they are optimized for the best results.',
+              AppLocalizations.of(context)!.howdoigetmoreaccuraterecognitionresult,
+              AppLocalizations.of(context)!.descrip_howdoiget,
               _isExpanded1,
                   (bool isExpanded) {
                 setState(() {
@@ -64,8 +64,8 @@ class _FaqScreenState extends State<FaqScreen> {
             ),
             SizedBox(height: screenHeight * 0.02),
             _buildExpansionPanel(
-              'How to send feedback?',
-              'To send feedback on the "Korean Fruit Technology" app, open the app, go to the "Feedback" section in the menu or settings, fill out the form, and submit it',
+              AppLocalizations.of(context)!.howtoisendfeedback,
+              AppLocalizations.of(context)!.descrip_howtosendfeedback,
               _isExpanded2,
                   (bool isExpanded) {
                 setState(() {
@@ -79,9 +79,9 @@ class _FaqScreenState extends State<FaqScreen> {
             ),
             SizedBox(height: screenHeight * 0.02),
             _buildExpansionPanel(
-              'How to contact you?',
-              'You need to go to “Setting”, select “About Us”, then you will see full information about us. There are two ways to contact me directly, including Facebook and Email.',
-              _isExpanded3,
+              AppLocalizations.of(context)!.howtocontactyou,
+              AppLocalizations.of(context)!.descrip_howtocontactyou,
+                _isExpanded3,
                   (bool isExpanded) {
                 setState(() {
                   _isExpanded3 = !_isExpanded3;
@@ -94,8 +94,8 @@ class _FaqScreenState extends State<FaqScreen> {
             ),
             SizedBox(height: screenHeight * 0.02),
             _buildExpansionPanel(
-              'What app can I use to recognize objects in images from my photo collection?',
-              'When required to take the first photo, click on the photo library icon next to the camera.Now you can download photos from the photo library on your phone to the application.Position and time of shooting will be read from photos and saved in observation',
+              AppLocalizations.of(context)!.whatappican,
+              AppLocalizations.of(context)!.descrip_whatapp,
               _isExpanded4,
                   (bool isExpanded) {
                 setState(() {
@@ -109,8 +109,8 @@ class _FaqScreenState extends State<FaqScreen> {
             ),
             SizedBox(height: screenHeight * 0.02),
             _buildExpansionPanel(
-              'How the application works?',
-              'With your smartphone camera, you take a photo of the fruit or fruit and within seconds you will receive a suggestion about the name of the fruit or fruit as well as further information. Therefore, this app allows easy and safe fruit identification for people of all ages and all levels of previous knowledge. More information and screenshots can be found on our site',
+              AppLocalizations.of(context)!.howtheapplicationworks,
+              AppLocalizations.of(context)!.descrip_howtheapplicationwork,
               _isExpanded5,
                   (bool isExpanded) {
                 setState(() {

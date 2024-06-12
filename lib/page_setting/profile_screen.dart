@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:country_picker/country_picker.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'dart:io';
 
 class ProfileScreen extends StatefulWidget {
   final String uid; // Pass the user ID when creating the ProfileScreen
@@ -18,8 +23,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   String _gender = 'Male';
+  File? _image;
+  String _avatarUrl = '';
 
   final DatabaseReference _database = FirebaseDatabase.instance.reference().child('Account');
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -50,28 +58,156 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _fullnameController.text = userData['Fullname'] ?? '';
       _dobController.text = userData['Dob'] ?? '';
       _emailController.text = userData['Email'] ?? '';
-      _phoneController.text = userData['Phone']?.toString().replaceFirst('84', '0') ?? '';
+      String countryCode = userData['CountryCode'] ?? '84';
+      _phoneController.text = userData['Phone']?.toString().replaceFirst(countryCode, '0') ?? '';
       _addressController.text = userData['Country'] ?? '';
-      _gender = ['Male', 'Female', 'Other'].contains(userData['Gender']) ? userData['Gender'] : 'Male';
+      _gender = ['Male', 'Female'].contains(userData['Gender']) ? userData['Gender'] : 'Male';
+      _avatarUrl = userData['Avatar'] ?? '';
     });
   }
 
-  void _saveUserToDatabase(String uid, {String? phone, String? email}) async {
+  Future<void> _saveUserToDatabase(String uid, {String? phone, String? email, String countryCode = '84'}) async {
+    if (!_validateEmail(_emailController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please enter a valid email address',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.transparent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+            side: BorderSide(color: Color(0xFF35FF3D), width: 2),
+          ),
+        ),
+      );
+      return;
+    }
+    if (!_validatePhoneNumber(_phoneController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please enter a valid phone number',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.transparent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+            side: BorderSide(color: Color(0xFF35FF3D), width: 2),
+          ),
+        ),
+      );
+      return;
+    }
     try {
-      final formattedPhone = phone?.replaceFirst('0', '84');
+      String imageUrl = _avatarUrl;
+      if (_image != null) {
+        imageUrl = await _uploadImageToFirebase(uid);
+      }
+
+      final formattedPhone = phone?.replaceFirst('0', countryCode);
       await _database.child(uid).update({
-        "Avatar": "",
+        "Avatar": imageUrl, // Cập nhật URL của ảnh đại diện
         "Country": _addressController.text,
         "Dob": _dobController.text,
         "Email": email ?? _emailController.text,
         "Fullname": _fullnameController.text,
         "Gender": _gender,
-        "Phone": formattedPhone ?? _phoneController.text.replaceFirst('0', '84'),
+        "Phone": formattedPhone ?? _phoneController.text.replaceFirst('0', countryCode),
         "Status": 1,
       });
-      print('User data updated successfully');
+      setState(() {
+        _avatarUrl = imageUrl;
+      });
+      print('You have saved successfully');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'You have saved successfully',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.transparent, // Transparent background color
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+            // side: BorderSide(color: Color(0xFF35FF3D), width: 2),
+          ),
+        ),
+      );
     } catch (e) {
-      print('Failed to save user data: $e');
+      print('You have saved Failed: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'You have saved Failed: $e',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.transparent, // Transparent background color
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+            // side: BorderSide(color: Color(0xFF35FF3D), width: 1),
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<String> _uploadImageToFirebase(String uid) async {
+    final storageReference = FirebaseStorage.instance.ref().child('avatars/$uid.jpg');
+    final uploadTask = storageReference.putFile(_image!);
+    final snapshot = await uploadTask;
+    final imageUrl = await snapshot.ref.getDownloadURL();
+    return imageUrl;
+  }
+
+  bool _validatePhoneNumber(String phoneNumber) {
+    String pattern = r'^\+?[0-9]{10,15}$';
+    RegExp regex = RegExp(pattern);
+    return regex.hasMatch(phoneNumber);
+  }
+
+  bool _validateEmail(String email) {
+    String pattern =
+        r'^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$';
+    RegExp regex = RegExp(pattern);
+    return regex.hasMatch(email);
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1800),
+      lastDate: DateTime.now(), // Set the last date to the current date
+    );
+    if (picked != null) {
+      setState(() {
+        _dobController.text = DateFormat('dd-MM-yyyy').format(picked);
+      });
+    }
+  }
+
+  void _selectCountry(BuildContext context) {
+    showCountryPicker(
+      context: context,
+      showPhoneCode: false, // Optional. Shows phone code before the country name.
+      onSelect: (Country country) {
+        setState(() {
+          _addressController.text = country.name;
+        });
+      },
+    );
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
     }
   }
 
@@ -117,21 +253,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Expanded(child: Container()), // Container trống để căn giữa hình ảnh
-                  Container(
-                    width: imageSize * 1.5, // Tăng kích thước của hình ảnh lên
-                    height: imageSize * 1.5, // Tăng kích thước của hình ảnh lên
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle, // Đảm bảo hình ảnh là hình tròn
-                      border: Border.all(
-                        color: Colors.white, // Màu viền trắng
-                        width: 3.0, // Độ dày của viền
+                  Stack(
+                    children: [
+                      Container(
+                        width: imageSize * 1.5, // Tăng kích thước của hình ảnh lên
+                        height: imageSize * 1.5, // Tăng kích thước của hình ảnh lên
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle, // Đảm bảo hình ảnh là hình tròn
+                          border: Border.all(
+                            color: Colors.white, // Màu viền trắng
+                            width: 3.0, // Độ dày của viền
+                          ),
+                          image: DecorationImage(
+                            image: _image != null
+                                ? FileImage(_image!)
+                                : (_avatarUrl.isNotEmpty
+                                ? NetworkImage(_avatarUrl)
+                                : AssetImage('assets/avatarprofile.png')) as ImageProvider,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        padding: EdgeInsets.all(4.0), // Tạo viền bằng cách thêm padding
                       ),
-                      image: DecorationImage(
-                        image: AssetImage('assets/duahau.png'),
-                        fit: BoxFit.cover,
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          width: 44, // Tăng kích thước của ô tròn để thêm padding
+                          height: 44, // Tăng kích thước của ô tròn để thêm padding
+                          padding: EdgeInsets.all(2), // Thêm padding để tạo viền trắng
+                          decoration: BoxDecoration(
+                            color: Colors.white, // Màu nền của ô tròn
+                            shape: BoxShape.circle, // Hình dạng tròn
+                            border: Border.all(
+                              color: Colors.blue, // Màu viền
+                              width: 2, // Độ dày của viền
+                            ),
+                          ),
+                          child: IconButton(
+                            icon: Icon(Icons.camera_alt_outlined, color: Colors.blue),
+                            onPressed: _pickImage,
+                            iconSize: 20, // Kích thước của icon
+                          ),
+                        ),
                       ),
-                    ),
-                    padding: EdgeInsets.all(4.0), // Tạo viền bằng cách thêm padding
+
+                    ],
                   ),
                   Expanded(child: Container()), // Container trống để căn giữa hình ảnh
                 ],
@@ -208,6 +375,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Expanded(
                           child: TextField(
                             controller: _dobController,
+                            enabled: false,
                             decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText: '---------------',
@@ -220,7 +388,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                         ),
-                        Icon(Icons.calendar_month, color: Colors.black, size: iconSize),
+                        IconButton(
+                          icon: Icon(Icons.calendar_month, color: Colors.black, size: iconSize),
+                          onPressed: () => _selectDate(context),
+                        ),
                       ],
                     ),
                   ),
@@ -301,6 +472,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 fontWeight: FontWeight.bold,
                                 color: Colors.grey, // Light grey color for hint text
                               ),
+                              // errorText: _validatePhoneNumber(_phoneController.text) ? null : 'Invalid phone number',
                             ),
                           ),
                         ),
@@ -311,7 +483,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: screenHeight * 0.01),
                 Text(
-                  'Address',
+                  'Country',
                   style: TextStyle(
                     fontSize: titleFontSize * 1.2,
                     fontWeight: FontWeight.w900,
@@ -319,34 +491,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 SizedBox(height: screenHeight * 0.01),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30.0),
-                    border: Border.all(color: Colors.black),
-                  ),
-                  height: containerHeight,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _addressController,
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: '----------------',
-                              hintStyle: TextStyle(
-                                fontStyle: FontStyle.italic,
-                                fontSize: titleFontSize,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey, // Light grey color for hint text
+                GestureDetector(
+                  onTap: () => _selectCountry(context),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30.0),
+                      border: Border.all(color: Colors.black),
+                    ),
+                    height: containerHeight,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _addressController,
+                              enabled: false,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: '----------------',
+                                hintStyle: TextStyle(
+                                  fontStyle: FontStyle.italic,
+                                  fontSize: titleFontSize,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey, // Light grey color for hint text
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        Icon(Icons.location_on, color: Colors.black, size: iconSize),
-                      ],
+                          Icon(Icons.location_on, color: Colors.black, size: iconSize),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -380,7 +556,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 _gender = newValue!;
                               });
                             },
-                            items: <String>['Male', 'Female', 'Other']
+                            items: <String>['Male', 'Female']
                                 .map<DropdownMenuItem<String>>((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,

@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 class DetailresultQuizScreen extends StatefulWidget {
@@ -10,6 +11,15 @@ class DetailresultQuizScreen extends StatefulWidget {
 }
 
 class _DetailresultQuizScreenState extends State<DetailresultQuizScreen> {
+  final AudioPlayer audioPlayer = AudioPlayer();
+  void _playAudio(String url) async {
+    try {
+      await audioPlayer.play(UrlSource(url)); // Sử dụng UrlSource cho URL
+    } catch (e) {
+      print('Error: $e');
+      print(url);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -27,7 +37,7 @@ class _DetailresultQuizScreenState extends State<DetailresultQuizScreen> {
           },
         ),
         title: Text(
-          'Detailed Results',
+          AppLocalizations.of(context)!.detail_result,
           style: TextStyle(
             fontSize: titleFontSize * 1.5,
             fontWeight: FontWeight.bold,
@@ -58,7 +68,7 @@ class _DetailresultQuizScreenState extends State<DetailresultQuizScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'English',
+                          AppLocalizations.of(context)!.vocabularykey,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: screenWidth * 0.05,
@@ -78,7 +88,7 @@ class _DetailresultQuizScreenState extends State<DetailresultQuizScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Korean',
+                          AppLocalizations.of(context)!.korean,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: screenWidth * 0.05,
@@ -98,7 +108,7 @@ class _DetailresultQuizScreenState extends State<DetailresultQuizScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Answer',
+                          AppLocalizations.of(context)!.answer,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: screenWidth * 0.05,
@@ -174,13 +184,6 @@ class _DetailresultQuizScreenState extends State<DetailresultQuizScreen> {
                                 right: 0,
                                 child: Container(
                                   padding: EdgeInsets.all(screenHeight * 0.00),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.black,
-                                      width: 1.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
                                   child: Image.network(
                                     result['image'] ?? '',
                                     width: screenWidth * 0.1,
@@ -191,7 +194,7 @@ class _DetailresultQuizScreenState extends State<DetailresultQuizScreen> {
                               ),
                               GestureDetector(
                                 onTap: () {
-                                  // Play the corresponding audio
+                                  _playAudio(result['voiceKo']);
                                 },
                                 child: Positioned(
                                   child: Container(
@@ -201,14 +204,7 @@ class _DetailresultQuizScreenState extends State<DetailresultQuizScreen> {
                                       right: screenWidth * 0.02,
                                       top: screenHeight * 0.105,
                                     ),
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFF35FF3D),
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      border: Border.all(
-                                        color: Colors.black,
-                                        width: 1.0,
-                                      ),
-                                    ),
+
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
@@ -222,7 +218,7 @@ class _DetailresultQuizScreenState extends State<DetailresultQuizScreen> {
                                             result['korean'] ?? '',
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
-                                              fontSize: screenWidth * 0.025,
+                                              fontSize: screenWidth * 0.03,
                                               fontWeight: FontWeight.w900,
                                               color: Colors.black,
                                               fontStyle: FontStyle.italic,
@@ -252,13 +248,6 @@ class _DetailresultQuizScreenState extends State<DetailresultQuizScreen> {
                                 right: 0,
                                 child: Container(
                                   padding: EdgeInsets.all(screenHeight * 0.00),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.black,
-                                      width: 1.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
                                   child: Image.network(
                                     result['answer'] ?? '',
                                     width: screenWidth * 0.1,
@@ -280,7 +269,7 @@ class _DetailresultQuizScreenState extends State<DetailresultQuizScreen> {
                                         : result['answerVN'] ?? '',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
-                                      fontSize: screenWidth * 0.025,
+                                      fontSize: screenWidth * 0.03,
                                       fontWeight: FontWeight.w900,
                                       color: result['isCorrect'] ? Colors.green : Colors.red,
                                       fontStyle: FontStyle.italic,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/pages/pages_menu/page_quiz/detailresult_quiz_screen.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
 class ResultQuizScreen extends StatefulWidget {
   final List<Map<String, dynamic>> results;
 
@@ -44,7 +44,7 @@ class _ResultQuizScreenState extends State<ResultQuizScreen> {
           },
         ),
         title: Text(
-          'Result',
+          AppLocalizations.of(context)!.result,
           style: TextStyle(
             fontSize: titleFontSize,
             fontWeight: FontWeight.bold,
@@ -97,7 +97,7 @@ class _ResultQuizScreenState extends State<ResultQuizScreen> {
             child: Column(
               children: [
                 Text(
-                  _percent >= 0.5 ? 'PASS' : 'NOT PASS',
+                  _percent >= 0.5 ? '${AppLocalizations.of(context)!.pass}' : '${AppLocalizations.of(context)!.notpass}',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: editFontSize * 1.4,
@@ -117,7 +117,7 @@ class _ResultQuizScreenState extends State<ResultQuizScreen> {
                 ),
                 SizedBox(height: screenHeight * 0.03),
                 Text(
-                  'Correct: $_correctAnswers',
+                  '${AppLocalizations.of(context)!.correct}: $_correctAnswers',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: editFontSize * 1.5,
@@ -127,7 +127,7 @@ class _ResultQuizScreenState extends State<ResultQuizScreen> {
                 ),
                 SizedBox(height: screenHeight * 0.03),
                 Text(
-                  'Incorrect: $_incorrectAnswers',
+                  '${AppLocalizations.of(context)!.incorrect}: $_incorrectAnswers',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: editFontSize * 1.5,
@@ -159,7 +159,7 @@ class _ResultQuizScreenState extends State<ResultQuizScreen> {
                           vertical: screenHeight * 0.01,
                         ),
                         child: Text(
-                          'Restart',
+                          AppLocalizations.of(context)!.restart,
                           style: TextStyle(
                             fontSize: titleFontSize * 1.2,
                             color: Colors.black,
@@ -193,7 +193,7 @@ class _ResultQuizScreenState extends State<ResultQuizScreen> {
                           vertical: screenHeight * 0.01,
                         ),
                         child: Text(
-                          'Detail',
+                          AppLocalizations.of(context)!.detail,
                           style: TextStyle(
                             fontSize: titleFontSize * 1.2,
                             color: Colors.black,

@@ -59,6 +59,8 @@
   "listen_and_choose_picture": "듣고 그림을 선택하세요",
   "picture_and_choose_word": "그림을 그리고 단어를 선택하세요",
   "question_and_choose_picture": "질문하고 사진을 선택하세요",
+  "select_time": "시간 선택",
+  "select_type": "유형",
   "question": "질문",
   "stop": "멈추다",
   "click_icon": "소리를 들으려면 아이콘을 클릭하세요",

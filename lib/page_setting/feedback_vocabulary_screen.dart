@@ -1,43 +1,50 @@
 import 'dart:io';
-
-import 'package:firebase_database/firebase_database.dart'; // Import Firebase Realtime Database
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
-import 'package:myapp/page_setting/setting_screen.dart';
+import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class FeedbackScreen extends StatefulWidget {
+class FeedbackVocabularyScreen extends StatefulWidget {
+  final Map<String, String> word;
+  FeedbackVocabularyScreen({required this.word});
   @override
-  _FeedbackScreenState createState() => _FeedbackScreenState();
+  _FeedbackVocabularyScreenState createState() => _FeedbackVocabularyScreenState();
 }
 
-class _FeedbackScreenState extends State<FeedbackScreen> {
-  int accountId = 0;
-  List<String> types = ['Vocabulary', 'Take Picture', 'Quiz', 'Flashcard', 'Other'];
+class _FeedbackVocabularyScreenState extends State<FeedbackVocabularyScreen> {
+
   String? selectedType;
+
   File? image;
   bool isImageSelected = false;
-  final TextEditingController descriptionController = TextEditingController();
-
+  int accountId = 0;
+  final descriptionController = TextEditingController();
+  final databaseReference = FirebaseDatabase.instance.ref().child("Feedback_Voca");
   @override
   void initState() {
     super.initState();
     _initUserId();
+    print( widget.word['Id']);
   }
-
   Future<void> _initUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     accountId = prefs.getInt('UID') ?? 0;
   }
-
   Future<void> _pickImage(int boxNumber) async {
-    final pickedImage = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedImage = await ImagePicker().pickImage(
+      source: ImageSource.gallery, // Chọn hình từ thư viện ảnh
+      // source: ImageSource.camera, // Chọn hình từ máy ảnh
+    );
     if (pickedImage != null) {
       setState(() {
-        image = File(pickedImage.path);
-        isImageSelected = true;
+        // Cập nhật hình ảnh đã chọn vào biến tương ứng
+        if (boxNumber == 1) {
+          image = File(pickedImage.path);
+          isImageSelected = true; // Đặt biến isImage1Selected thành true khi chọn hình ảnh
+        }
       });
     }
   }
@@ -45,38 +52,43 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   Future<void> _uploadFeedback() async {
     DateTime created_date = DateTime.now();
     String created_date_str = DateFormat('yyyy-MM-dd').format(created_date);
-    String imageUrl = '';
+    String? imageUrl;
     if (image != null) {
-      final storageRef = FirebaseStorage.instance.ref().child('feedback_images/${DateTime.now().millisecondsSinceEpoch}');
-      final uploadTask = storageRef.putFile(image!);
-      final snapshot = await uploadTask.whenComplete(() => {});
-      imageUrl = await snapshot.ref.getDownloadURL();
+      String fileName = path.basename(image!.path);
+      Reference storageReference = FirebaseStorage.instance.ref().child('feedback_images/$fileName');
+      UploadTask uploadTask = storageReference.putFile(image!);
+      await uploadTask;
+      imageUrl = await storageReference.getDownloadURL();
     }
-    DatabaseReference feedbackRef = FirebaseDatabase.instance.reference().child('General Feedback');
-    String feedbackId = feedbackRef.push().key ?? '';
-    final feedbackData = {
+
+    String description = descriptionController.text;
+    String feedbackId = databaseReference.push().key ?? '';
+    Map<String, dynamic> feedbackData = {
       'Id': feedbackId,
       'Account_Id': accountId,
       'Created_date': created_date_str,
-      'Description': descriptionController.text,
-      'Image': imageUrl,
+      'Description': description,
+      'Image': imageUrl ?? '',
       'Status': 1,
-      'Type': selectedType,
+      'Vocabulary_Id': widget.word['Id'],
     };
 
-
-    await feedbackRef.push().set(feedbackData);
-    // Hiển thị thông báo thành công
+    await databaseReference.push().set(feedbackData);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Feedback sent successfully!'),
         duration: Duration(seconds: 1), // Duration for how long the SnackBar will be displayed
       ),
     );
-
+    // Wait for the SnackBar to disappear before navigating back
     await Future.delayed(Duration(seconds: 1));
+
     Navigator.of(context).pop();
     descriptionController.clear();
+    setState(() {
+      image = null;
+      isImageSelected = false;
+    });
   }
 
   @override
@@ -114,12 +126,10 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               children: [
                 Container(
                   margin: EdgeInsets.symmetric(
-                      horizontal: screenHeight * 0.03,
-                      vertical: screenHeight * 0.01),
+                      horizontal: screenHeight * 0.03, vertical: screenHeight * 0.01),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    border: Border.all(
-                        color: Colors.black, width: screenWidth * 0.005),
+                    border: Border.all(color: Colors.black, width: screenWidth * 0.005),
                     borderRadius: BorderRadius.circular(screenWidth * 0.1),
                   ),
                   child: Padding(
@@ -142,48 +152,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                           textAlign: TextAlign.center,
                         ),
                         SizedBox(height: screenWidth * 0.02),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Type',
-                              style: TextStyle(
-                                fontSize: titleFontSize * 0.9,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: screenWidth * 0.02),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-                          width: screenWidth * 0.8,
-                          height: screenHeight * 0.06,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: Colors.black),
-                            borderRadius: BorderRadius.circular(screenHeight * 0.08),
-                          ),
-                          child: DropdownButtonFormField<String>(
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                            ),
-                            hint: const Text("Select Type"),
-                            value: selectedType,
-                            isExpanded: true,
-                            onChanged: (newValue) {
-                              setState(() {
-                                selectedType = newValue;
-                              });
-                            },
-                            items: types.map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                          ),
-                        ),
                         SizedBox(height: screenWidth * 0.02),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -204,8 +172,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             border: Border.all(color: Colors.black),
-                            borderRadius:
-                            BorderRadius.circular(screenWidth * 0.05),
+                            borderRadius: BorderRadius.circular(screenWidth * 0.05),
                           ),
                           child: TextField(
                             controller: descriptionController,

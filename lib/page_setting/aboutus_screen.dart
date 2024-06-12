@@ -1,7 +1,34 @@
-// aboutus_screen.dart
 import 'package:flutter/material.dart';
 
-class AboutusScreen extends StatelessWidget {
+class AboutusScreen extends StatefulWidget {
+  @override
+  _AboutusScreenState createState() => _AboutusScreenState();
+}
+
+class _AboutusScreenState extends State<AboutusScreen> {
+  late PageController _pageController;
+  int _currentPage = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(
+      initialPage: _currentPage,
+      viewportFraction: 0.8, // Tỷ lệ của mỗi trang
+    );
+    _pageController.addListener(() {
+      setState(() {
+        _currentPage = _pageController.page!.round();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -11,12 +38,13 @@ class AboutusScreen extends StatelessWidget {
     double imageContainerHeight =
         screenHeight * 0.25; // Chiều cao của container chứa hình ảnh
     double tableHeight = screenHeight * 1;
+
     return Scaffold(
-      backgroundColor: Color(0xFFA4FFB3),
+      backgroundColor: const Color(0xFFA4FFB3),
       appBar: AppBar(
-        backgroundColor: Color(0xFF154F41),
+        backgroundColor: const Color(0xFF154F41),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -48,31 +76,30 @@ class AboutusScreen extends StatelessWidget {
                       children: [
                         Expanded(
                           child:
-                              Container(), // Container trống để căn giữa hình ảnh
+                          Container(), // Container trống để căn giữa hình ảnh
                         ),
                         Container(
                           width: imageSize * 0.6,
                           // Tăng kích thước của hình ảnh lên
                           height: imageSize * 0.6,
                           // Tăng kích thước của hình ảnh lên
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             // Đảm bảo hình ảnh là hình tròn
                             image: DecorationImage(
                               image: AssetImage('assets/avocado.png'),
                               fit: BoxFit.cover,
                             ),
                           ),
-                          padding: EdgeInsets.all(
+                          padding: const EdgeInsets.all(
                               4.0), // Tạo viền bằng cách thêm padding
                         ),
                         Expanded(
                           child:
-                              Container(), // Container trống để căn giữa hình ảnh
+                          Container(), // Container trống để căn giữa hình ảnh
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.001),
                   Text(
                     'Fruit Dictionary',
                     style: TextStyle(
@@ -82,7 +109,6 @@ class AboutusScreen extends StatelessWidget {
                       fontStyle: FontStyle.italic,
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.001),
                   Text(
                     'Version 1.0',
                     style: TextStyle(
@@ -95,15 +121,11 @@ class AboutusScreen extends StatelessWidget {
                 ],
               ),
             ),
+            SizedBox(height: screenHeight * 0.02),
             Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20.0),
-                border: Border.all(color: Colors.black),
-              ),
-              height: tableHeight * 0.2,
+              height: tableHeight * 0.15,
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.01),
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.00),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -120,7 +142,7 @@ class AboutusScreen extends StatelessWidget {
                     Text(
                       'So that children can accurately recognize fruits and help children learn Korean through pictures and voices conveniently.',
                       style: TextStyle(
-                        fontSize: titleFontSize * 1,
+                        fontSize: titleFontSize * 0.9,
                         fontStyle: FontStyle.italic,
                         color: Colors.black87,
                       ),
@@ -129,17 +151,41 @@ class AboutusScreen extends StatelessWidget {
                 ),
               ),
             ),
-            // SizedBox(height: screenHeight * 000),
+            SizedBox(height: screenHeight * 0.02),
             Container(
-              margin: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
-              alignment: Alignment.center,
-              child: Image.asset(
-                'assets/about_us.png',
-                width: screenWidth * 0.8,
-                height: screenHeight * 0.35,
-                fit: BoxFit.contain,
+              height: screenHeight * 0.35,
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: 5, // Số lượng hình ảnh
+                itemBuilder: (BuildContext context, int index) {
+                  double scale = 1.0;
+                  if (index == _currentPage) {
+                    scale = 1.0;
+                  } else {
+                    scale = 0.8;
+                  }
+                  return Transform.scale(
+                    scale: scale,
+                    child: Image.asset(
+                      // Danh sách các hình ảnh
+                      index == 0
+                          ? 'assets/about_us.png'
+                          : index == 1
+                          ? 'assets/about_us.png'
+                          : index == 2
+                          ? 'assets/about_us.png'
+                          : index == 3
+                          ? 'assets/about_us.png'
+                          : 'assets/about_us.png',
+                      width: screenWidth * 0.8,
+                      height: screenHeight * 0.35,
+                      fit: BoxFit.cover,
+                    ),
+                  );
+                },
               ),
             ),
+            SizedBox(height: screenHeight * 0.00),
             Container(
               margin: EdgeInsets.only(
                   top: screenHeight * 0.00, left: screenWidth * 0),
@@ -155,7 +201,7 @@ class AboutusScreen extends StatelessWidget {
               ),
             ),
             Container(
-              margin: EdgeInsets.only(top: screenHeight * 0.02),
+              margin: EdgeInsets.only(top: screenHeight * 0.00),
               alignment: Alignment.center,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -166,7 +212,6 @@ class AboutusScreen extends StatelessWidget {
                     onPressed: () {
                       // Xử lý khi nhấn vào biểu tượng Facebook
                       // Chuyển hướng đến đường link Facebook
-                      // Ví dụ: Navigator.pushNamed(context, '/facebook_page');
                     },
                   ),
                   SizedBox(
