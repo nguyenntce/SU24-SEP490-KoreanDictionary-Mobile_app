@@ -31,7 +31,8 @@ class _ResultPictureScreenState extends State<ResultPictureScreen> {
     }
   }
   Future<void> _sendImageToServer() async {
-    var request = http.MultipartRequest('POST', Uri.parse('http://192.168.2.23:8000/predict'));
+    var request = http.MultipartRequest('POST',
+        Uri.parse('https://d55d5b2a-e20e-46ef-a1f3-aec0f317de0b-00-2wojbvrhlnbue.pike.replit.dev/predict'));
     request.files.add(await http.MultipartFile.fromPath('image', widget.imagePath));
     print('goi dc api ');
 
@@ -119,7 +120,7 @@ class _ResultPictureScreenState extends State<ResultPictureScreen> {
           },
         ),
         title: Text(
-          'Result',
+          AppLocalizations.of(context)!.result,
           style: TextStyle(
             fontSize: titleFontSize * 1.5,
             fontWeight: FontWeight.bold,
@@ -153,7 +154,7 @@ class _ResultPictureScreenState extends State<ResultPictureScreen> {
             SizedBox(height: screenHeight * 0.02),
             Center(
               child: Text(
-                '왁스 사과',
+                '${vocabularyData!['Korean']}',
                 style: TextStyle(
                   fontSize: titleFontSize * 1.5,
                   fontWeight: FontWeight.w900,
@@ -280,7 +281,8 @@ class _ResultPictureScreenState extends State<ResultPictureScreen> {
             ),
             SizedBox(height: screenHeight * 0.02),
             Text(
-              'Image Of Wax Apple',
+              '${AppLocalizations.of(context)!.imageof} ${AppLocalizations.of(context)!.localeName == 'en' ? vocabularyData!['Example_EN'] :
+              AppLocalizations.of(context)!.localeName == 'ko' ? vocabularyData!['Example_KR'] : vocabularyData!['Example_VN']}',
               style: TextStyle(
                 fontSize: titleFontSize * 0.8,
                 fontWeight: FontWeight.bold,
@@ -290,66 +292,28 @@ class _ResultPictureScreenState extends State<ResultPictureScreen> {
             Container(
               height: imageContainerHeight,
               child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Container(
-                        width: imageSize * 1.3,
-                        height: imageSize * 0.7,
+                children: [Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(screenHeight *
+                          0.03), // Điều chỉnh padding theo nhu cầu của bạn
+                      child: Container(
+                        width: imageSize * 1.5,
+                        height: imageSize * 1,
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.black),
-                          borderRadius: BorderRadius.circular(imageSize * 0.1),
+                          borderRadius:
+                          BorderRadius.circular(imageSize * 0.1),
                         ),
                         child: Image.network(
                           vocabularyData!["Fruits_img"],
                           fit: BoxFit.contain,
                         ),
                       ),
-                      Container(
-                        width: imageSize * 1.3,
-                        height: imageSize * 0.7,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black),
-                          borderRadius: BorderRadius.circular(imageSize * 0.1),
-                        ),
-                        child: Image.network(
-                          vocabularyData!["Fruits_img"],
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: screenHeight * 0.02),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Container(
-                        width: imageSize * 1.3,
-                        height: imageSize * 0.7,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black),
-                          borderRadius: BorderRadius.circular(imageSize * 0.1),
-                        ),
-                        child: Image.network(
-                          vocabularyData!["Fruits_img"],
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                      Container(
-                        width: imageSize * 1.3,
-                        height: imageSize * 0.7,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black),
-                          borderRadius: BorderRadius.circular(imageSize * 0.1),
-                        ),
-                        child: Image.network(
-                          vocabularyData!["Fruits_img"],
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                    ],
-                  ),
+                    )
+                  ],
+                ),
                 ],
               ),
             ),

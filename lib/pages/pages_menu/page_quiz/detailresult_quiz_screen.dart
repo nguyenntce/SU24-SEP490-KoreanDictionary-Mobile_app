@@ -68,7 +68,7 @@ class _DetailresultQuizScreenState extends State<DetailresultQuizScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          AppLocalizations.of(context)!.vocabularykey,
+                          AppLocalizations.of(context)!.vocabularydetailkey,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: screenWidth * 0.05,

@@ -6,7 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
 class FeedbackVocabularyScreen extends StatefulWidget {
   final Map<String, String> word;
   FeedbackVocabularyScreen({required this.word});
@@ -51,7 +51,7 @@ class _FeedbackVocabularyScreenState extends State<FeedbackVocabularyScreen> {
 
   Future<void> _uploadFeedback() async {
     DateTime created_date = DateTime.now();
-    String created_date_str = DateFormat('yyyy-MM-dd').format(created_date);
+    String created_date_str = DateFormat('dd-MM-yyyy').format(created_date);
     String? imageUrl;
     if (image != null) {
       String fileName = path.basename(image!.path);
@@ -73,10 +73,10 @@ class _FeedbackVocabularyScreenState extends State<FeedbackVocabularyScreen> {
       'Vocabulary_Id': widget.word['Id'],
     };
 
-    await databaseReference.push().set(feedbackData);
+    await databaseReference.child(feedbackId).set(feedbackData);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Feedback sent successfully!'),
+        content: Text('${AppLocalizations.of(context)!.feedbacksent}'),
         duration: Duration(seconds: 1), // Duration for how long the SnackBar will be displayed
       ),
     );
@@ -109,7 +109,7 @@ class _FeedbackVocabularyScreenState extends State<FeedbackVocabularyScreen> {
           },
         ),
         title: Text(
-          'Feedback',
+          AppLocalizations.of(context)!.feedback,
           style: TextStyle(
             fontSize: titleFontSize * 1.5,
             fontWeight: FontWeight.bold,
@@ -143,7 +143,7 @@ class _FeedbackVocabularyScreenState extends State<FeedbackVocabularyScreen> {
                           color: Colors.black,
                         ),
                         Text(
-                          'Give App Feedback',
+                          AppLocalizations.of(context)!.give_app_feedback,
                           style: TextStyle(
                             fontSize: titleFontSize * 1.3,
                             fontWeight: FontWeight.w900,
@@ -157,7 +157,7 @@ class _FeedbackVocabularyScreenState extends State<FeedbackVocabularyScreen> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(
-                              'Description',
+                              AppLocalizations.of(context)!.description,
                               style: TextStyle(
                                 fontSize: titleFontSize * 0.9,
                                 fontWeight: FontWeight.bold,
@@ -179,7 +179,7 @@ class _FeedbackVocabularyScreenState extends State<FeedbackVocabularyScreen> {
                             maxLength: 100,
                             maxLines: 5,
                             decoration: InputDecoration(
-                              hintText: 'Your description...',
+                              hintText: '${AppLocalizations.of(context)!.yourdescription}',
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.symmetric(
                                 horizontal: screenWidth * 0.02,
@@ -193,7 +193,7 @@ class _FeedbackVocabularyScreenState extends State<FeedbackVocabularyScreen> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(
-                              'Choose Image',
+                              AppLocalizations.of(context)!.chooseimage,
                               style: TextStyle(
                                 fontSize: titleFontSize * 0.9,
                                 fontWeight: FontWeight.bold,
@@ -258,7 +258,7 @@ class _FeedbackVocabularyScreenState extends State<FeedbackVocabularyScreen> {
                         vertical: screenHeight * 0.01,
                       ),
                       child: Text(
-                        'Send',
+                        AppLocalizations.of(context)!.send,
                         style: TextStyle(
                           fontSize: titleFontSize,
                           color: Colors.black,

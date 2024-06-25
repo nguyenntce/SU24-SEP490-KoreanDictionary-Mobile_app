@@ -1,3 +1,4 @@
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -13,6 +14,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await FirebaseAppCheck.instance.activate(
+    webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
+    androidProvider: AndroidProvider.playIntegrity,
   );
   runApp(MyApp());
 }
@@ -85,10 +90,7 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
           final String uid = user?.uid ?? '';
           _saveUid(uid); // Save UID to SharedPreferences
           return HomeScreen(uid: uid);
-        } else if (uid != null) {
-          // If UID is already saved in SharedPreferences
-          return HomeScreen(uid: uid!);
-        } else {
+        }  else {
           return index();
         }
       },

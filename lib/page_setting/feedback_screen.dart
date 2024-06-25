@@ -7,7 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:myapp/page_setting/setting_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
 class FeedbackScreen extends StatefulWidget {
   @override
   _FeedbackScreenState createState() => _FeedbackScreenState();
@@ -15,7 +15,8 @@ class FeedbackScreen extends StatefulWidget {
 
 class _FeedbackScreenState extends State<FeedbackScreen> {
   int accountId = 0;
-  List<String> types = ['Vocabulary', 'Take Picture', 'Quiz', 'Flashcard', 'Other'];
+  List<String> types = [];
+  List<String> typeKeys = ['Vocabulary', 'Take Picture', 'Quiz', 'Flashcard', 'Other'];
   String? selectedType;
   File? image;
   bool isImageSelected = false;
@@ -25,8 +26,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   void initState() {
     super.initState();
     _initUserId();
-  }
 
+  }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    types = ['${AppLocalizations.of(context)!.vocabulary}', '${AppLocalizations.of(context)!.takepicture}', '${AppLocalizations.of(context)!.quiz}',
+      '${AppLocalizations.of(context)!.flashcard}', '${AppLocalizations.of(context)!.other}'];
+  }
   Future<void> _initUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     accountId = prefs.getInt('UID') ?? 0;
@@ -44,7 +51,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
   Future<void> _uploadFeedback() async {
     DateTime created_date = DateTime.now();
-    String created_date_str = DateFormat('yyyy-MM-dd').format(created_date);
+    String created_date_str = DateFormat('dd-MM-yyyy').format(created_date);
     String imageUrl = '';
     if (image != null) {
       final storageRef = FirebaseStorage.instance.ref().child('feedback_images/${DateTime.now().millisecondsSinceEpoch}');
@@ -54,6 +61,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     }
     DatabaseReference feedbackRef = FirebaseDatabase.instance.reference().child('General Feedback');
     String feedbackId = feedbackRef.push().key ?? '';
+    int selectedIndex = types.indexOf(selectedType ?? '');
+    String typeToSave = selectedIndex != -1 ? typeKeys[selectedIndex] : '';
     final feedbackData = {
       'Id': feedbackId,
       'Account_Id': accountId,
@@ -61,15 +70,15 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       'Description': descriptionController.text,
       'Image': imageUrl,
       'Status': 1,
-      'Type': selectedType,
+      'Type': typeToSave,
     };
 
 
-    await feedbackRef.push().set(feedbackData);
+    await feedbackRef.child(feedbackId).set(feedbackData);
     // Hiển thị thông báo thành công
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Feedback sent successfully!'),
+        content: Text('${AppLocalizations.of(context)!.feedbacksent}'),
         duration: Duration(seconds: 1), // Duration for how long the SnackBar will be displayed
       ),
     );
@@ -97,7 +106,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
           },
         ),
         title: Text(
-          'Feedback',
+          AppLocalizations.of(context)!.feedback,
           style: TextStyle(
             fontSize: titleFontSize * 1.5,
             fontWeight: FontWeight.bold,
@@ -133,7 +142,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                           color: Colors.black,
                         ),
                         Text(
-                          'Give App Feedback',
+                          AppLocalizations.of(context)!.give_app_feedback,
                           style: TextStyle(
                             fontSize: titleFontSize * 1.3,
                             fontWeight: FontWeight.w900,
@@ -146,7 +155,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(
-                              'Type',
+                              AppLocalizations.of(context)!.type,
                               style: TextStyle(
                                 fontSize: titleFontSize * 0.9,
                                 fontWeight: FontWeight.bold,
@@ -168,7 +177,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                             decoration: InputDecoration(
                               border: InputBorder.none,
                             ),
-                            hint: const Text("Select Type"),
+                            hint:  Text("${AppLocalizations.of(context)!.select_time}"),
                             value: selectedType,
                             isExpanded: true,
                             onChanged: (newValue) {
@@ -189,7 +198,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(
-                              'Description',
+                              AppLocalizations.of(context)!.description,
                               style: TextStyle(
                                 fontSize: titleFontSize * 0.9,
                                 fontWeight: FontWeight.bold,
@@ -212,7 +221,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                             maxLength: 100,
                             maxLines: 5,
                             decoration: InputDecoration(
-                              hintText: 'Your description...',
+                              hintText: '${AppLocalizations.of(context)!.yourdescription}',
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.symmetric(
                                 horizontal: screenWidth * 0.02,
@@ -226,7 +235,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(
-                              'Choose Image',
+                              AppLocalizations.of(context)!.chooseimage,
                               style: TextStyle(
                                 fontSize: titleFontSize * 0.9,
                                 fontWeight: FontWeight.bold,
@@ -291,7 +300,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                         vertical: screenHeight * 0.01,
                       ),
                       child: Text(
-                        'Send',
+                        AppLocalizations.of(context)!.send,
                         style: TextStyle(
                           fontSize: titleFontSize,
                           color: Colors.black,
