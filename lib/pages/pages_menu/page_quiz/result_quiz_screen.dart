@@ -144,7 +144,7 @@ class _ResultQuizScreenState extends State<ResultQuizScreen> {
                         Navigator.of(context).pop();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF35FF3D),
+                        backgroundColor: const Color(0xFF35BFFF),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),
                         ),

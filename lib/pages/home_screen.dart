@@ -49,6 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
         values.forEach((value) {
           if (value != null) {
             tempList.add({
+              'Id': value['Id']?.toString() ?? '',
               'english': value['English'] ?? '',
               'korean': value['Korean'] ?? '',
               'vietnamese': value['Vietnamese'] ?? '',
@@ -62,10 +63,12 @@ class _HomeScreenState extends State<HomeScreen> {
             });
           }
         });
-        setState(() {
-          vocabulary = tempList;
-          _getRandomVocabulary();
-        });
+        if (mounted) {
+          setState(() {
+            vocabulary = tempList;
+            _getRandomVocabulary();
+          });
+        }
       }
     });
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
 class AboutusScreen extends StatefulWidget {
   @override
   _AboutusScreenState createState() => _AboutusScreenState();
@@ -7,7 +7,7 @@ class AboutusScreen extends StatefulWidget {
 
 class _AboutusScreenState extends State<AboutusScreen> {
   late PageController _pageController;
-  int _currentPage = 1;
+  int _currentPage = 0;
 
   @override
   void initState() {
@@ -50,7 +50,7 @@ class _AboutusScreenState extends State<AboutusScreen> {
           },
         ),
         title: Text(
-          'About Us',
+         AppLocalizations.of(context)!.aboutus,
           style: TextStyle(
             fontSize: titleFontSize * 1.5,
             fontWeight: FontWeight.bold,
@@ -101,7 +101,7 @@ class _AboutusScreenState extends State<AboutusScreen> {
                     ),
                   ),
                   Text(
-                    'Fruit Dictionary',
+                    AppLocalizations.of(context)!.fruitdictionary,
                     style: TextStyle(
                       fontSize: titleFontSize * 2,
                       fontWeight: FontWeight.w900,
@@ -110,7 +110,7 @@ class _AboutusScreenState extends State<AboutusScreen> {
                     ),
                   ),
                   Text(
-                    'Version 1.0',
+                    AppLocalizations.of(context)!.version,
                     style: TextStyle(
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.normal,
@@ -131,7 +131,7 @@ class _AboutusScreenState extends State<AboutusScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Description',
+                     AppLocalizations.of(context)!.description,
                       style: TextStyle(
                         fontSize: titleFontSize * 1.2,
                         fontStyle: FontStyle.italic,
@@ -140,7 +140,7 @@ class _AboutusScreenState extends State<AboutusScreen> {
                     ),
                     // SizedBox(height: screenHeight * 0), // Add some spacing
                     Text(
-                      'So that children can accurately recognize fruits and help children learn Korean through pictures and voices conveniently.',
+                      AppLocalizations.of(context)!.detail_description,
                       style: TextStyle(
                         fontSize: titleFontSize * 0.9,
                         fontStyle: FontStyle.italic,
@@ -169,17 +169,17 @@ class _AboutusScreenState extends State<AboutusScreen> {
                     child: Image.asset(
                       // Danh sách các hình ảnh
                       index == 0
-                          ? 'assets/about_us.png'
+                          ? 'assets/nguyen_about_us.png'
                           : index == 1
-                          ? 'assets/about_us.png'
+                          ? 'assets/thuan_about_us.png'
                           : index == 2
-                          ? 'assets/about_us.png'
+                          ? 'assets/phong_about_us.png'
                           : index == 3
-                          ? 'assets/about_us.png'
-                          : 'assets/about_us.png',
+                          ? 'assets/hieu_about_us.png'
+                          : 'assets/khang_about_us.png',
                       width: screenWidth * 0.8,
                       height: screenHeight * 0.35,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.contain,
                     ),
                   );
                 },
@@ -191,42 +191,44 @@ class _AboutusScreenState extends State<AboutusScreen> {
                   top: screenHeight * 0.00, left: screenWidth * 0),
               alignment: Alignment.centerLeft,
               child: Text(
-                'Contact Us Below!',
+               AppLocalizations.of(context)!.contact_us_below,
                 style: TextStyle(
                   fontSize: titleFontSize * 1.2,
                   fontWeight: FontWeight.bold,
                   fontStyle: FontStyle.italic,
-                  color: Colors.black,
+                  color: const Color.fromARGB(255, 0, 0, 0),
                 ),
               ),
             ),
-            Container(
-              margin: EdgeInsets.only(top: screenHeight * 0.00),
-              alignment: Alignment.center,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.facebook,
-                        size: titleFontSize * 4), // Tăng kích thước
-                    onPressed: () {
-                      // Xử lý khi nhấn vào biểu tượng Facebook
-                      // Chuyển hướng đến đường link Facebook
-                    },
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    // Xử lý khi nhấn vào biểu tượng Facebook
+                    // Chuyển hướng đến đường link Facebook
+                  },
+                  child: Image.asset(
+                    'assets/image_facebook.png',
+                    width: titleFontSize * 4, // Kích thước của hình ảnh
+                    height: titleFontSize * 4, // Kích thước của hình ảnh
                   ),
-                  SizedBox(
-                      width: screenWidth *
-                          0.15), // Khoảng cách giữa các biểu tượng
-                  IconButton(
-                    icon: Icon(Icons.email,
-                        size: titleFontSize * 4), // Tăng kích thước
-                    onPressed: () {
-                      // Xử lý khi nhấn vào biểu tượng Email
-                      // Ví dụ: Mở ứng dụng email mặc định của người dùng
-                    },
+                ),
+                SizedBox(
+                  width: screenWidth * 0.15, // Khoảng cách giữa các biểu tượng
+                ),
+                GestureDetector(
+                  onTap: () {
+                    // Xử lý khi nhấn vào biểu tượng Email
+                    // Ví dụ: Mở ứng dụng email mặc định của người dùng
+                  },
+                  child: Image.asset(
+                    'assets/image_email.png',
+                    width: titleFontSize * 4, // Kích thước của hình ảnh
+                    height: titleFontSize * 4, // Kích thước của hình ảnh
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),

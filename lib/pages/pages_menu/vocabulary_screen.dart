@@ -20,7 +20,6 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
   TextEditingController searchController = TextEditingController();
   FocusNode _focusNode = FocusNode();
 
-
   @override
   void initState() {
     super.initState();
@@ -61,7 +60,6 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
               'ex_en': value['Example_EN'] ?? '',
               'ex_kr': value['Example_KR'] ?? '',
               'ex_vn': value['Example_VN'] ?? '',
-
             });
           }
         });
@@ -90,16 +88,6 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
     }
   }
 
-  // Hàm xử lý sự kiện nhấn vào box
-  void _onBoxTap(int vocabIndex) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => FeedbackVocabularyScreen(word: filteredVocabulary[vocabIndex]), // Chuyển sang màn hình feedback
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
@@ -126,124 +114,123 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
         ),
         centerTitle: true,
       ),
-      body: ListView.builder(
-        itemCount: filteredVocabulary.length + 1, // Add 1 for the search bar
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            return Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.05,
-                  vertical: screenHeight * 0.02),
-              child: TextField(
-                controller: searchController,
-                focusNode: _focusNode,
-                style: TextStyle(
+      body: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: screenWidth * 0.05,
+              vertical: screenHeight * 0.02,
+            ),
+            child: TextField(
+              controller: searchController,
+              focusNode: _focusNode,
+              style: TextStyle(
+                fontSize: screenWidth * 0.05,
+              ),
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context)!.findSomeNewWord,
+                hintStyle: TextStyle(
+                  color: Colors.black,
                   fontSize: screenWidth * 0.05,
+                  fontWeight: FontWeight.bold,
+                  fontStyle: FontStyle.italic,
                 ),
-                decoration: InputDecoration(
-                  hintText: AppLocalizations.of(context)!.findSomeNewWord,
-                  hintStyle: TextStyle(
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(screenWidth * 0.08),
+                  borderSide: BorderSide(
                     color: Colors.black,
-                    fontSize: screenWidth * 0.05,
-                    fontWeight: FontWeight.bold,
-                    fontStyle: FontStyle.italic,
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(screenWidth * 0.08),
-                    borderSide: BorderSide(
-                      color: Colors.black,
-                      width: screenWidth * 0.006,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(screenWidth * 0.08),
-                    borderSide: BorderSide(
-                      color: Colors.black,
-                      width: screenWidth * 0.007,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(screenWidth * 0.08),
-                    borderSide: BorderSide(
-                      color: Colors.black,
-                      width: screenWidth * 0.008,
-                    ),
-                  ),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    size: screenWidth * 0.1,
-                    color: Colors.black,
-                  ),
-                  contentPadding: EdgeInsets.fromLTRB(
-                    screenWidth * 0.02,
-                    screenWidth * 0.02,
-                    screenWidth * 0.02,
-                    screenWidth * 0.07,
+                    width: screenWidth * 0.006,
                   ),
                 ),
-              ),
-            );
-          } else {
-            int vocabIndex = index - 1; // Adjust index for the vocabulary list
-            return Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: screenWidth * 0.05,
-                vertical: screenHeight * 0.01,
-              ),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => VocabularyDetailsScreen(
-                          word: filteredVocabulary[vocabIndex]),
-                    ),
-                  );
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(screenWidth * 0.05),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(screenWidth * 0.08),
+                  borderSide: BorderSide(
+                    color: Colors.black,
+                    width: screenWidth * 0.007,
                   ),
-                  child: ListTile(
-                    leading: Image.network(
-                      filteredVocabulary[vocabIndex]['image']!,
-                      width: screenWidth * 0.2,
-                      height: screenHeight * 0.1,
-                      fit: BoxFit.contain,
-                    ),
-                    title: Text(
-                      filteredVocabulary[vocabIndex]
-                      [AppLocalizations.of(context)!.vocabularykey]!,
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.05,
-                        fontWeight: FontWeight.bold,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(screenWidth * 0.08),
+                  borderSide: BorderSide(
+                    color: Colors.black,
+                    width: screenWidth * 0.008,
+                  ),
+                ),
+                prefixIcon: Icon(
+                  Icons.search,
+                  size: screenWidth * 0.1,
+                  color: Colors.black,
+                ),
+                contentPadding: EdgeInsets.fromLTRB(
+                  screenWidth * 0.02,
+                  screenWidth * 0.02,
+                  screenWidth * 0.02,
+                  screenWidth * 0.07,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: filteredVocabulary.length,
+              itemBuilder: (context, index) {
+                int vocabIndex = index; // Adjust index for the vocabulary list
+                return Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenWidth * 0.05,
+                    vertical: screenHeight * 0.01,
+                  ),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => VocabularyDetailsScreen(
+                              word: filteredVocabulary[vocabIndex]),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius:
+                        BorderRadius.circular(screenWidth * 0.05),
+                      ),
+                      child: ListTile(
+                        leading: Image.network(
+                          filteredVocabulary[vocabIndex]['image']!,
+                          width: screenWidth * 0.2,
+                          height: screenHeight * 0.1,
+                          fit: BoxFit.contain,
+                        ),
+                        title: Text(
+                          filteredVocabulary[vocabIndex][
+                          AppLocalizations.of(context)!.vocabularykey]!,
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.05,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: AppLocalizations.of(context)!.localeName !=
+                            'ko'
+                            ? Text(
+                          filteredVocabulary[vocabIndex]['korean']!,
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.05,
+                            color: Colors.grey[700],
+                          ),
+                        )
+                            : null,
                       ),
                     ),
-                    subtitle: AppLocalizations.of(context)!.localeName != 'ko'
-                        ? Text(
-                      filteredVocabulary[vocabIndex]['korean']!,
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.05,
-                        color: Colors.grey[700],
-                      ),
-                    )
-                        : null,
-                    trailing: GestureDetector(
-                      onTap: () {
-                        _onBoxTap(vocabIndex);
-                      },
-                      child:  Icon( Icons.report_gmailerrorred,
-                        size: iconSize * 1.05,),
-                    ),
                   ),
-                ),
-              ),
-            );
-          }
-        },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

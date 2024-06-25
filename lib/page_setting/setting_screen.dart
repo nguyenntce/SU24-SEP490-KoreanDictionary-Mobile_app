@@ -6,8 +6,11 @@ import 'package:myapp/page_setting/aboutus_screen.dart';
 import 'package:myapp/page_setting/feedback_screen.dart';
 import 'package:myapp/page_setting/profile_screen.dart';
 import 'package:myapp/page_setting/language_screen.dart';
+import 'package:myapp/pages/home_screen.dart';
 import 'package:myapp/pages/index.dart'; // Import the language screen
 import 'package:myapp/page_setting/fag_screen.dart';
+import 'package:myapp/pages/pages_menu/camera_screen.dart';
+import 'package:myapp/service/NotificationService.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
@@ -17,6 +20,7 @@ class SettingScreen extends StatefulWidget {
 }
 
 class _SettingScreenState extends State<SettingScreen> {
+  final NotificationService _notificationService = NotificationService();
   bool notificationsEnabled = true;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   User? _currentUser;
@@ -26,10 +30,88 @@ class _SettingScreenState extends State<SettingScreen> {
   String _accountId = '';
   String _avatar ='';
 
+
   @override
   void initState() {
     super.initState();
     _getCurrentUser();
+    _loadNotificationPreference();
+    if (notificationsEnabled) {
+      _scheduleNotifications();
+    }
+  }
+  Future<void> _loadNotificationPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      notificationsEnabled = prefs.getBool('notificationsEnabled') ?? true;
+    });
+  }
+
+  Future<void> _saveNotificationPreference(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool('notificationsEnabled', value);
+  }
+
+  Future<void> _scheduleNotifications() async {
+    if (!notificationsEnabled) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    DateTime now = DateTime.now();
+
+    // Lưu thời gian hiện tại vào SharedPreferences
+    await prefs.setString('lastOpen', now.toIso8601String());
+
+    // Đặt lịch thông báo
+    await _notificationService.scheduleNotificationAfterDays(
+      id: 1,
+      title: 'We miss you!',
+      body: 'You have not opened the app for 1 day.',
+      days: 1,
+    );
+
+    await _notificationService.scheduleNotificationAfterDays(
+      id: 2,
+      title: 'Come back!',
+      body: 'You have not opened the app for 2 days.',
+      days: 2,
+    );
+
+    await _notificationService.scheduleNotificationAfterDays(
+      id: 3,
+      title: 'It has been a while!',
+      body: 'You have not opened the app for 3 days.',
+      days: 3,
+    );
+
+    await _notificationService.scheduleNotificationAfterDays(
+      id: 7,
+      title: 'We miss you a lot!',
+      body: 'You have not opened the app for 7 days.',
+      days: 7,
+    );
+
+    await _notificationService.scheduleNotificationAfterDays(
+      id: 8,
+      title: 'It has been a long time!',
+      body: 'You have not opened the app for a long time.',
+      days: 8,
+    );
+  }
+
+  void _toggleNotifications(bool value) {
+    setState(() {
+      notificationsEnabled = value;
+    });
+    _saveNotificationPreference(value);
+    if (value) {
+      _scheduleNotifications();
+    } else {
+      _cancelAllNotifications();
+    }
+  }
+
+  Future<void> _cancelAllNotifications() async {
+    await _notificationService.flutterLocalNotificationsPlugin.cancelAll();
   }
   Future<void> _getCurrentUser() async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -79,6 +161,23 @@ class _SettingScreenState extends State<SettingScreen> {
       });
     }
   }
+  Future<void> clearAllSharedPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Định nghĩa các khóa không muốn xóa, trong trường hợp này là khóa ngôn ngữ
+    const String _localeKey = 'locale';
+    Set<String> keysToKeep = {_localeKey};
+
+    // Lặp qua tất cả các khóa hiện có trong SharedPreferences
+    for (String key in prefs.getKeys()) {
+      // Nếu khóa hiện tại không nằm trong danh sách giữ lại
+      if (!keysToKeep.contains(key)) {
+        // Xóa khóa này khỏi SharedPreferences
+        await prefs.remove(key);
+      }
+    }
+  }
+
+
   Future<void> _signOut(BuildContext context) async {
     try {
       if (_currentUser != null) {
@@ -86,10 +185,14 @@ class _SettingScreenState extends State<SettingScreen> {
           await _googleSignIn.signOut();
         }
         await FirebaseAuth.instance.signOut();
+        _currentUser = null; // Đảm bảo rằng người dùng hiện tại được đặt lại thành null
       }
-      Navigator.pushReplacement(
+      await clearAllSharedPreferences();
+
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => index()),
+            (Route<dynamic> route) => false, // Loại bỏ tất cả các trang trước đó khỏi ngăn xếp
       );
     } catch (e) {
       print("Error signing out: $e");
@@ -115,8 +218,11 @@ class _SettingScreenState extends State<SettingScreen> {
         backgroundColor: Color(0xFF154F41),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.of(context).pop();
+          onPressed: ()  {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => HomeScreen(uid: 'uid')));
           },
         ),
         title: Text(
@@ -276,6 +382,7 @@ class _SettingScreenState extends State<SettingScreen> {
                             onTap: () {
                               setState(() {
                                 notificationsEnabled = !notificationsEnabled;
+                                _toggleNotifications(notificationsEnabled);
                               });
                             },
                             child: Icon(
@@ -302,7 +409,7 @@ class _SettingScreenState extends State<SettingScreen> {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => ProfileScreen(uid: _accountId, isGoogleSignIn: _currentUser!.providerData.any((userInfo) => userInfo.providerId == 'google.com')),
+                        builder: (context) => CameraScreen(),
                       ),
                     );
                   },
@@ -576,7 +683,10 @@ class _SettingScreenState extends State<SettingScreen> {
               right: screenWidth * 0.7,
               child: GestureDetector(
                 onTap: () {
-                  Navigator.pop(context);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => HomeScreen(uid: 'uid')));
                 },
                 // onTap: () {
                 //   Navigator.of(context).push(

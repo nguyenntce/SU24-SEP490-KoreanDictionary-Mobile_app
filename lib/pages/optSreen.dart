@@ -28,15 +28,23 @@ class OptScreen extends StatelessWidget {
       );
 
       try {
-        await _auth.signInWithCredential(credential);
-        // Save UID to SharedPreferences
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('uid', uid);
+        UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+        if (userCredential.user != null) {
+          // Xác thực thành công, tiến hành lưu thông tin người dùng và điều hướng
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('uid', uid);
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen(uid: uid)), // Use the passed uid here
-        );
+          // Hủy bỏ quá trình chờ đợi nhận mã OTP
+          FirebaseAuth.instance.setSettings(appVerificationDisabledForTesting: true);
+
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen(uid: uid)),
+                (Route<dynamic> route) => false, // Xóa tất cả các trang trước đó
+          );
+        } else {
+          Fluttertoast.showToast(msg: "Failed to sign in. Please try again.");
+        }
       } catch (e) {
         Fluttertoast.showToast(msg: "Failed to sign in: $e");
       }

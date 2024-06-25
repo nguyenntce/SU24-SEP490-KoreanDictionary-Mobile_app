@@ -5,6 +5,8 @@ import 'package:country_picker/country_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
+import 'package:myapp/page_setting/setting_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String uid; // Pass the user ID when creating the ProfileScreen
@@ -22,17 +24,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  String _gender = 'Male';
+  String _gender ='';
   File? _image;
   String _avatarUrl = '';
 
   final DatabaseReference _database = FirebaseDatabase.instance.reference().child('Account');
   final ImagePicker _picker = ImagePicker();
-
+  late Map<String, String> genderMap;
   @override
   void initState() {
     super.initState();
     _loadUserData();
+  }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Initialize genderMap with localized values
+    genderMap = {
+      AppLocalizations.of(context)!.male: 'Male',
+      AppLocalizations.of(context)!.female: 'Female',
+    };
+    _gender = AppLocalizations.of(context)!.male; // Default gender display
   }
 
   void _loadUserData() async {
@@ -61,7 +73,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       String countryCode = userData['CountryCode'] ?? '84';
       _phoneController.text = userData['Phone']?.toString().replaceFirst(countryCode, '0') ?? '';
       _addressController.text = userData['Country'] ?? '';
-      _gender = ['Male', 'Female'].contains(userData['Gender']) ? userData['Gender'] : 'Male';
+      _gender = genderMap.keys.firstWhere((key) => genderMap[key] == userData['Gender'], orElse: () => AppLocalizations.of(context)!.male);
       _avatarUrl = userData['Avatar'] ?? '';
     });
   }
@@ -71,7 +83,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Please enter a valid email address',
+            '${AppLocalizations.of(context)!.validmail}',
             style: TextStyle(color: Colors.white),
           ),
           backgroundColor: Colors.transparent,
@@ -88,7 +100,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Please enter a valid phone number',
+            '${AppLocalizations.of(context)!.validphone}',
             style: TextStyle(color: Colors.white),
           ),
           backgroundColor: Colors.transparent,
@@ -121,11 +133,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {
         _avatarUrl = imageUrl;
       });
-      print('You have saved successfully');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'You have saved successfully',
+            '${AppLocalizations.of(context)!.saveprofilesuccessfully}',
             style: TextStyle(color: Colors.white),
           ),
           backgroundColor: Colors.transparent, // Transparent background color
@@ -141,7 +152,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'You have saved Failed: $e',
+            '${AppLocalizations.of(context)!.saveprofilefail} $e',
             style: TextStyle(color: Colors.white),
           ),
           backgroundColor: Colors.transparent, // Transparent background color
@@ -228,11 +239,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => SettingScreen(),
+              ),
+            );
           },
         ),
         title: Text(
-          'Profile',
+          AppLocalizations.of(context)!.profile,
           style: TextStyle(
             fontSize: titleFontSize * 1.5,
             fontWeight: FontWeight.bold,
@@ -312,7 +327,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Fullname',
+                  AppLocalizations.of(context)!.fullname,
                   style: TextStyle(
                     fontSize: titleFontSize * 1.2,
                     fontWeight: FontWeight.w900,
@@ -353,7 +368,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: screenHeight * 0.01),
                 Text(
-                  'Birthday',
+                  AppLocalizations.of(context)!.birthday,
                   style: TextStyle(
                     fontSize: titleFontSize * 1.2,
                     fontWeight: FontWeight.w900,
@@ -398,7 +413,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: screenHeight * 0.01),
                 Text(
-                  'Email',
+                  AppLocalizations.of(context)!.email,
                   style: TextStyle(
                     fontSize: titleFontSize * 1.2,
                     fontWeight: FontWeight.w900,
@@ -440,7 +455,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: screenHeight * 0.01),
                 Text(
-                  'Phone',
+                  AppLocalizations.of(context)!.phone,
                   style: TextStyle(
                     fontSize: titleFontSize * 1.2,
                     fontWeight: FontWeight.w900,
@@ -483,7 +498,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: screenHeight * 0.01),
                 Text(
-                  'Country',
+                  AppLocalizations.of(context)!.address,
                   style: TextStyle(
                     fontSize: titleFontSize * 1.2,
                     fontWeight: FontWeight.w900,
@@ -528,7 +543,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: screenHeight * 0.01),
                 Text(
-                  'Gender',
+                  AppLocalizations.of(context)!.gender,
                   style: TextStyle(
                     fontSize: titleFontSize * 1.2,
                     fontWeight: FontWeight.w900,
@@ -549,15 +564,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         Expanded(
                           child: DropdownButton<String>(
-                            value: _gender,
+                            value: genderMap.keys.firstWhere((key) => genderMap[key] == _gender, orElse: () => AppLocalizations.of(context)!.male),
                             isExpanded: true,
                             onChanged: (String? newValue) {
                               setState(() {
-                                _gender = newValue!;
+                                _gender = genderMap[newValue!]!;
                               });
                             },
-                            items: <String>['Male', 'Female']
-                                .map<DropdownMenuItem<String>>((String value) {
+                            items: genderMap.keys.map<DropdownMenuItem<String>>((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
                                 child: Text(
@@ -601,7 +615,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         vertical: screenHeight * 0.02,
                       ),
                       child: Text(
-                        'Save',
+                        AppLocalizations.of(context)!.save,
                         style: TextStyle(fontSize: titleFontSize),
                       ),
                     ),

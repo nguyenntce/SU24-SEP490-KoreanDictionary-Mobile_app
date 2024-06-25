@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/pages/LoginScreen.dart';
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
 class index extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
@@ -27,7 +28,7 @@ class index extends StatelessWidget{
             SizedBox(height: MediaQuery.of(context).size.height * 0.05),
             // Khoảng cách giữa hình ảnh và tiêu đề
             Text(
-              'Fruit Dictionary',
+              AppLocalizations.of(context)!.fruitdictionary,
               // Thay đổi từ "Welcome" thành "Fruit Dictionary"
               style: TextStyle(
                 fontSize: MediaQuery.of(context).size.width * 0.1,
@@ -66,7 +67,7 @@ class index extends StatelessWidget{
                 backgroundColor: Color(0xFFA9FF54), // Màu nền của nút
               ),
               child: Text(
-                'Get Started',
+                AppLocalizations.of(context)!.getStarted,
                 style: TextStyle(
                   fontSize: MediaQuery.of(context).size.width * 0.08,
                   fontWeight: FontWeight.w900,

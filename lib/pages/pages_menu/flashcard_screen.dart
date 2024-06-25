@@ -139,7 +139,7 @@ class _FlashcardScreen extends State<FlashcardScreen> {
                         children: [
                           Container(
                             width: screenWidth * 0.4,
-                            height: screenHeight * 0.4,
+                            height: screenHeight * 0.3,
                             child: Image.network(
                               word['image']!,
                               fit: BoxFit.contain,

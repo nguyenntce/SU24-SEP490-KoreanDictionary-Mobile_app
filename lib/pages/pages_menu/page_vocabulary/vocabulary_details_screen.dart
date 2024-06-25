@@ -55,20 +55,23 @@ class VocabularyDetailsScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const Spacer(), // Để dịch chuyển văn bản sang phải
-                  Text(
-                    '${word['ex_kr']}',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: titleFontSize * 1.5,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.black,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black.withOpacity(0.5),
-                          offset: const Offset(2, 2),
-                          blurRadius: 6,
-                        ),
-                      ],
+                  Padding(
+                    padding: const EdgeInsets.only(right: 27.0), // Điều chỉnh khoảng cách ở đây
+                    child: Text(
+                      '${word['korean']}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: titleFontSize * 1.5,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.black,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withOpacity(0.5),
+                            offset: const Offset(2, 2),
+                            blurRadius: 6,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   GestureDetector(
@@ -82,7 +85,7 @@ class VocabularyDetailsScreen extends StatelessWidget {
                     child: SizedBox(
                       width: screenWidth * 0.35, // Kích thước của Icon
                       child: Icon(
-                        Icons.report_gmailerrorred,
+                        Icons.feedback_outlined,
                         size: iconSize * 1.05,
                       ),
                     ),
@@ -207,7 +210,7 @@ class VocabularyDetailsScreen extends StatelessWidget {
               ),
             SizedBox(height: screenHeight * 0.02),
             Text(
-              'Image Of ${AppLocalizations.of(context)!.localeName == 'en' ? word['english'] : AppLocalizations.of(context)!.localeName == 'ko' ? word['korean'] : word['vietnamese']}',
+              '${AppLocalizations.of(context)!.imageof} ${AppLocalizations.of(context)!.localeName == 'en' ? word['english'] : AppLocalizations.of(context)!.localeName == 'ko' ? word['korean'] : word['vietnamese']}',
               style: TextStyle(
                 fontSize: titleFontSize * 0.8,
                 fontWeight: FontWeight.bold,

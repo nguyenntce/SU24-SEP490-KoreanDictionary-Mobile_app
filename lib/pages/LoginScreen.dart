@@ -4,6 +4,7 @@ import 'package:country_picker/country_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:myapp/pages/home_screen.dart';
 import 'package:myapp/pages/optSreen.dart';
@@ -16,50 +17,80 @@ class Loginscreen extends StatefulWidget {
 class _LoginscreenState extends State<Loginscreen> {
   final TextEditingController phoneController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final DatabaseReference _database = FirebaseDatabase.instance.reference().child('Account');
   Country selectedCountry = CountryParser.parseCountryCode('VN');
+  void showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Container(
+            padding: EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 16.0),
+                Text("Loading..."),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
-
+  void hideLoadingDialog(BuildContext context) {
+    Navigator.of(context, rootNavigator: true).pop();
+  }
+  Future<bool> _isAccountLocked(String userId) async {
+    final snapshot = await _database.child(userId).child('Status').once();
+    if (snapshot.snapshot.value != null) {
+      int status = snapshot.snapshot.value as int;
+      return status != 1;
+    }
+    return false;
+  }
   Future<int> _getNextUserId() async {
     int newId = 1;
-    await _database.orderByKey().limitToLast(1).once().then((DatabaseEvent event) {
-      if (event.snapshot.value != null) {
-        var value = event.snapshot.value;
-        if (value is Map) {
-          value.forEach((key, value) {
-            if (value != null && value is Map && value.containsKey('Id')) {
-              var lastId = value['Id'] as int;
-              newId = lastId + 1;
-            }
-          });
-        } else if (value is List) {
-          for (var entry in value) {
-            if (entry != null && entry is Map && entry.containsKey('Id')) {
-              var lastId = entry['Id'] as int;
-              newId = lastId + 1;
-            }
-          }
+    final event = await _database.orderByKey().limitToLast(1).once();
+    final value = event.snapshot.value;
+    if (value is Map) {
+      value.forEach((key, value) {
+        if (value != null && value is Map && value.containsKey('Id')) {
+          var lastId = value['Id'] as int;
+          newId = lastId + 1;
+        }
+      });
+    } else if (value is List) {
+      for (var entry in value) {
+        if (entry != null && entry is Map && entry.containsKey('Id')) {
+          var lastId = entry['Id'] as int;
+          newId = lastId + 1;
         }
       }
-    });
+    }
     return newId;
   }
+
   Future<String?> _getUserIdByPhone(String phone) async {
     final snapshot = await _database.orderByChild('Phone').equalTo(phone).once();
     if (snapshot.snapshot.value != null) {
       var data = snapshot.snapshot.value as Map;
-      var userId = data.keys.first;
-      return userId;
+      return data.keys.first;
     }
     return null;
   }
-  void _saveUserToDatabase(int uid, {String? phone, String? email}) async {
+
+  Future<void> _saveUserToDatabase(int uid, {String? phone, String? email}) async {
+    DateTime created_date = DateTime.now();
+    String created_date_str = DateFormat('dd-MM-yyyy').format(created_date);
     int p = 0;
     int status = 1;
     await _database.child(uid.toString()).set({
-      "Avatar": "https://firebasestorage.googleapis.com/v0/b/su24-sep490-koreandictionary.appspot.com/o/avatars%2F3.jpg?alt=media&token=da42a20f-9f19-4014-a181-84bc41523cc4",
+      "Avatar": "https://firebasestorage.googleapis.com/v0/b/su24-sep490-koreandictionary.appspot.com/o/Avatar_img%2Favatar.jpg?alt=media&token=3a4716f2-c32b-428b-9489-4c8c7d01ef97",
       "Country": "",
       "Dob": "",
       "Email": email ?? "",
@@ -67,7 +98,8 @@ class _LoginscreenState extends State<Loginscreen> {
       "Gender": "",
       "Id": uid,
       "Phone": phone ?? p.toString(),
-      "Status": status
+      "Status": status,
+      "Created_date":created_date_str
     });
   }
 
@@ -80,61 +112,55 @@ class _LoginscreenState extends State<Loginscreen> {
     final snapshot = await _database.orderByChild('Phone').equalTo(phone).once();
     return snapshot.snapshot.value != null;
   }
-  Future<int?> _getIdbyphone(String phone) async {
+
+  Future<int?> _getIdByPhone(String phone) async {
     final event = await _database.orderByChild('Phone').equalTo(phone).once();
     DataSnapshot snapshot = event.snapshot;
-    int? userId;
     if (snapshot.value != null) {
       if (snapshot.value is Map<dynamic, dynamic>) {
-        Map<dynamic, dynamic> values = snapshot.value as Map<dynamic, dynamic>;
-        values.forEach((key, value) {
-          userId = value['Id'];
-        });
+        return (snapshot.value as Map<dynamic, dynamic>).values.first['Id'];
       } else if (snapshot.value is List) {
-        List<dynamic> values = snapshot.value as List<dynamic>;
-        for (var value in values) {
+        for (var value in snapshot.value as List) {
           if (value != null && value['Id'] != null) {
-            userId = value['Id'];
-            break;
+            return value['Id'];
           }
         }
       }
     }
-    return userId;
+    return null;
   }
-
 
   void sendOTP(BuildContext context) async {
     String phone = phoneController.text.trim();
     String fullPhoneNumber = "+${selectedCountry.phoneCode}$phone";
-
     String pattern = r'^\+?[0-9]{10,15}$';
     RegExp regex = RegExp(pattern);
     if (fullPhoneNumber.isNotEmpty && regex.hasMatch(fullPhoneNumber)) {
+      showLoadingDialog(context);
       String phoneNumber = fullPhoneNumber.replaceFirst('+', '');
       bool phoneExists = await _isPhoneExist(phoneNumber);
-
       if (!phoneExists) {
         int newId = await _getNextUserId();
-
         _saveUserToDatabase(newId, phone: phoneNumber);
-        _saveSessionData(newId.toString());
-
         _auth.verifyPhoneNumber(
           phoneNumber: fullPhoneNumber,
           verificationCompleted: (PhoneAuthCredential credential) async {
-            await _auth.signInWithCredential(credential);
+            // await _auth.signInWithCredential(credential);
             SharedPreferences prefs = await SharedPreferences.getInstance();
             await prefs.setInt('UID', newId);
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => HomeScreen(uid: newId.toString())),
-            );
+            _saveSessionData(newId.toString());
+            //hideLoadingDialog(context);
+            // Navigator.pushReplacement(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => HomeScreen(uid: newId.toString())),
+            // );
           },
           verificationFailed: (FirebaseAuthException e) {
+            hideLoadingDialog(context);
             Fluttertoast.showToast(msg: "Failed to Verify Phone Number: ${e.message}");
           },
           codeSent: (String verificationId, int? resendToken) {
+            hideLoadingDialog(context);
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -142,30 +168,38 @@ class _LoginscreenState extends State<Loginscreen> {
               ),
             );
           },
-          codeAutoRetrievalTimeout: (String verificationId) {},
+          codeAutoRetrievalTimeout: (String verificationId) {hideLoadingDialog(context);},
         );
       } else {
-
         String? existingUserId = await _getUserIdByPhone(phoneNumber);
-        int? userID = await _getIdbyphone(phoneNumber);
+        int? userID = await _getIdByPhone(phoneNumber);
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setInt('UID', userID!);
         if (existingUserId != null) {
+          bool isLocked = await _isAccountLocked(existingUserId);
+          if (isLocked) {
+            hideLoadingDialog(context);
+            Fluttertoast.showToast(msg: "Account is locked.");
+            return;
+          }
           _saveSessionData(existingUserId);
           _auth.verifyPhoneNumber(
             phoneNumber: fullPhoneNumber,
+            timeout: Duration(seconds: 60),
             verificationCompleted: (PhoneAuthCredential credential) async {
-              await _auth.signInWithCredential(credential);
-
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => HomeScreen(uid: existingUserId)),
-              );
+              // await _auth.signInWithCredential(credential);
+              // hideLoadingDialog(context);
+              // Navigator.pushReplacement(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => HomeScreen(uid: existingUserId)),
+              // );
             },
             verificationFailed: (FirebaseAuthException e) {
+              hideLoadingDialog(context);
               Fluttertoast.showToast(msg: "Failed to Verify Phone Number: ${e.message}");
             },
             codeSent: (String verificationId, int? resendToken) {
+              hideLoadingDialog(context);
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -173,7 +207,7 @@ class _LoginscreenState extends State<Loginscreen> {
                 ),
               );
             },
-            codeAutoRetrievalTimeout: (String verificationId) {},
+            codeAutoRetrievalTimeout: (String verificationId) {hideLoadingDialog(context);},
           );
         }
       }
@@ -185,13 +219,11 @@ class _LoginscreenState extends State<Loginscreen> {
   void _saveSessionData(String userId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('userId', userId);
-
   }
-
-
 
   Future<void> _signInWithGoogle(BuildContext context) async {
     try {
+      showLoadingDialog(context);
       final GoogleSignInAccount? googleSignInAccount = await _googleSignIn.signIn();
       if (googleSignInAccount != null) {
         final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
@@ -207,24 +239,21 @@ class _LoginscreenState extends State<Loginscreen> {
           _saveUserToDatabase(newId, email: googleSignInAccount.email);
           _saveSessionData(newId.toString());
           userId = newId;
-
         } else {
           userId = -1;
-          final event  = await _database.orderByChild('Email').equalTo(email).once();
+          final event = await _database.orderByChild('Email').equalTo(email).once();
           DataSnapshot snapshot = event.snapshot;
           if (snapshot.value != null) {
             if (snapshot.value is Map<dynamic, dynamic>) {
               Map<dynamic, dynamic> values = snapshot.value as Map<dynamic, dynamic>;
               values.forEach((key, value) {
                 userId = value['Id'];
-
               });
             } else if (snapshot.value is List) {
               List<dynamic> values = snapshot.value as List<dynamic>;
               for (var value in values) {
                 if (value != null && value['Id'] != null) {
                   userId = value['Id'];
-
                   break;
                 }
               }
@@ -235,24 +264,38 @@ class _LoginscreenState extends State<Loginscreen> {
             String userId = userMap.keys.first.toString();
             _saveSessionData(userId);
           }
-
+          bool isLocked = await _isAccountLocked(userId.toString());
+          if (isLocked) {
+            hideLoadingDialog(context);
+            Fluttertoast.showToast(msg: "Account is locked.");
+            return;
+          }
         }
 
-        await _firebaseAuth.signInWithCredential(credential);
+        await _auth.signInWithCredential(credential);
         SharedPreferences prefs = await SharedPreferences.getInstance();
+        String googleUid = _auth.currentUser?.uid ?? '';
+        await prefs.setString('uid', googleUid);
+
+        // Lấy uid từ SharedPreferences
         String? uid = prefs.getString('uid');
         await prefs.setInt('UID', userId);
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen(uid: uid!)),
-        );
+        if (uid != null) {
+          hideLoadingDialog(context);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen(uid: uid)),
+          );
+        } else {
+          hideLoadingDialog(context);
+          Fluttertoast.showToast(msg: "Failed to retrieve user ID from SharedPreferences");
+        }
       }
     } catch (e) {
       Fluttertoast.showToast(msg: "Some error occurred: $e");
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

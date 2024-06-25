@@ -15,7 +15,9 @@ class _CameraScreenState extends State<CameraScreen> {
   late CameraController _controller;
   Future<void>? _initializeControllerFuture;
   final ImagePicker _picker = ImagePicker();
-
+  bool _isFlashOn = false;
+  int _selectedCameraIndex = 0;
+  List<CameraDescription>? _cameras;
   @override
   void initState() {
     super.initState();
@@ -23,15 +25,19 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   Future<void> _initializeCamera() async {
-    final cameras = await availableCameras();
-    final firstCamera = cameras.first;
-    _controller = CameraController(
-      firstCamera,
-      ResolutionPreset.high,
-    );
-    await _controller.initialize();
-    if (mounted) {
-      setState(() {});
+    _cameras = await availableCameras();
+    if (_cameras!.isNotEmpty) {
+      _controller = CameraController(
+        _cameras![_selectedCameraIndex],
+        ResolutionPreset.high,
+      );
+      await _controller.initialize();
+      if (mounted) {
+        setState(() {});
+      }
+    } else {
+      // Handle case where no cameras are available
+      print("No cameras available");
     }
   }
 
@@ -44,8 +50,18 @@ class _CameraScreenState extends State<CameraScreen> {
   Future<void> _takePicture(BuildContext context) async {
     try {
       await _initializeControllerFuture;
+
+
+
+      // Chụp ảnh
       final image = await _controller.takePicture();
+
+      // Tắt đèn flash ngay sau khi chụp ảnh
+      await _controller.setFlashMode(FlashMode.off);
+
       if (!mounted) return;
+
+      // Chuyển đến trang kết quả ảnh
       await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => ResultPictureScreen(imagePath: image.path),
@@ -67,7 +83,19 @@ class _CameraScreenState extends State<CameraScreen> {
       );
     }
   }
+  void _toggleFlash() {
+    setState(() {
+      _isFlashOn = !_isFlashOn;
+      _controller.setFlashMode(_isFlashOn ? FlashMode.torch : FlashMode.off);
+    });
+  }
 
+  void _switchCamera() {
+    setState(() {
+      _selectedCameraIndex = (_selectedCameraIndex + 1) % _cameras!.length;
+      _initializeCamera();
+    });
+  }
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -109,17 +137,16 @@ class _CameraScreenState extends State<CameraScreen> {
                 ),
                 actions: [
                   IconButton(
-                    onPressed: () {
-                      // Handle action for flash icon
-                    },
-                    icon: Icon(Icons.flash_on,
-                        color: Colors.white, size: screenWidth * 0.1),
+                    onPressed: _toggleFlash,
+                    icon: Icon(
+                      _isFlashOn ? Icons.flash_on : Icons.flash_off,
+                      color: Colors.white,
+                      size: screenWidth * 0.1,
+                    ),
                   ),
                   IconButton(
-                    onPressed: () {
-                      // Handle action for camera icon
-                    },
-                    icon: Icon(Icons.camera_alt_outlined,
+                    onPressed: _switchCamera,
+                    icon: Icon(Icons.cameraswitch,
                         color: Colors.white, size: screenWidth * 0.1),
                   ),
                 ],
