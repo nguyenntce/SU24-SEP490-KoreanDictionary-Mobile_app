@@ -99,6 +99,14 @@ class _SettingScreenState extends State<SettingScreen> {
   }
 
   void _toggleNotifications(bool value) {
+    if (notificationsEnabled == false) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('You have turned off notifications'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+    }
     setState(() {
       notificationsEnabled = value;
     });

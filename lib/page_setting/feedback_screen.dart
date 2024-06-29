@@ -50,6 +50,15 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   }
 
   Future<void> _uploadFeedback() async {
+    if (selectedType == null || descriptionController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select a type and enter a description'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+      return;
+    }
     DateTime created_date = DateTime.now();
     String created_date_str = DateFormat('dd-MM-yyyy').format(created_date);
     String imageUrl = '';

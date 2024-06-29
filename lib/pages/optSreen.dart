@@ -3,8 +3,10 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:intl/intl.dart';
 import 'package:myapp/pages/home_screen.dart';
 import 'package:pinput/pinput.dart';
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OptScreen extends StatelessWidget {
@@ -17,7 +19,30 @@ class OptScreen extends StatelessWidget {
   final DatabaseReference _database = FirebaseDatabase.instance.reference().child('Account');
 
   OptScreen({required this.verificationId, required this.uid}); // Modify the constructor
-
+  void showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Container(
+            padding: EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 16.0),
+                Text("${AppLocalizations.of(context)!.loading}"),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+  void hideLoadingDialog(BuildContext context) {
+    Navigator.of(context, rootNavigator: true).pop();
+  }
   void verifyOTP(BuildContext context) async {
     String otp = otpController.text.trim();
 
@@ -43,13 +68,14 @@ class OptScreen extends StatelessWidget {
                 (Route<dynamic> route) => false, // Xóa tất cả các trang trước đó
           );
         } else {
-          Fluttertoast.showToast(msg: "Failed to sign in. Please try again.");
+          Fluttertoast.showToast(msg: "${AppLocalizations.of(context)!.failedtosignin}"
+              ". ${AppLocalizations.of(context)!.pleasetryagain}");
         }
       } catch (e) {
-        Fluttertoast.showToast(msg: "Failed to sign in: $e");
+        Fluttertoast.showToast(msg: "${AppLocalizations.of(context)!.pleasetryagain}");
       }
     } else {
-      Fluttertoast.showToast(msg: "Please enter the OTP");
+      Fluttertoast.showToast(msg: "${AppLocalizations.of(context)!.pleasetryagain}");
     }
   }
   Future<int> _getNextUserId() async {
@@ -83,13 +109,14 @@ class OptScreen extends StatelessWidget {
   void _saveSessionData(String userId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('userId', userId);
-
   }
-  void _saveUserToDatabase(int uid, {String? phone, String? email}) async {
+  Future<void> _saveUserToDatabase(int uid, {String? phone, String? email}) async {
+    DateTime created_date = DateTime.now();
+    String created_date_str = DateFormat('dd-MM-yyyy').format(created_date);
     int p = 0;
     int status = 1;
     await _database.child(uid.toString()).set({
-      "Avatar": "",
+      "Avatar": "https://firebasestorage.googleapis.com/v0/b/su24-sep490-koreandictionary.appspot.com/o/Avatar_img%2Favatar.jpg?alt=media&token=3a4716f2-c32b-428b-9489-4c8c7d01ef97",
       "Country": "",
       "Dob": "",
       "Email": email ?? "",
@@ -97,11 +124,15 @@ class OptScreen extends StatelessWidget {
       "Gender": "",
       "Id": uid,
       "Phone": phone ?? p.toString(),
-      "Status": status
+      "Status": status,
+      "Created_date":created_date_str
     });
   }
+
+
   Future<void> _signInWithGoogle(BuildContext context) async {
     try {
+      showLoadingDialog(context);
       final GoogleSignInAccount? googleSignInAccount = await _googleSignIn.signIn();
       if (googleSignInAccount != null) {
         final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
@@ -117,24 +148,21 @@ class OptScreen extends StatelessWidget {
           _saveUserToDatabase(newId, email: googleSignInAccount.email);
           _saveSessionData(newId.toString());
           userId = newId;
-
         } else {
           userId = -1;
-          final event  = await _database.orderByChild('Email').equalTo(email).once();
+          final event = await _database.orderByChild('Email').equalTo(email).once();
           DataSnapshot snapshot = event.snapshot;
           if (snapshot.value != null) {
             if (snapshot.value is Map<dynamic, dynamic>) {
               Map<dynamic, dynamic> values = snapshot.value as Map<dynamic, dynamic>;
               values.forEach((key, value) {
                 userId = value['Id'];
-
               });
             } else if (snapshot.value is List) {
               List<dynamic> values = snapshot.value as List<dynamic>;
               for (var value in values) {
                 if (value != null && value['Id'] != null) {
                   userId = value['Id'];
-
                   break;
                 }
               }
@@ -145,22 +173,45 @@ class OptScreen extends StatelessWidget {
             String userId = userMap.keys.first.toString();
             _saveSessionData(userId);
           }
-
+          bool isLocked = await _isAccountLocked(userId.toString());
+          if (isLocked) {
+            hideLoadingDialog(context);
+            Fluttertoast.showToast(msg: "${AppLocalizations.of(context)!.accountislocked}");
+            return;
+          }
         }
 
-        await _firebaseAuth.signInWithCredential(credential);
+        await _auth.signInWithCredential(credential);
         SharedPreferences prefs = await SharedPreferences.getInstance();
+        String googleUid = _auth.currentUser?.uid ?? '';
+        await prefs.setString('uid', googleUid);
+
+        // Lấy uid từ SharedPreferences
         String? uid = prefs.getString('uid');
         await prefs.setInt('UID', userId);
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen(uid: uid!)),
-        );
+        if (uid != null) {
+          hideLoadingDialog(context);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen(uid: uid)),
+          );
+        } else {
+          hideLoadingDialog(context);
+          Fluttertoast.showToast(msg: "${AppLocalizations.of(context)!.unknownerror}");
+        }
       }
     } catch (e) {
-      Fluttertoast.showToast(msg: "Some error occurred: $e");
+      Fluttertoast.showToast(msg: "${AppLocalizations.of(context)!.unknownerror}");
     }
+  }
+  Future<bool> _isAccountLocked(String userId) async {
+    final snapshot = await _database.child(userId).child('Status').once();
+    if (snapshot.snapshot.value != null) {
+      int status = snapshot.snapshot.value as int;
+      return status != 1;
+    }
+    return false;
   }
   @override
   Widget build(BuildContext context) {
@@ -193,7 +244,7 @@ class OptScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Welcome Back',
+                AppLocalizations.of(context)!.welcomeback,
                 style: TextStyle(
                   fontSize: screenWidth * 0.1,
                   fontWeight: FontWeight.bold,
