@@ -79,6 +79,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _saveUserToDatabase(String uid, {String? phone, String? email, String countryCode = '84'}) async {
+    if (_fullnameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please enter full name !',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.transparent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+            side: BorderSide(color: Color(0xFF35FF3D), width: 2),
+          ),
+        ),
+      );
+      return;
+    }
     if (!_validateEmail(_emailController.text)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

@@ -71,7 +71,7 @@ class _ResultPictureScreenState extends State<ResultPictureScreen> {
       DataSnapshot snapshot = await query.get();
 
       if (snapshot.exists) {
-        print('Fetched data from Firebase: ${snapshot.value}');
+
         Map<dynamic, dynamic> values = snapshot.value as Map<dynamic, dynamic>;
         values.forEach((key, value) {
           if (value != null && value['Id'] == targetId) {
@@ -281,8 +281,8 @@ class _ResultPictureScreenState extends State<ResultPictureScreen> {
             ),
             SizedBox(height: screenHeight * 0.02),
             Text(
-              '${AppLocalizations.of(context)!.imageof} ${AppLocalizations.of(context)!.localeName == 'en' ? vocabularyData!['Example_EN'] :
-              AppLocalizations.of(context)!.localeName == 'ko' ? vocabularyData!['Example_KR'] : vocabularyData!['Example_VN']}',
+              '${AppLocalizations.of(context)!.imageof} ${AppLocalizations.of(context)!.localeName == 'en' ? vocabularyData!['English'] :
+              AppLocalizations.of(context)!.localeName == 'ko' ? vocabularyData!['Korean'] : vocabularyData!['Vietnamese']}',
               style: TextStyle(
                 fontSize: titleFontSize * 0.8,
                 fontWeight: FontWeight.bold,

@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:myapp/pages/home_screen.dart';
 import 'package:myapp/pages/optSreen.dart';
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
 
 class Loginscreen extends StatefulWidget {
   @override
@@ -33,7 +34,7 @@ class _LoginscreenState extends State<Loginscreen> {
               children: [
                 CircularProgressIndicator(),
                 SizedBox(width: 16.0),
-                Text("Loading..."),
+                Text("${AppLocalizations.of(context)!.loading}"),
               ],
             ),
           ),
@@ -179,7 +180,7 @@ class _LoginscreenState extends State<Loginscreen> {
           bool isLocked = await _isAccountLocked(existingUserId);
           if (isLocked) {
             hideLoadingDialog(context);
-            Fluttertoast.showToast(msg: "Account is locked.");
+            Fluttertoast.showToast(msg: "${AppLocalizations.of(context)!.accountislocked}");
             return;
           }
           _saveSessionData(existingUserId);
@@ -196,7 +197,7 @@ class _LoginscreenState extends State<Loginscreen> {
             },
             verificationFailed: (FirebaseAuthException e) {
               hideLoadingDialog(context);
-              Fluttertoast.showToast(msg: "Failed to Verify Phone Number: ${e.message}");
+              Fluttertoast.showToast(msg: "${AppLocalizations.of(context)!.failedverifyphonenumber}");
             },
             codeSent: (String verificationId, int? resendToken) {
               hideLoadingDialog(context);
@@ -212,7 +213,7 @@ class _LoginscreenState extends State<Loginscreen> {
         }
       }
     } else {
-      Fluttertoast.showToast(msg: "Please enter a valid phone number");
+      Fluttertoast.showToast(msg: "${AppLocalizations.of(context)!.pleaseenteravalidphonenumber}");
     }
   }
 
@@ -267,7 +268,7 @@ class _LoginscreenState extends State<Loginscreen> {
           bool isLocked = await _isAccountLocked(userId.toString());
           if (isLocked) {
             hideLoadingDialog(context);
-            Fluttertoast.showToast(msg: "Account is locked.");
+            Fluttertoast.showToast(msg: "${AppLocalizations.of(context)!.accountislocked}");
             return;
           }
         }
@@ -289,11 +290,11 @@ class _LoginscreenState extends State<Loginscreen> {
           );
         } else {
           hideLoadingDialog(context);
-          Fluttertoast.showToast(msg: "Failed to retrieve user ID from SharedPreferences");
+          Fluttertoast.showToast(msg: "${AppLocalizations.of(context)!.unknownerror}");
         }
       }
     } catch (e) {
-      Fluttertoast.showToast(msg: "Some error occurred: $e");
+      Fluttertoast.showToast(msg: "${AppLocalizations.of(context)!.unknownerror}");
     }
   }
 
@@ -315,7 +316,7 @@ class _LoginscreenState extends State<Loginscreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Welcome Back',
+                  AppLocalizations.of(context)!.welcomeback,
                   style: TextStyle(
                     fontSize: screenWidth * 0.1,
                     fontWeight: FontWeight.bold,
@@ -323,7 +324,7 @@ class _LoginscreenState extends State<Loginscreen> {
                 ),
                 SizedBox(height: screenHeight * 0.01),
                 Text(
-                  'Login To Your Account',
+                  AppLocalizations.of(context)!.logintoyouraccount,
                   style: TextStyle(
                     fontSize: screenWidth * 0.05,
                     fontWeight: FontWeight.bold,
@@ -369,7 +370,7 @@ class _LoginscreenState extends State<Loginscreen> {
                                         Expanded(
                                           child: TextFormField(
                                             decoration: InputDecoration(
-                                              hintText: 'Enter your phone number...',
+                                              hintText: '${AppLocalizations.of(context)!.pleaseenterphonenumber}',
                                               enabledBorder: OutlineInputBorder(
                                                 borderRadius: BorderRadius.circular(10),
                                                 borderSide: const BorderSide(color: Colors.black),
@@ -428,7 +429,7 @@ class _LoginscreenState extends State<Loginscreen> {
                           ),
                           SizedBox(height: screenHeight * 0.02),
                           Text(
-                            'We will send your one time password (OTP)',
+                            AppLocalizations.of(context)!.wewillsendyouronetimepassword,
                             style: TextStyle(
                               fontSize: screenWidth * 0.04,
                               color: Colors.black,
@@ -479,7 +480,7 @@ class _LoginscreenState extends State<Loginscreen> {
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.01),
                       child: Text(
-                        'Or Sign In With',
+                        AppLocalizations.of(context)!.orsigninwith,
                         style: TextStyle(
                           fontSize: screenWidth * 0.04,
                           color: Colors.black,

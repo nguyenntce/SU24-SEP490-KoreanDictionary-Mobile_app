@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:myapp/pages/pages_menu/page_quiz/listenandfillword_screen.dart';
 import 'package:myapp/pages/pages_menu/page_quiz/pictureandchooseword_screen.dart';
 import 'package:myapp/pages/pages_menu/page_quiz/questionandchoosepicture_screen.dart';
@@ -55,6 +56,8 @@ class _QuizScreenState extends State<QuizScreen> {
         context,
         MaterialPageRoute(builder: (context) => screen),
       );
+    }else{
+      Fluttertoast.showToast(msg: "${AppLocalizations.of(context)!.please_select_option}");
     }
   }
 
