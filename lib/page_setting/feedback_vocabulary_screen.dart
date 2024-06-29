@@ -53,8 +53,16 @@ class _FeedbackVocabularyScreenState extends State<FeedbackVocabularyScreen> {
     if (descriptionController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Please enter a description'),
+          content: Text('Please enter a description',
+            style: TextStyle(color: Colors.black),
+          ),
           duration: Duration(seconds: 1),
+          backgroundColor: Colors.greenAccent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+            side: BorderSide(color: Color(0xFF35FF3D), width: 2),
+          ),
         ),
       );
       return;

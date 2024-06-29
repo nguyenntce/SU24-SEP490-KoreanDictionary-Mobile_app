@@ -252,7 +252,7 @@ class OptScreen extends StatelessWidget {
               ),
               SizedBox(height: screenHeight * 0.01),
               Text(
-                'Login To Your Account',
+                '${AppLocalizations.of(context)!.logintoyouraccount}',
                 style: TextStyle(
                   fontSize: screenWidth * 0.05,
                   fontWeight: FontWeight.bold,
@@ -293,7 +293,7 @@ class OptScreen extends StatelessWidget {
                       child: Column(
                         children: [
                           Text(
-                            'Confirm OTP',
+                            '${AppLocalizations.of(context)!.confirm_otp}',
                             style: TextStyle(
                               fontSize: screenWidth * 0.08,
                               fontWeight: FontWeight.bold,
@@ -301,7 +301,7 @@ class OptScreen extends StatelessWidget {
                           ),
                           SizedBox(height: screenHeight * 0.001),
                           Text(
-                            'Enter the OTP sent to - xxxxxxxxxxx',
+                            '${AppLocalizations.of(context)!.enter_the_otp_sent_to}',
                             style: TextStyle(
                               fontSize: screenWidth * 0.04,
                               color: Colors.black,
@@ -359,7 +359,7 @@ class OptScreen extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.01),
                     child: Text(
-                      'Or Sign In With',
+                      '${AppLocalizations.of(context)!.orsigninwith}',
                       style: TextStyle(
                         fontSize: screenWidth * 0.04,
                         color: Colors.black,

@@ -20,6 +20,8 @@
   "logintoyouraccount": "Login To Your Account",
   "wewillsendyouronetimepassword": "We will send your one time password (OTP)",
   "orsigninwith": "Or Sign In With",
+  "confirm_otp": "Confirm OTP",
+  "enter_the_otp_sent_to": "Enter the OTP sent to - ",
   "unknownerror": "Unknown error please try again later, thank!",
   "camera": "Camera",
   "vocabulary": "Vocabulary",
@@ -110,6 +112,8 @@
   "saveprofilesuccessfully": "You have saved successfully!",
   "saveprofilefail": "You have saved Failed",
   "validmail": "Please enter a valid email address",
-  "validphone": "Please enter a valid phone number"
+  "validphone": "Please enter a valid phone number",
+  "back": "Back",
+  "the_image_is_not_unknown_unrecognizable": "The image is not unknown, unrecognizable!!"
 
 }

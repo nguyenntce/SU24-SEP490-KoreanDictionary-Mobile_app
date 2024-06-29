@@ -84,9 +84,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SnackBar(
           content: Text(
             'Please enter full name !',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.black),
           ),
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors.greenAccent,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
@@ -101,9 +101,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SnackBar(
           content: Text(
             '${AppLocalizations.of(context)!.validmail}',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.black),
           ),
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors.greenAccent,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
@@ -118,9 +118,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SnackBar(
           content: Text(
             '${AppLocalizations.of(context)!.validphone}',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.black),
           ),
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors.greenAccent,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),

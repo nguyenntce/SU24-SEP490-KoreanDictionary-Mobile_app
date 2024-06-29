@@ -21,6 +21,7 @@ class _ResultPictureScreenState extends State<ResultPictureScreen> {
   bool isLoading = true;
   String? errorMessage;
   final AudioPlayer audioPlayer = AudioPlayer();
+  OverlayEntry? _overlayEntry;
   void _playAudio(String url) async {
     try {
       await audioPlayer.play(UrlSource(url)); // Sử dụng UrlSource cho URL
@@ -60,8 +61,8 @@ class _ResultPictureScreenState extends State<ResultPictureScreen> {
     } else {
       setState(() {
         isLoading = false;
-        errorMessage = 'Failed to upload image. Status Code: ${response.statusCode}';
       });
+      _showCustomSnackBar('${AppLocalizations.of(context)!.the_image_is_not_unknown_unrecognizable}. ${AppLocalizations.of(context)!.pleasetryagain}');
     }
   }
 
@@ -95,6 +96,44 @@ class _ResultPictureScreenState extends State<ResultPictureScreen> {
     }
   }
 
+  void _showCustomSnackBar(String message) {
+
+    _overlayEntry = _createOverlayEntry(message);
+    Overlay.of(context)?.insert(_overlayEntry!);
+  }
+
+  OverlayEntry _createOverlayEntry(String message) {
+    return OverlayEntry(
+      builder: (context) => Positioned(
+        top: MediaQuery.of(context).size.height * 0.4,
+        left: MediaQuery.of(context).size.width * 0.1,
+        width: MediaQuery.of(context).size.width * 0.8,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.redAccent,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(child: Text(message, style: TextStyle(color: Colors.white))),
+                ElevatedButton(
+                  onPressed: () {
+                    _overlayEntry?.remove();
+                    Navigator.pop(context);
+                  },
+                  child: Text('${AppLocalizations.of(context)!.back}'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
   @override
   void initState() {
     super.initState();
