@@ -53,8 +53,16 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     if (selectedType == null || descriptionController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Please select a type and enter a description'),
+          content: Text('Please select a type and enter a description',
+            style: TextStyle(color: Colors.black),
+          ),
           duration: Duration(seconds: 1),
+          backgroundColor: Colors.greenAccent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+            side: BorderSide(color: Color(0xFF35FF3D), width: 2),
+          ),
         ),
       );
       return;

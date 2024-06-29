@@ -57,7 +57,21 @@ class _QuizScreenState extends State<QuizScreen> {
         MaterialPageRoute(builder: (context) => screen),
       );
     }else{
-      Fluttertoast.showToast(msg: "${AppLocalizations.of(context)!.please_select_option}");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${AppLocalizations.of(context)!.please_select_option}',
+            style: TextStyle(color: Colors.black),
+          ),
+          duration: Duration(seconds: 1),
+          backgroundColor: Colors.greenAccent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+            side: BorderSide(color: Color(0xFF35FF3D), width: 2),
+          ),
+        ),
+      );
+     
     }
   }
 

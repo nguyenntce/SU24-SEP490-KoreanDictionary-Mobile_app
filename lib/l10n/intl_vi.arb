@@ -20,6 +20,8 @@
   "logintoyouraccount": "Đăng nhập vào tài khoản ",
   "wewillsendyouronetimepassword": "Chúng tôi sẽ gửi mã xác thực cho bạn",
   "orsigninwith": "Hoặc Đăng nhập bằng",
+  "confirm_otp": "Xác nhận OTP",
+  "enter_the_otp_sent_to": "Nhập OTP được gửi tới - ",
   "unknownerror": "Lỗi không xác định, vui lòng thử lại sau, cảm ơn!",
   "camera": "Máy Ảnh",
   "vocabulary": "Từ Vựng",
@@ -110,5 +112,7 @@
   "saveprofilesuccessfully": "Lưu thành công",
   "saveprofilefail": "Lưu thâ bại!",
   "validmail": "Vui lòng nhập địa chỉ email hợp lệ!",
-  "validphone": "Vui lòng nhập số điện thoai hợp lệ!"
+  "validphone": "Vui lòng nhập số điện thoai hợp lệ!",
+  "back": "Quay lại",
+  "the_image_is_not_unknown_unrecognizable": "Hình ảnh không rõ, không thể nhận ra!!"
 }

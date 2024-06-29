@@ -102,8 +102,16 @@ class _SettingScreenState extends State<SettingScreen> {
     if (notificationsEnabled == false) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('You have turned off notifications'),
+          content: Text('You have turned off notifications',
+            style: TextStyle(color: Colors.black),
+          ),
           duration: Duration(seconds: 1),
+          backgroundColor: Colors.greenAccent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+            side: BorderSide(color: Color(0xFF35FF3D), width: 2),
+          ),
         ),
       );
     }
