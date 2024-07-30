@@ -12,13 +12,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 class OptScreen extends StatelessWidget {
   final String verificationId;
   final String uid; // Add this line
+  final String Fnumber;
   final TextEditingController otpController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final DatabaseReference _database = FirebaseDatabase.instance.reference().child('Account');
 
-  OptScreen({required this.verificationId, required this.uid}); // Modify the constructor
+  OptScreen({required this.verificationId, required this.uid , required this.Fnumber}); // Modify the constructor
   void showLoadingDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -301,7 +302,7 @@ class OptScreen extends StatelessWidget {
                           ),
                           SizedBox(height: screenHeight * 0.001),
                           Text(
-                            '${AppLocalizations.of(context)!.enter_the_otp_sent_to}',
+                            '${AppLocalizations.of(context)!.enter_the_otp_sent_to} ${Fnumber}',
                             style: TextStyle(
                               fontSize: screenWidth * 0.04,
                               color: Colors.black,

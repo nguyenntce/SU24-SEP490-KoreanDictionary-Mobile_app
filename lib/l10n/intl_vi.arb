@@ -34,6 +34,7 @@
   "help": "Trợ Giúp",
   "howtotakeapicture": "Cách Chụp Ảnh",
   "setting": "Cài Đặt",
+  "you_have_turned_off_notifications": "Bạn đã tắt thông báo!",
   "frequentlyaskedquestion": "Câu Hỏi Thường Gặp",
   "feedback": "Gửi Đánh Giá",
   "information": "Thông Tin",
@@ -114,5 +115,11 @@
   "validmail": "Vui lòng nhập địa chỉ email hợp lệ!",
   "validphone": "Vui lòng nhập số điện thoai hợp lệ!",
   "back": "Quay lại",
-  "the_image_is_not_unknown_unrecognizable": "Hình ảnh không rõ, không thể nhận ra!!"
+  "the_image_is_not_unknown_unrecognizable": "Hình ảnh không rõ, không thể nhận ra!!",
+  "thank_for_your_feedback": "Cảm ơn phản hồi của bạn.",
+  "star_rating_for_app": "Đánh giá số sao cho ứng dụng",
+  "cancel": "Hủy bỏ",
+  "submit": "Ok",
+  "thank_you_for_rating": "Cảm ơn bạn đã đánh giá ",
+  "star": "sao"
 }

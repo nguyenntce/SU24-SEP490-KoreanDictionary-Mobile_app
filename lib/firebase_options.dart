@@ -65,6 +65,9 @@ class DefaultFirebaseOptions {
     projectId: 'su24-sep490-koreandictionary',
     databaseURL: 'https://su24-sep490-koreandictionary-default-rtdb.firebaseio.com',
     storageBucket: 'su24-sep490-koreandictionary.appspot.com',
+    androidClientId: '939199094656-83ml1ga50ldtlkecbjbuiq821ampnd68.apps.googleusercontent.com',
+    iosClientId: '939199094656-nub37qhpfatlerttf1pu5d0nvvk242qu.apps.googleusercontent.com',
     iosBundleId: 'com.example.myapp',
   );
+
 }

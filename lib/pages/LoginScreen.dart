@@ -165,7 +165,7 @@ class _LoginscreenState extends State<Loginscreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => OptScreen(verificationId: verificationId, uid: newId.toString()),
+                builder: (context) => OptScreen(verificationId: verificationId, uid: newId.toString(),Fnumber:fullPhoneNumber),
               ),
             );
           },
@@ -204,7 +204,7 @@ class _LoginscreenState extends State<Loginscreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => OptScreen(verificationId: verificationId, uid: existingUserId),
+                  builder: (context) => OptScreen(verificationId: verificationId, uid: existingUserId,Fnumber:fullPhoneNumber),
                 ),
               );
             },
@@ -216,6 +216,8 @@ class _LoginscreenState extends State<Loginscreen> {
       Fluttertoast.showToast(msg: "${AppLocalizations.of(context)!.pleaseenteravalidphonenumber}");
     }
   }
+
+
 
   void _saveSessionData(String userId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

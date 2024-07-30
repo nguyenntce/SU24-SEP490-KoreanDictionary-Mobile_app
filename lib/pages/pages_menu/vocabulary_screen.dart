@@ -7,7 +7,9 @@ import 'package:flutter_gen/gen_l10n/app_localization.dart';
 class VocabularyScreen extends StatefulWidget {
   final String? initialSearchQuery;
 
-  VocabularyScreen({this.initialSearchQuery});
+  final DatabaseReference? database;
+
+  VocabularyScreen({this.initialSearchQuery, this.database});
   @override
   _VocabularyScreenState createState() => _VocabularyScreenState();
 }

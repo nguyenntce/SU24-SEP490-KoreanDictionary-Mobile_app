@@ -1,6 +1,6 @@
 // instructions_screen.dart
 import 'package:flutter/material.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localization.dart';
 class InstructionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class InstructionsScreen extends StatelessWidget {
           },
         ),
         title: Text(
-          'Instructions',
+          '${AppLocalizations.of(context)!.instructions}',
           style: TextStyle(
             fontSize: titleFontSize * 1.5,
             fontWeight: FontWeight.bold,
@@ -78,7 +78,7 @@ class InstructionsScreen extends StatelessWidget {
                   Container(
                     alignment: Alignment.center, // Đảm bảo alignment này
                     child: Text(
-                      'Tips For Taking Pictures',
+                      AppLocalizations.of(context)!.tips_for_taking_picture,
                       style: TextStyle(
                         fontSize: titleFontSize * 1.2,
                         fontWeight: FontWeight.w900,
@@ -89,7 +89,7 @@ class InstructionsScreen extends StatelessWidget {
                   ),
                   SizedBox(height: screenHeight * 0.03),
                   Text(
-                    'Place your object in the center of frame, avoid dark or blury images',
+                    AppLocalizations.of(context)!.tips1,
                     style: TextStyle(
                       fontSize: titleFontSize * 0.8,
                       fontWeight: FontWeight.normal,
@@ -136,7 +136,7 @@ class InstructionsScreen extends StatelessWidget {
                   ),
                   SizedBox(height: screenHeight * 0.03),
                   Text(
-                    'If the object is too big for the frame, only take a picture of its fruits',
+                    AppLocalizations.of(context)!.tips2,
                     style: TextStyle(
                       fontSize: titleFontSize * 0.8,
                       fontWeight: FontWeight.normal,
@@ -183,7 +183,7 @@ class InstructionsScreen extends StatelessWidget {
                   ),
                   SizedBox(height: screenHeight * 0.03),
                   Text(
-                    'Do not bring your smart phone too close, just make sure that the fruits is clear and in the frame',
+                    AppLocalizations.of(context)!.tips3,
                     style: TextStyle(
                       fontSize: titleFontSize * 0.8,
                       fontWeight: FontWeight.normal,
@@ -230,7 +230,7 @@ class InstructionsScreen extends StatelessWidget {
                   ),
                   SizedBox(height: screenHeight * 0.03),
                   Text(
-                    'Only include one type of fruit',
+                    AppLocalizations.of(context)!.tips4,
                     style: TextStyle(
                       fontSize: titleFontSize * 0.8,
                       fontWeight: FontWeight.normal,

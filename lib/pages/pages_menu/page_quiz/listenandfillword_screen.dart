@@ -161,7 +161,7 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
 
   void _navigateToResultScreen() async  {
     DateTime created_date = DateTime.now();
-    String created_date_str = DateFormat('yyyy-MM-dd').format(created_date);
+    String created_date_str = DateFormat('dd-MM-yyyy').format(created_date);
     int endTime = DateTime.now().millisecondsSinceEpoch;
     int elapsedTime = (endTime - startTime) ~/ 1000; // Thời gian kết thúc
     await saveTest(
