@@ -34,7 +34,7 @@ class ResultPictureScreenState extends State<ResultPictureScreen> {
   Future<void> sendImageToServer({http.Client? client}) async {
     client ??= widget.client ?? http.Client();
     var request = http.MultipartRequest('POST',
-        Uri.parse('https://d55d5b2a-e20e-46ef-a1f3-aec0f317de0b-00-2wojbvrhlnbue.pike.replit.dev/predict'));
+        Uri.parse('http://192.168.2.23:8000/predict'));
     request.files.add(await http.MultipartFile.fromPath('image', widget.imagePath));
     print('Gọi được API ');
 
