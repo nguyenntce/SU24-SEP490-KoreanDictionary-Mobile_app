@@ -1,6 +1,8 @@
-# myapp
+# SU24-SEP490-KoreanDictionary-Mobile_app
+# Name App: KfuiTech
 
-A new Flutter project.
+
+## Technical Configuration
 
 ## Getting Started
 
