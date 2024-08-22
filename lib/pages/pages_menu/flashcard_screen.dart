@@ -35,7 +35,7 @@ class _FlashcardScreen extends State<FlashcardScreen> {
       List<Map<String, String>> tempList = [];
       if (values != null) {
         values.forEach((value) {
-          if (value != null) {
+          if (value != null && value['Status'] == 1) {
             tempList.add({
               'english': value['English'] ?? '',
               'korean': value['Korean'] ?? '',

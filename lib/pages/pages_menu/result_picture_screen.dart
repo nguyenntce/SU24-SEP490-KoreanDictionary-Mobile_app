@@ -34,7 +34,7 @@ class ResultPictureScreenState extends State<ResultPictureScreen> {
   Future<void> sendImageToServer({http.Client? client}) async {
     client ??= widget.client ?? http.Client();
     var request = http.MultipartRequest('POST',
-        Uri.parse('http://192.168.2.23:8000/predict'));
+        Uri.parse('http://192.168.2.19:8000/predict'));
     request.files.add(await http.MultipartFile.fromPath('image', widget.imagePath));
     print('Gọi được API ');
 
@@ -52,7 +52,7 @@ class ResultPictureScreenState extends State<ResultPictureScreen> {
           } else if (jsonIdDynamic is int) {
             jsonId = jsonIdDynamic;
           } else {
-            throw Exception("Unexpected type for jsonId: ${jsonIdDynamic.runtimeType}");
+            throw Exception("Unable to upload image. Please try again!");
           }
           targetId = jsonId + 1;
           print('Target ID: $targetId');
@@ -61,14 +61,14 @@ class ResultPictureScreenState extends State<ResultPictureScreen> {
       } else {
         setState(() {
           isLoading = false;
-          errorMessage = 'Failed to upload image. Status Code: ${response.statusCode}';
+          errorMessage = 'Unable to upload image. Please try again!';
         });
       }
     } catch (e) {
       print('Error sending image: $e');
       setState(() {
         isLoading = false;
-        errorMessage = 'An error occurred: $e';
+        errorMessage = 'Unable to upload image. Please try again!';
       });
     }
   }
@@ -78,14 +78,19 @@ class ResultPictureScreenState extends State<ResultPictureScreen> {
       Query query = _database.orderByChild('Id').equalTo(targetId);
       DataSnapshot snapshot = await query.get();
 
-      if (snapshot.exists) {
+      if (snapshot.exists ) {
 
         Map<dynamic, dynamic> values = snapshot.value as Map<dynamic, dynamic>;
         values.forEach((key, value) {
-          if (value != null && value['Id'] == targetId) {
+          if (value != null && value['Id'] == targetId && value['Status']==1) {
             setState(() {
               vocabularyData = Map<String, dynamic>.from(value);
               isLoading = false;
+            });
+          } else {
+            setState(() {
+              isLoading = false;
+              errorMessage = 'No matching item found, Please try again!';
             });
           }
         });
