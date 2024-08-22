@@ -6,6 +6,7 @@ import 'package:myapp/page_setting/aboutus_screen.dart';
 import 'package:myapp/page_setting/feedback_screen.dart';
 import 'package:myapp/page_setting/profile_screen.dart';
 import 'package:myapp/page_setting/language_screen.dart';
+import 'package:myapp/page_setting/rate_app_dialog.dart';
 import 'package:myapp/pages/home_screen.dart';
 import 'package:myapp/pages/index.dart'; // Import the language screen
 import 'package:myapp/page_setting/fag_screen.dart';
@@ -102,8 +103,16 @@ class _SettingScreenState extends State<SettingScreen> {
     if (notificationsEnabled == false) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('You have turned off notifications'),
+          content: Text('${AppLocalizations.of(context)!.you_have_turned_off_notifications}',
+            style: TextStyle(color: Colors.black),
+          ),
           duration: Duration(seconds: 1),
+          backgroundColor: Colors.greenAccent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+            side: BorderSide(color: Color(0xFF35FF3D), width: 2),
+          ),
         ),
       );
     }
@@ -568,10 +577,9 @@ class _SettingScreenState extends State<SettingScreen> {
                 SizedBox(height: screenHeight * 0.02),
                 GestureDetector(
                   onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => ProfileScreen(uid: _accountId, isGoogleSignIn: _currentUser!.providerData.any((userInfo) => userInfo.providerId == 'google.com')),
-                      ),
+                    showDialog(
+                      context: context,
+                      builder: (context) => RateAppDialog(),
                     );
                   },
                   child: Container(
@@ -717,7 +725,7 @@ class _SettingScreenState extends State<SettingScreen> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ProfileScreen(uid: _accountId, isGoogleSignIn: _currentUser!.providerData.any((userInfo) => userInfo.providerId == 'google.com'))),
+                    MaterialPageRoute(builder: (context) => CameraScreen()),
                   );
                 },
                 child: Image.asset(

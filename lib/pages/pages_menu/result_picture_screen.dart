@@ -8,13 +8,14 @@ import 'package:flutter_gen/gen_l10n/app_localization.dart';
 
 class ResultPictureScreen extends StatefulWidget {
   final String imagePath;
-  const ResultPictureScreen({Key? key, required this.imagePath}) : super(key: key);
+  final http.Client? client;
+  const ResultPictureScreen({Key? key, required this.imagePath, this.client}) : super(key: key);
 
   @override
-  _ResultPictureScreenState createState() => _ResultPictureScreenState();
+  ResultPictureScreenState createState() => ResultPictureScreenState();
 }
 
-class _ResultPictureScreenState extends State<ResultPictureScreen> {
+class ResultPictureScreenState extends State<ResultPictureScreen> {
   final DatabaseReference _database = FirebaseDatabase.instance.reference().child('Vocabulary');
   int? targetId;
   Map<String, dynamic>? vocabularyData;
@@ -30,37 +31,44 @@ class _ResultPictureScreenState extends State<ResultPictureScreen> {
       print(url);
     }
   }
-  Future<void> _sendImageToServer() async {
+  Future<void> sendImageToServer({http.Client? client}) async {
+    client ??= widget.client ?? http.Client();
     var request = http.MultipartRequest('POST',
-        Uri.parse('https://d55d5b2a-e20e-46ef-a1f3-aec0f317de0b-00-2wojbvrhlnbue.pike.replit.dev/predict'));
+        Uri.parse('http://192.168.2.23:8000/predict'));
     request.files.add(await http.MultipartFile.fromPath('image', widget.imagePath));
-    print('goi dc api ');
+    print('Gọi được API ');
 
-    var response = await request.send();
-    var responseData = await response.stream.bytesToString();
-    print(response.statusCode);
-    if (response.statusCode == 200) {
-      var jsonResponse = json.decode(responseData) as List;
-      if (jsonResponse.isNotEmpty) {
-        // Kiểm tra và chuyển đổi kiểu dữ liệu cho jsonId
-        dynamic jsonIdDynamic = jsonResponse[0]['id'];
-        int jsonId;
-        if (jsonIdDynamic is double) {
-          jsonId = jsonIdDynamic.toInt();
-        } else if (jsonIdDynamic is int) {
-          jsonId = jsonIdDynamic;
-        } else {
-          throw Exception("Unexpected type for jsonId: ${jsonIdDynamic.runtimeType}");
+    try {
+      var response = await client.send(request);
+      var responseData = await response.stream.bytesToString();
+      print('Status Code: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        var jsonResponse = json.decode(responseData) as List;
+        if (jsonResponse.isNotEmpty) {
+          dynamic jsonIdDynamic = jsonResponse[0]['id'];
+          int jsonId;
+          if (jsonIdDynamic is double) {
+            jsonId = jsonIdDynamic.toInt();
+          } else if (jsonIdDynamic is int) {
+            jsonId = jsonIdDynamic;
+          } else {
+            throw Exception("Unexpected type for jsonId: ${jsonIdDynamic.runtimeType}");
+          }
+          targetId = jsonId + 1;
+          print('Target ID: $targetId');
+          _fetchVocabulary();
         }
-
-        targetId = jsonId + 1;
-        print('Target ID: $targetId'); // In ra targetId để kiểm tra
-        _fetchVocabulary();
+      } else {
+        setState(() {
+          isLoading = false;
+          errorMessage = 'Failed to upload image. Status Code: ${response.statusCode}';
+        });
       }
-    } else {
+    } catch (e) {
+      print('Error sending image: $e');
       setState(() {
         isLoading = false;
-        errorMessage = 'Failed to upload image. Status Code: ${response.statusCode}';
+        errorMessage = 'An error occurred: $e';
       });
     }
   }
@@ -98,7 +106,7 @@ class _ResultPictureScreenState extends State<ResultPictureScreen> {
   @override
   void initState() {
     super.initState();
-    _sendImageToServer();
+    sendImageToServer();
   }
 
   @override
@@ -217,44 +225,44 @@ class _ResultPictureScreenState extends State<ResultPictureScreen> {
                     ),
                     SizedBox(height: screenHeight * 0.02),
                     if(AppLocalizations.of(context)!.localeName != 'ko')
-                    Row(
-                      children: [
-                        Image.asset(
-                          'assets/korean_flag.png',
-                          width: screenWidth * 0.2,
-                        ),
-                        Container(
-                          width: screenWidth * 0.6,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    '${vocabularyData!['Korean']}',
-                                    style: TextStyle(
-                                      fontSize: titleFontSize * 0.9,
-                                      fontWeight: FontWeight.bold,
+                      Row(
+                        children: [
+                          Image.asset(
+                            'assets/korean_flag.png',
+                            width: screenWidth * 0.2,
+                          ),
+                          Container(
+                            width: screenWidth * 0.6,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      '${vocabularyData!['Korean']}',
+                                      style: TextStyle(
+                                        fontSize: titleFontSize * 0.9,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              IconButton(
-                                alignment: Alignment.centerRight,
-                                icon: Icon(
-                                  Icons.volume_up,
-                                  color: Colors.black,
-                                  size: screenWidth * 0.1,
+                                IconButton(
+                                  alignment: Alignment.centerRight,
+                                  icon: Icon(
+                                    Icons.volume_up,
+                                    color: Colors.black,
+                                    size: screenWidth * 0.1,
+                                  ),
+                                  onPressed: () {
+                                    _playAudio(vocabularyData!['Voice_KR']);
+                                  },
                                 ),
-                                onPressed: () {
-                                  _playAudio(vocabularyData!['Voice_KR']);
-                                },
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
                   ],
                 ),
               ],
@@ -271,14 +279,14 @@ class _ResultPictureScreenState extends State<ResultPictureScreen> {
             ),
             SizedBox(height: screenHeight * 0.02),
             if(AppLocalizations.of(context)!.localeName != 'ko')
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30.0),
-              child: Text(
-                '${vocabularyData!['Example_KR']}',
-                style: TextStyle(fontSize: titleFontSize * 1),
-                textAlign: TextAlign.justify,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                child: Text(
+                  '${vocabularyData!['Example_KR']}',
+                  style: TextStyle(fontSize: titleFontSize * 1),
+                  textAlign: TextAlign.justify,
+                ),
               ),
-            ),
             SizedBox(height: screenHeight * 0.02),
             Text(
               '${AppLocalizations.of(context)!.imageof} ${AppLocalizations.of(context)!.localeName == 'en' ? vocabularyData!['English'] :

@@ -20,6 +20,8 @@
   "logintoyouraccount": "Đăng nhập vào tài khoản ",
   "wewillsendyouronetimepassword": "Chúng tôi sẽ gửi mã xác thực cho bạn",
   "orsigninwith": "Hoặc Đăng nhập bằng",
+  "confirm_otp": "Xác nhận OTP",
+  "enter_the_otp_sent_to": "Nhập OTP được gửi tới - ",
   "unknownerror": "Lỗi không xác định, vui lòng thử lại sau, cảm ơn!",
   "camera": "Máy Ảnh",
   "vocabulary": "Từ Vựng",
@@ -32,6 +34,7 @@
   "help": "Trợ Giúp",
   "howtotakeapicture": "Cách Chụp Ảnh",
   "setting": "Cài Đặt",
+  "you_have_turned_off_notifications": "Bạn đã tắt thông báo!",
   "frequentlyaskedquestion": "Câu Hỏi Thường Gặp",
   "feedback": "Gửi Đánh Giá",
   "information": "Thông Tin",
@@ -110,5 +113,13 @@
   "saveprofilesuccessfully": "Lưu thành công",
   "saveprofilefail": "Lưu thâ bại!",
   "validmail": "Vui lòng nhập địa chỉ email hợp lệ!",
-  "validphone": "Vui lòng nhập số điện thoai hợp lệ!"
+  "validphone": "Vui lòng nhập số điện thoai hợp lệ!",
+  "back": "Quay lại",
+  "the_image_is_not_unknown_unrecognizable": "Hình ảnh không rõ, không thể nhận ra!!",
+  "thank_for_your_feedback": "Cảm ơn phản hồi của bạn.",
+  "star_rating_for_app": "Đánh giá số sao cho ứng dụng",
+  "cancel": "Hủy bỏ",
+  "submit": "Ok",
+  "thank_you_for_rating": "Cảm ơn bạn đã đánh giá ",
+  "star": "sao"
 }

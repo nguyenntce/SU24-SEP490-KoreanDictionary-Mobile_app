@@ -4,7 +4,6 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:intl/intl.dart';
 import 'package:myapp/models/vocabulary.dart';
 import 'package:myapp/models/vocabulary_service.dart'; // Import file chứa hàm getRandomVocabularies
-import 'package:myapp/pages/pages_menu/page_quiz/detailresult_quiz_screen.dart';
 import 'package:myapp/pages/pages_menu/page_quiz/result_quiz_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localization.dart';
 import 'package:myapp/service/firebase_service.dart';
@@ -34,6 +33,7 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
   String testId = '';
   int accountId = 0;
   int startTime = 0;
+  bool _isAnswerSubmitted = false;
 
   @override
   void initState() {
@@ -46,10 +46,12 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
     _initUserId();
     testId = generateUniqueId();
   }
+
   Future<void> _initUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     accountId = prefs.getInt('UID') ?? 0;
   }
+
   Future<void> _loadVocabularies() async {
     int numberOfQuestions = widget.durationInSeconds ~/ _timePerQuestion;
     List<Vocabulary> vocabularies = await getRandomVocabularies(numberOfQuestions);
@@ -110,7 +112,7 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
-  void _nextQuestion()  async{
+  void _nextQuestion() async {
     if (_selectedAnswer != -1) {
       Vocabulary currentVocabulary = _vocabularies[_currentQuestionIndex];
       Vocabulary selectedVocabulary = _currentOptions[_selectedAnswer];
@@ -119,20 +121,20 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
       String questionId = generateUniqueId();
 
       await saveQuestion(
-      questionId,
-      testId,
-      currentVocabulary.id,
+        questionId,
+        testId,
+        currentVocabulary.id,
       );
 
       await saveHistory(
-      historyId,
-      questionId,
-      accountId,
-      selectedVocabulary.korean,
-      currentVocabulary.image == selectedVocabulary.image,
+        historyId,
+        questionId,
+        accountId,
+        selectedVocabulary.korean,
+        currentVocabulary.image == selectedVocabulary.image,
       );
       _results.add({
-        'vietnamese':currentVocabulary.vietnamese,
+        'vietnamese': currentVocabulary.vietnamese,
         'english': currentVocabulary.english,
         'korean': currentVocabulary.korean,
         'image': currentVocabulary.image,
@@ -140,8 +142,8 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
         'answerEN': selectedVocabulary.english,
         'answerVN': selectedVocabulary.vietnamese,
         'answerKR': selectedVocabulary.korean,
-        'voiceVN':currentVocabulary.voiceVn,
-        'voiceKo':currentVocabulary.voiceKr,
+        'voiceVN': currentVocabulary.voiceVn,
+        'voiceKo': currentVocabulary.voiceKr,
         'voiceEn': currentVocabulary.voiceEn,
         'isCorrect': currentVocabulary.image == selectedVocabulary.image,
       });
@@ -149,6 +151,7 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
         _currentQuestionIndex++;
         _selectedAnswer = -1;
         _showCorrectAnswer = false;
+        _isAnswerSubmitted = false;
         if (_currentQuestionIndex < _vocabularies.length) {
           _setCurrentOptions();
         } else {
@@ -159,9 +162,9 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
     }
   }
 
-  void _navigateToResultScreen() async  {
+  void _navigateToResultScreen() async {
     DateTime created_date = DateTime.now();
-    String created_date_str = DateFormat('yyyy-MM-dd').format(created_date);
+    String created_date_str = DateFormat('dd-MM-yyyy').format(created_date);
     int endTime = DateTime.now().millisecondsSinceEpoch;
     int elapsedTime = (endTime - startTime) ~/ 1000; // Thời gian kết thúc
     await saveTest(
@@ -170,7 +173,7 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
       0,
       elapsedTime,
       widget.durationInSeconds,
-      created_date_str
+      created_date_str,
     );
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => ResultQuizScreen(results: _results)),
@@ -180,6 +183,17 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
   void _playAudio(String url) async {
     await _audioPlayer.stop(); // Stop any currently playing audio
     await _audioPlayer.play(UrlSource(url)); // Play the new audio
+  }
+
+  void _onOptionSelected(int index) {
+    setState(() {
+      _selectedAnswer = index;
+      _showCorrectAnswer = true;
+      _isAnswerSubmitted = true;
+    });
+    Future.delayed(Duration(seconds: 1), () {
+      _nextQuestion();
+    });
   }
 
   @override
@@ -316,7 +330,7 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
                         ), // Màu sắc của biểu tượng
                       ),
                       onPressed: () {
-                        String audioUrl=currentVocabulary.voiceKr;
+                        String audioUrl = currentVocabulary.voiceKr;
                         _playAudio(audioUrl);
                       },
                     ),
@@ -350,20 +364,22 @@ class _ListenandfillwordScreenState extends State<ListenandfillwordScreen> {
                       children: List.generate(2, (colIndex) {
                         int answerIndex = rowIndex * 2 + colIndex;
                         return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _selectedAnswer = answerIndex;
-                            });
-                            _nextQuestion();
-                          },
+                          onTap: () => _onOptionSelected(answerIndex),
                           child: Container(
                             width: screenWidth * 0.4,
                             height: screenHeight * 0.2,
                             decoration: BoxDecoration(
                               border: Border.all(
-                                color: _selectedAnswer == answerIndex
+                                color: _isAnswerSubmitted
+                                    ? (_currentOptions[answerIndex].image ==
+                                    currentVocabulary.image
+                                    ? Colors.green
+                                    : (_selectedAnswer == answerIndex
+                                    ? Colors.red
+                                    : Colors.transparent))
+                                    : (_selectedAnswer == answerIndex
                                     ? Colors.blue
-                                    : Colors.transparent,
+                                    : Colors.transparent),
                                 width: 2,
                               ),
                             ),
